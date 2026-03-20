@@ -1,0 +1,38 @@
+.statusDisplay {
+  padding: 12px;
+  background-color: #fff;
+  border-radius: 4px;
+  border-left: 4px solid #4a7c59;
+  margin-bottom: 16px;
+}
+
+.statusText {
+  margin: 0 0 4px;
+  color: #333;
+  font-size: 14px;
+}
+
+.message {
+  margin: 4px 0 0;
+  color: #555;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+.info {
+  font-size: 13px;
+  color: #555;
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.info h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.info ul {
+  margin: 0;
+  padding-left: 20px;
+}
