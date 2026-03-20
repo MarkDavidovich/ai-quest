@@ -1,7 +1,8 @@
 import style from "./GamePage.module.css";
+import Game from "../../components/Game/Game";
 
 const GamePage = () => {
-  return <div>GamePage</div>;
+  return <Game />;
 };
 
 export default GamePage;
