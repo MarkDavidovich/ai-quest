@@ -1,0 +1,123 @@
+.page {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background:
+    radial-gradient(circle at top left, rgba(170, 59, 255, 0.16), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(86, 110, 255, 0.18), transparent 28%),
+    linear-gradient(135deg, #f7f4ff 0%, #ffffff 50%, #eef3ff 100%);
+}
+
+.layout {
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 440px);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.heroPanel {
+  padding: 48px;
+  border-radius: 32px;
+  background:
+    linear-gradient(160deg, rgba(12, 10, 32, 0.96), rgba(48, 30, 97, 0.9)),
+    #120f1f;
+  color: #f6f1ff;
+  box-shadow: 0 28px 80px rgba(48, 30, 97, 0.26);
+}
+
+.heroBadge {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.heroTitle {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2.5rem, 4vw, 4.25rem);
+  line-height: 0.95;
+}
+
+.heroText {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(246, 241, 255, 0.82);
+}
+
+.featureList {
+  margin-top: auto;
+}
+
+.featureItem {
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.featureItem p {
+  color: rgba(246, 241, 255, 0.82);
+}
+
+.formPanel {
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(132, 94, 247, 0.12);
+}
+
+.modeSwitch {
+  padding: 6px;
+  border-radius: 999px;
+  background: #f4f1ff;
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.formDescription {
+  color: #625b71;
+  line-height: 1.6;
+}
+
+.switchText {
+  color: #625b71;
+}
+
+@media (max-width: 960px) {
+  .page {
+    padding: 20px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .heroPanel,
+  .formPanel {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 12px;
+  }
+
+  .heroPanel,
+  .formPanel {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .heroTitle {
+    font-size: 2.2rem;
+  }
+}

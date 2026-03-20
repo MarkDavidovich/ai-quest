@@ -1,7 +1,8 @@
 import "./App.css";
+import AuthPage from "./pages/AuthPage/AuthPage";
 
 function App() {
-  return <><div>HI ✌🏻</div></>;
+  return <AuthPage />;
 }
 
 export default App;
