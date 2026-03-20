@@ -1,0 +1,20 @@
+.player {
+  position: absolute;
+  width: var(--unit-size);
+  height: var(--unit-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  z-index: 100;
+}
+
+.moving {
+  transition: none;
+}
+
+.static {
+  transition:
+    left 0.15s,
+    top 0.15s;
+}
