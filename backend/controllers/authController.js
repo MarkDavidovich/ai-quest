@@ -38,8 +38,8 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Sequelize query to find user
-    const foundUser = await User.findOne({ where: { email } });
+    // Custom SQL query to find user
+    const foundUser = await User.findByEmail(email);
     if (!foundUser) return res.status(404).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, foundUser.password); // compare password
