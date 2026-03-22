@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { user: User } = require("../db/models");
+const User = require("../models/userModel.js");
 require("dotenv").config();
 
 const register = async (req, res) => {
@@ -12,12 +12,12 @@ const register = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10); // hash password
-    const createdUser = await User.create({
+    const createdUser = await User.create(
       email,
-      password: hashedPassword,
+      hashedPassword,
       firstName,
-      lastName,
-    }); // create user
+      lastName
+    ); // create user
 
     res.status(201).json({
       success: true,
