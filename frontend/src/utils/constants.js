@@ -13,7 +13,7 @@ export const WORLD_DATA = {
       Array(GRID_WIDTH)
         .fill(null)
         .map((_, col) => {
-          if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return 1; // water
+          if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return "water"; // water
           if (row >= 3 && row <= 4 && col >= 30 && col <= 35) return 2; // stone
           return 0; // grass
         }),
@@ -37,9 +37,9 @@ export const WORLD_DATA = {
             (row === 18 && col === 14) ||
             (row === 20 && col === 35)
           )
-            return 1;
-          if ((row === 2 && col === 20) || (row === 11 && col === 15) || (row === 18 && col === 5)) return 2;
-          if ((row === 9 && col === 10) || (row === 15 && col === 20) || (row === 7 && col === 25) || (row === 21 && col === 10)) return 3;
+            return "tree";
+          if ((row === 2 && col === 20) || (row === 11 && col === 15) || (row === 18 && col === 5)) return "house";
+          if ((row === 9 && col === 10) || (row === 15 && col === 20) || (row === 7 && col === 25) || (row === 21 && col === 10)) return "rock";
           return 0;
         }),
     ),

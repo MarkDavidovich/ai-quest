@@ -13,15 +13,15 @@ const Tile = ({ type, x, y, cameraPos, category }) => {
   };
 
   if (category === "floor") {
-    const bgColor = type === 0 ? "#4a7c59" : type === 1 ? "#2a5a7f" : "#7a7a7a";
+    const bgColor = type === 0 ? "#4a7c59" : type === "water" ? "#2a5a7f" : "#7a7a7a";
     return <div className={`${styles.tile} ${styles.floor}`} style={{ ...style, backgroundColor: bgColor }} />;
   }
 
   let content = null;
   if (category === "object") {
-    if (type === 1) content = "🌲";
-    else if (type === 2) content = "🏠";
-    else if (type === 3) content = "🪨";
+    if (type === "tree") content = "🌲";
+    else if (type === "house") content = "🏠";
+    else if (type === "rock") content = "🪨";
   } else if (category === "interactive") {
     if (type === 1) content = "📦";
     else if (type === 2) content = "🧙‍♀️";
