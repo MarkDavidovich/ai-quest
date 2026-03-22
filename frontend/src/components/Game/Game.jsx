@@ -14,6 +14,8 @@ export default function AdventureGame() {
   const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
   const [isMoving, setIsMoving] = useState(false);
+  const [facingDir, setFacingDir] = useState({ x: 1, y: 0 });
+
   const inputBuffer = useRef(null);
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
@@ -21,6 +23,7 @@ export default function AdventureGame() {
   // ============================================
   // SMOOTH MOVEMENT ANIMATION LOOP
   // ============================================
+
   useEffect(() => {
     let animationId;
 
@@ -58,7 +61,7 @@ export default function AdventureGame() {
 
     animationId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationId);
-  }, [isMoving, playerGridPos]);
+  }, [isMoving, playerGridPos, facingDir]);
 
   // ============================================
   // COLLISION DETECTION
@@ -72,9 +75,9 @@ export default function AdventureGame() {
     return true;
   };
 
-  // Check what interactive item is at position
-  const getInteractiveAt = (x, y) => {
-    return WORLD_DATA.interactive[y]?.[x] || 0;
+  // Check what tile is at position x, y
+  const getTileAt = (x, y, tileType = "objects") => {
+    return WORLD_DATA[tileType][y]?.[x] || 0;
   };
 
   // ============================================
@@ -101,6 +104,9 @@ export default function AdventureGame() {
   // ============================================
 
   const handleMove = (dx, dy) => {
+    // Set player facing towards their move direction
+    setFacingDir({ x: dx, y: dy });
+
     // If already moving, buffer the input
     if (isMoving) {
       inputBuffer.current = { x: dx, y: dy };
@@ -122,7 +128,7 @@ export default function AdventureGame() {
       moveStartTime.current = Date.now();
 
       // Check what we're standing on
-      const interactive = getInteractiveAt(newX, newY);
+      const interactive = getTileAt(newX, newY, "interactive");
       if (interactive === 1) {
         setMessage("🎁 You found a treasure chest!");
       } else if (interactive === 2) {
@@ -134,6 +140,23 @@ export default function AdventureGame() {
       // Move is blocked
       setMessage("🚫 Blocked by an obstacle!");
       setTimeout(() => setMessage(""), 1000);
+    }
+  };
+
+  // ============================================
+  // ACTION HANDLER
+  // ============================================
+
+  const handleAction = () => {
+    const targetX = playerGridPos.x + facingDir.x;
+    const targetY = playerGridPos.y + facingDir.y;
+
+    const objectAtTarget = getTileAt(targetX, targetY);
+
+    if (objectAtTarget === "npc") {
+      setMessage("NPC: Hello traveler! stay safe.");
+    } else if (objectAtTarget !== "npc" && objectAtTarget !== 0) {
+      setMessage(`Can't go this way, it's blocked by a ${objectAtTarget}!`);
     }
   };
 
@@ -159,16 +182,20 @@ export default function AdventureGame() {
         handleMove(1, 0);
         e.preventDefault();
       }
+      if (e.key === "Enter" || "Spacebar") {
+        handleAction();
+        e.preventDefault();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMoving, playerGridPos, playerDisplayPos]);
+  }, [isMoving, playerGridPos, playerDisplayPos, facingDir]);
 
   return (
     <div className={styles.container}>
       <GameUI playerGridPos={playerGridPos} playerDisplayPos={playerDisplayPos} message={message} gridWidth={GRID_WIDTH} gridHeight={GRID_HEIGHT} />
-      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={cameraPos} isMoving={isMoving} />
+      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={cameraPos} isMoving={isMoving} facingDir={facingDir} />
     </div>
   );
 }

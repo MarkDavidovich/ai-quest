@@ -21,10 +21,9 @@ const Tile = ({ type, x, y, cameraPos, category }) => {
   if (category === "object") {
     if (type === "tree") content = "🌲";
     else if (type === "house") content = "🏠";
-    else if (type === "rock") content = "🪨";
+    else if (type === "npc") content = "💃";
   } else if (category === "interactive") {
     if (type === 1) content = "📦";
-    else if (type === 2) content = "🧙‍♀️";
   }
 
   if (!content) return null;
