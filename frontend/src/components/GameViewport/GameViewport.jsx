@@ -4,7 +4,7 @@ import Tile from "../Tile/Tile";
 import Player from "../Player/Player";
 import { UNIT_SIZE, CAMERA_WIDTH, CAMERA_HEIGHT, GRID_WIDTH, GRID_HEIGHT, WORLD_DATA } from "../../utils/constants";
 
-const GameViewport = ({ playerPos, cameraPos, isMoving }) => {
+const GameViewport = ({ playerDisplayPos, cameraPos, isMoving }) => {
   const tiles = [];
 
   // Render floor tiles (only visible ones)
@@ -48,7 +48,8 @@ const GameViewport = ({ playerPos, cameraPos, isMoving }) => {
       }}
     >
       {tiles}
-      <Player x={playerPos.x} y={playerPos.y} cameraPos={cameraPos} isMoving={isMoving} />
+      {/* Pass playerDisplayPos (smooth animation) for rendering */}
+      <Player x={playerDisplayPos.x} y={playerDisplayPos.y} cameraPos={cameraPos} isMoving={isMoving} />
     </div>
   );
 };

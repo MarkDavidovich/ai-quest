@@ -3,6 +3,7 @@ export const GRID_WIDTH = 40;
 export const GRID_HEIGHT = 24;
 export const CAMERA_WIDTH = 20;
 export const CAMERA_HEIGHT = 12;
+export const MOVE_DURATION = 150; // milliseconds for smooth movement animation
 
 //currently the map is constant
 

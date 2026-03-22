@@ -1,16 +1,64 @@
 import { useState, useEffect, useRef } from "react";
 import GameViewport from "../GameViewport/GameViewport";
 import GameUI from "../GameUI/GameUI";
-import { GRID_WIDTH, GRID_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT, WORLD_DATA } from "../../utils/constants";
+import { GRID_WIDTH, GRID_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT, WORLD_DATA, MOVE_DURATION } from "../../utils/constants";
 import styles from "./Game.module.css";
 
 export default function AdventureGame() {
-  // Game state
-  const [playerPos, setPlayerPos] = useState({ x: 5, y: 5 });
+  // SMOOTH MOVEMENT: Two position systems
+  // playerGridPos = actual game position (for collision, logic)
+  // playerDisplayPos = rendered position (smooth animation)
+  const [playerGridPos, setPlayerGridPos] = useState({ x: 5, y: 5 });
+  const [playerDisplayPos, setPlayerDisplayPos] = useState({ x: 5, y: 5 });
+
   const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
   const [isMoving, setIsMoving] = useState(false);
   const inputBuffer = useRef(null);
+  const moveStartTime = useRef(0);
+  const prevDisplayPos = useRef({ x: 5, y: 5 });
+
+  // ============================================
+  // SMOOTH MOVEMENT ANIMATION LOOP
+  // ============================================
+  useEffect(() => {
+    let animationId;
+
+    const animate = () => {
+      if (isMoving) {
+        // Calculate animation progress (0 to 1)
+        const elapsed = Date.now() - moveStartTime.current;
+        const progress = Math.min(elapsed / MOVE_DURATION, 1);
+
+        // Apply easing function (ease-out cubic)
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+        // Interpolate between old and new position
+        const newX = prevDisplayPos.current.x + (playerGridPos.x - prevDisplayPos.current.x) * easeProgress;
+        const newY = prevDisplayPos.current.y + (playerGridPos.y - prevDisplayPos.current.y) * easeProgress;
+
+        setPlayerDisplayPos({ x: newX, y: newY });
+
+        // Animation finished?
+        if (progress >= 1) {
+          setPlayerDisplayPos(playerGridPos);
+          setIsMoving(false);
+
+          // Process buffered input
+          if (inputBuffer.current) {
+            const buf = inputBuffer.current;
+            inputBuffer.current = null;
+            handleMove(buf.x, buf.y);
+          }
+        }
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [isMoving, playerGridPos]);
 
   // ============================================
   // COLLISION DETECTION
@@ -30,23 +78,23 @@ export default function AdventureGame() {
   };
 
   // ============================================
-  // CAMERA SYSTEM
+  // CAMERA SYSTEM - FOLLOWS GRID POSITION
   // ============================================
 
   useEffect(() => {
-    // Center camera on player
+    // Center camera on player GRID POSITION (not display)
     const cameraCenterX = CAMERA_WIDTH / 2;
     const cameraCenterY = CAMERA_HEIGHT / 2;
 
-    let newCamX = playerPos.x - cameraCenterX;
-    let newCamY = playerPos.y - cameraCenterY;
+    let newCamX = playerGridPos.x - cameraCenterX;
+    let newCamY = playerGridPos.y - cameraCenterY;
 
     // Clamp to world bounds
     newCamX = Math.max(0, Math.min(newCamX, GRID_WIDTH - CAMERA_WIDTH));
     newCamY = Math.max(0, Math.min(newCamY, GRID_HEIGHT - CAMERA_HEIGHT));
 
     setCameraPos({ x: newCamX, y: newCamY });
-  }, [playerPos]);
+  }, [playerGridPos]); // Depend on GRID position, not display
 
   // ============================================
   // MOVEMENT HANDLER
@@ -59,26 +107,19 @@ export default function AdventureGame() {
       return;
     }
 
-    const newX = playerPos.x + dx;
-    const newY = playerPos.y + dy;
+    const newX = playerGridPos.x + dx;
+    const newY = playerGridPos.y + dy;
 
     // Test if we can move (proposal system)
     if (canMoveTo(newX, newY)) {
       // Move is valid
-      setPlayerPos({ x: newX, y: newY });
+      // SMOOTH MOVEMENT: Store previous display position
+      prevDisplayPos.current = playerDisplayPos;
+
+      // Update GRID position (instant)
+      setPlayerGridPos({ x: newX, y: newY });
       setIsMoving(true);
-
-      // Animation duration
-      setTimeout(() => {
-        setIsMoving(false);
-
-        // Process buffered input
-        if (inputBuffer.current) {
-          const buf = inputBuffer.current;
-          inputBuffer.current = null;
-          handleMove(buf.x, buf.y);
-        }
-      }, 150);
+      moveStartTime.current = Date.now();
 
       // Check what we're standing on
       const interactive = getInteractiveAt(newX, newY);
@@ -122,12 +163,12 @@ export default function AdventureGame() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMoving, playerPos]);
+  }, [isMoving, playerGridPos, playerDisplayPos]);
 
   return (
     <div className={styles.container}>
-      <GameUI playerPos={playerPos} message={message} gridWidth={GRID_WIDTH} gridHeight={GRID_HEIGHT} />
-      <GameViewport playerPos={playerPos} cameraPos={cameraPos} isMoving={isMoving} />
+      <GameUI playerGridPos={playerGridPos} playerDisplayPos={playerDisplayPos} message={message} gridWidth={GRID_WIDTH} gridHeight={GRID_HEIGHT} />
+      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={cameraPos} isMoving={isMoving} />
     </div>
   );
 }
