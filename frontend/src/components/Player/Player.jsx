@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Player.module.css";
+import style from "./Player.module.css";
 import { UNIT_SIZE } from "../../utils/constants";
 
 const Player = ({ x, y, cameraPos, facingDir }) => {
@@ -20,7 +20,7 @@ const Player = ({ x, y, cameraPos, facingDir }) => {
 
   return (
     <div
-      className={styles.player}
+      className={style.player}
       style={{
         left: playerScreenX,
         top: playerScreenY,
