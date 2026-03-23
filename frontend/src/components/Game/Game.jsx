@@ -12,6 +12,8 @@ export default function AdventureGame() {
   const [playerDisplayPos, setPlayerDisplayPos] = useState({ x: 5, y: 5 });
 
   const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
+  const [displayCameraPos, setDisplayCameraPos] = useState({ x: 0, y: 0 });
+
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
   const [isMoving, setIsMoving] = useState(false);
   const [facingDir, setFacingDir] = useState({ x: 1, y: 0 });
@@ -99,49 +101,59 @@ export default function AdventureGame() {
     setCameraPos({ x: newCamX, y: newCamY });
   }, [playerGridPos]); // Depend on GRID position, not display
 
+  // smooth camera
+  useEffect(() => {
+    let animationId;
+    const cameraSpeed = 0.1; // Adjust between 0.05 (slower) to 0.2 (faster)
+
+    const animateCamera = () => {
+      setDisplayCameraPos((prev) => ({
+        x: prev.x + (cameraPos.x - prev.x) * cameraSpeed,
+        y: prev.y + (cameraPos.y - prev.y) * cameraSpeed,
+      }));
+
+      animationId = requestAnimationFrame(animateCamera);
+    };
+
+    animationId = requestAnimationFrame(animateCamera);
+    return () => cancelAnimationFrame(animationId);
+  }, [cameraPos]);
+
   // ============================================
   // MOVEMENT HANDLER
   // ============================================
 
   const handleMove = (dx, dy) => {
-    // Set player facing towards their move direction
-    if (dx !== 0 || dy !== 0) {
-      setFacingDir({ x: dx, y: dy });
-    }
+    // Update facing direction
+    setFacingDir({ x: dx, y: dy });
 
-    // If already moving, buffer the input
-    if (isMoving) {
-      inputBuffer.current = { x: dx, y: dy };
-      return;
-    }
+    // Don't move if already moving (COOLDOWN)
+    if (isMoving) return;
 
     const newX = playerGridPos.x + dx;
     const newY = playerGridPos.y + dy;
 
-    // Test if we can move (proposal system)
-    if (canMoveTo(newX, newY)) {
-      // Move is valid
-      // SMOOTH MOVEMENT: Store previous display position
-      prevDisplayPos.current = playerDisplayPos;
-
-      // Update GRID position (instant)
-      setPlayerGridPos({ x: newX, y: newY });
-      setIsMoving(true);
-      moveStartTime.current = Date.now();
-
-      // Check what we're standing on
-      const interactive = getTileAt(newX, newY, "interactive");
-      if (interactive === 1) {
-        setMessage("🎁 You found a treasure chest!");
-      } else if (interactive === 2) {
-        setMessage("🧙 You met a wanderer!");
-      } else {
-        setMessage("");
-      }
-    } else {
-      // Move is blocked
+    // Check collision
+    if (!canMoveTo(newX, newY)) {
       setMessage("🚫 Blocked by an obstacle!");
       setTimeout(() => setMessage(""), 1000);
+      return;
+    }
+
+    // Move is valid
+    prevDisplayPos.current = playerDisplayPos;
+    setPlayerGridPos({ x: newX, y: newY });
+    setIsMoving(true);
+    moveStartTime.current = Date.now();
+
+    // Check for interactive tiles
+    const interactive = getTileAt(newX, newY, "interactive");
+    if (interactive === 1) {
+      setMessage("🎁 You found a treasure chest!");
+    } else if (interactive === 2) {
+      setMessage("🧙 You met a wanderer!");
+    } else {
+      setMessage("");
     }
   };
 
@@ -204,7 +216,7 @@ export default function AdventureGame() {
         gridHeight={GRID_HEIGHT}
         facingDir={facingDir}
       />
-      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={cameraPos} isMoving={isMoving} facingDir={facingDir} />
+      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} isMoving={isMoving} facingDir={facingDir} />
     </div>
   );
 }
