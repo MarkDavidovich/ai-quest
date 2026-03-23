@@ -1,6 +1,6 @@
 import style from "./PlayerCombatSprite.module.css";
 
 const PlayerCombatSprite = () => {
-  return <div>🙎‍♂️</div>;
+  return <div className={style.player}>🧙‍♂️</div>;
 };
 export default PlayerCombatSprite;

@@ -8,3 +8,21 @@
   overflow: hidden;
   margin-bottom: 16px;
 }
+
+.border {
+  padding-top: 40px;
+  padding-inline: 200px;
+}
+
+.entity {
+  display: flex;
+  align-items: center;
+}
+
+.entity:first-of-type {
+  justify-self: end;
+}
+
+.entity:last-of-type {
+  justify-self: start;
+}

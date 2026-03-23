@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./GameViewport.module.css";
+import style from "./GameViewport.module.css";
 import Tile from "../Tile/Tile";
 import Player from "../Player/Player";
 import { UNIT_SIZE, CAMERA_WIDTH, CAMERA_HEIGHT, GRID_WIDTH, GRID_HEIGHT, WORLD_DATA } from "../../utils/constants";
@@ -41,7 +41,7 @@ const GameViewport = ({ playerDisplayPos, cameraPos, facingDir }) => {
 
   return (
     <div
-      className={styles.viewport}
+      className={style.viewport}
       style={{
         "--viewport-width": `${CAMERA_WIDTH * UNIT_SIZE}px`,
         "--viewport-height": `${CAMERA_HEIGHT * UNIT_SIZE}px`,

@@ -1,0 +1,16 @@
+.player {
+  font-size: 256px;
+  position: relative;
+}
+
+.player::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  width: 80%;
+  height: 10px;
+  border-radius: 50%;
+  filter: blur(5px);
+}
