@@ -1,0 +1,120 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #222;
+    color: white;
+    border-bottom: 2px solid #444;
+    font-family: 'Arial', sans-serif;
+    position: relative;
+  }
+  
+  /* Stats Section */
+  .statsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .charInfo {
+    display: flex;
+    gap: 10px;
+    font-weight: bold;
+  }
+  
+  .name { color: #ffcc00; }
+  
+  .bars {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  
+  .barWrapper {
+    width: 150px;
+    height: 18px;
+    background-color: #444;
+    position: relative;
+    border: 1px solid #000;
+    display: flex;
+  justify-content: center; 
+  align-items: center;
+  }
+  
+  .barLabel {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    z-index: 1;
+    /* line-height: 15px; */
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+
+  }
+  
+  .bar { height: 100%; }
+  .hpBar { width: 100%; background-color: #ff4444; }
+  .mpBar { width: 100%; background-color: #4444ff; }
+  
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .navButton {
+    padding: 8px 15px;
+    background-color: #333;
+    color: white;
+    border: 1px solid #555;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .navButton:hover {
+    background-color: #555;
+  }
+  
+  /* Inventory Panel */
+  .inventoryPanel {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    width: 250px;
+    background-color: #333;
+    border: 2px solid #555;
+    padding: 15px;
+    z-index: 100;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  }
+  
+  .inventoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+  
+  .slot {
+    width: 50px;
+    height: 50px;
+    background-color: #444;
+    border: 1px solid #666;
+  }
+  
+  .closeBtn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
