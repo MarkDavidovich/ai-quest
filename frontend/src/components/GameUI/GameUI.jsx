@@ -41,9 +41,7 @@ const GameUI = ({ playerGridPos, playerDisplayPos, message, gridWidth, gridHeigh
           <p className={styles.dialogueLabel}>NPC</p>
           <p className={styles.dialogueText}>
             {typedDialogue}
-            <span className={styles.dialogueCursor} aria-hidden="true">
-              |
-            </span>
+            <span className={styles.dialogueCursor} aria-hidden="true"></span>
           </p>
           <p className={styles.dialogueHint}>Press Enter again to close</p>
         </div>
