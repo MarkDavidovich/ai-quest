@@ -46,7 +46,7 @@ const Header = () => {
             <button onClick={toggleInventory} className={styles.closeBtn}>X</button>
           </div>
           <div className={styles.grid}>
-            {/* יצירת סלוטים ריקים לדוגמה */}
+         
             {[...Array(12)].map((_, i) => (
               <div key={i} className={styles.slot}></div>
             ))}

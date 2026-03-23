@@ -1,120 +1,251 @@
+* {
+    font-family: var(--sans);
+}
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    background-color: #222;
-    color: white;
-    border-bottom: 2px solid #444;
-    font-family: 'Arial', sans-serif;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding: 0 40px;
+    background: linear-gradient(180deg, #2c2f35 0%, #1a1c20 100%);
+    border-bottom: 2px solid #3e4147;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 80px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     position: relative;
+    z-index: 1000;
   }
   
-  /* Stats Section */
+
   .statsContainer {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+    min-width: 0;
   }
   
   .charInfo {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
     font-weight: bold;
   }
   
-  .name { color: #ffcc00; }
+  .name { 
+    color: #d4af37;
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+    margin-right: 10px;
+  }
   
+  .level { color: #ffffff; opacity: 0.9; }
+  
+
   .bars {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
+    width: 100%;
   }
-  
+
+
   .barWrapper {
-    width: 150px;
-    height: 18px;
-    background-color: #444;
+    width: 180px;
+    max-width: 100%;
+    height: 14px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    border: 1px solid #444;
+    overflow: hidden;
     position: relative;
-    border: 1px solid #000;
     display: flex;
-  justify-content: center; 
-  align-items: center;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
   }
   
   .barLabel {
     position: absolute;
-    width: 100%;
-    text-align: center;
-    font-size: 11px;
-    z-index: 1;
-    /* line-height: 15px; */
-    font-weight: bold;
-    color: white;
-    text-shadow: 1px 1px 2px black;
-
+    font-size: 9px;
+    font-weight: 800;
+    color: #fff;
+    z-index: 2;
+    text-shadow: 1px 1px 1px #000;
   }
   
-  .bar { height: 100%; }
-  .hpBar { width: 100%; background-color: #ff4444; }
-  .mpBar { width: 100%; background-color: #4444ff; }
+  .bar {
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: width 0.3s ease;
+  }
   
-  /* Navigation */
+  .hpBar { 
+    background: linear-gradient(90deg, #d32f2f, #ff5252); 
+    box-shadow: 0 0 8px rgba(255, 82, 82, 0.4);
+  }
+  
+  .mpBar { 
+    background: linear-gradient(90deg, #1976d2, #448aff);
+    box-shadow: 0 0 8px rgba(68, 138, 255, 0.4);
+  }
+  
+ 
   .nav {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 15px;
   }
   
   .navButton {
-    padding: 8px 15px;
-    background-color: #333;
-    color: white;
-    border: 1px solid #555;
+    padding: 10px 22px;
+    background: #3a3d44;
+    color: #b0b3b8;
+    border: 1px solid #4a4d55;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
   }
   
   .navButton:hover {
-    background-color: #555;
+    background: #4a4d55;
+    color: #ffffff;
+    border-color: #d4af37; 
+    transform: translateY(-1px);
   }
   
-  /* Inventory Panel */
+  .activeButton {
+    background: linear-gradient(180deg, #4e4435 0%, #3a3226 100%);
+    color: #d4af37;
+    border-color: #d4af37;
+  }
+  
   .inventoryPanel {
     position: absolute;
-    top: 70px;
-    right: 20px;
-    width: 250px;
-    background-color: #333;
-    border: 2px solid #555;
-    padding: 15px;
-    z-index: 100;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    top: calc(100% + 10px);
+    right: 16px;
+    width: min(300px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    background: #1e2126;
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   }
-  
+
   .inventoryHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 12px;
   }
-  
+
   .grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
   }
-  
+
   .slot {
-    width: 50px;
-    height: 50px;
+    aspect-ratio: 1;
     background-color: #444;
     border: 1px solid #666;
+    border-radius: 4px;
   }
-  
+
   .closeBtn {
     background: none;
     border: none;
     color: white;
     cursor: pointer;
     font-weight: bold;
+  }
+
+  @media (max-width: 900px) {
+    .header {
+      height: auto;
+      padding: 16px 20px;
+      align-items: flex-start;
+    }
+
+    .nav {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .header {
+      gap: 16px;
+      padding: 14px 16px 18px;
+    }
+
+    .statsContainer {
+      width: 100%;
+    }
+
+    .charInfo {
+      font-size: 1rem;
+      gap: 6px;
+    }
+
+    .barWrapper {
+      width: 100%;
+    }
+
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .navButton {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+    }
+
+    .inventoryPanel {
+      left: 16px;
+      right: 16px;
+      width: auto;
+      max-width: none;
+      padding: 16px;
+    }
+
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 420px) {
+    .header {
+      padding-inline: 12px;
+    }
+
+    .nav {
+      grid-template-columns: 1fr;
+    }
+
+    .inventoryPanel {
+      left: 12px;
+      right: 12px;
+    }
   }
