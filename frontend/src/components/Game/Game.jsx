@@ -6,6 +6,14 @@ import { GRID_WIDTH, GRID_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT, WORLD_DATA, MOVE_
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 
+const EMPTY_DIALOGUE = {
+  isOpen: false,
+  npcId: null,
+  nodeId: null,
+  text: "",
+  choices: [],
+};
+
 export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
 
@@ -19,7 +27,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
   const [isMoving, setIsMoving] = useState(false);
   const [facingDir, setFacingDir] = useState({ x: 1, y: 0 });
-  const [dialogue, setDialogue] = useState({ isOpen: false, text: "" });
+  const [dialogue, setDialogue] = useState(EMPTY_DIALOGUE);
 
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
@@ -77,8 +85,56 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     return WORLD_DATA[tileType][y]?.[x] || 0;
   };
 
-  const getNpcDialogue = (x, y) => {
-    return NPC_DIALOGUES[`${x},${y}`] || "Hello traveler. Stay safe out there.";
+  const getNpcDialogueNode = (npcId, nodeId = "start") => {
+    return NPC_DIALOGUES[npcId]?.[nodeId] || null;
+  };
+
+  const createDialogueState = (npcId, nodeId) => {
+    const dialogueNode = getNpcDialogueNode(npcId, nodeId);
+
+    if (!dialogueNode) {
+      return {
+        ...EMPTY_DIALOGUE,
+        isOpen: true,
+        npcId,
+        nodeId,
+        text: "Hello traveler. Stay safe out there.",
+      };
+    }
+
+    return {
+      isOpen: true,
+      npcId,
+      nodeId,
+      text: dialogueNode.text,
+      choices: dialogueNode.choices || [],
+    };
+  };
+
+  const closeDialogue = () => {
+    setDialogue(EMPTY_DIALOGUE);
+    setMessage("Conversation ended.");
+  };
+
+  const handleChoiceSelect = (choiceId) => {
+    if (choiceId === "leave") {
+      closeDialogue();
+      return;
+    }
+
+    if (!dialogue.npcId) {
+      return;
+    }
+
+    const nextDialogueNode = getNpcDialogueNode(dialogue.npcId, choiceId);
+
+    if (!nextDialogueNode) {
+      setMessage("That option is not available right now.");
+      return;
+    }
+
+    setDialogue(createDialogueState(dialogue.npcId, choiceId));
+    setMessage("Talking...");
   };
 
   const getNearbyNpc = () => {
@@ -90,9 +146,9 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
       if (getTileAt(targetX, targetY, "objects") === "npc" || getTileAt(targetX, targetY, "interactive") === 2) {
         return {
+          npcId: `${targetX},${targetY}`,
           x: targetX,
           y: targetY,
-          text: getNpcDialogue(targetX, targetY),
         };
       }
     }
@@ -186,15 +242,17 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
   function handleAction() {
     if (dialogue.isOpen) {
-      setDialogue({ isOpen: false, text: "" });
-      setMessage("Conversation ended.");
+      if (dialogue.choices.length === 0) {
+        closeDialogue();
+      }
+
       return;
     }
 
     const nearbyNpc = getNearbyNpc();
 
     if (nearbyNpc) {
-      setDialogue({ isOpen: true, text: nearbyNpc.text });
+      setDialogue(createDialogueState(nearbyNpc.npcId, "start"));
       setMessage("Talking...");
       return;
     }
@@ -265,7 +323,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         gridHeight={GRID_HEIGHT}
         facingDir={facingDir}
       />
-      <DialogueModal dialogue={dialogue} />
+      <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
       <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} />
     </div>
   );

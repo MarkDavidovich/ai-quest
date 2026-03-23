@@ -60,7 +60,6 @@ const Combat = ({ enemyId, onCombatEnd }) => {
   // ============================================
 
   const handlePlayerAttack = (move) => {
-    console.log("handlePlayerAttack called, selectedMove:", move, "currentEnemy:", currentEnemy);
     if (!move || !currentEnemy) return;
 
     const result = calculateDamage(PLAYER_STATS, currentEnemy, move);
