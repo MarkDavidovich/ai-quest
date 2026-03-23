@@ -4,7 +4,7 @@ import Tile from "../Tile/Tile";
 import Player from "../Player/Player";
 import { UNIT_SIZE, CAMERA_WIDTH, CAMERA_HEIGHT, GRID_WIDTH, GRID_HEIGHT, WORLD_DATA } from "../../utils/constants";
 
-const GameViewport = ({ playerDisplayPos, cameraPos, isMoving, facingDir }) => {
+const GameViewport = ({ playerDisplayPos, cameraPos, facingDir }) => {
   const tiles = [];
 
   // Render floor tiles (only visible ones)

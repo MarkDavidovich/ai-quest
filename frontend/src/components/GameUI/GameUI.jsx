@@ -1,6 +1,6 @@
 import styles from "./GameUI.module.css";
 
-const GameUI = ({ playerGridPos, playerDisplayPos, message, gridWidth, gridHeight, facingDir }) => {
+const GameUI = ({ playerGridPos, playerDisplayPos, message, gridWidth, gridHeight, facingDir, dialogue }) => {
   return (
     <>
       <div className={styles.statusDisplay}>
@@ -12,6 +12,13 @@ const GameUI = ({ playerGridPos, playerDisplayPos, message, gridWidth, gridHeigh
         <p>{`Facing direction: x:${facingDir.x}, y:${facingDir.y}`}</p>
         <p className={styles.message}>{message}</p>
       </div>
+      {dialogue.isOpen && (
+        <div className={styles.dialogueModal}>
+          <p className={styles.dialogueLabel}>NPC</p>
+          <p className={styles.dialogueText}>{dialogue.text}</p>
+          <p className={styles.dialogueHint}>Press Enter again to close</p>
+        </div>
+      )}
     </>
   );
 };

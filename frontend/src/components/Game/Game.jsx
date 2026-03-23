@@ -1,7 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useEffectEvent, useMemo } from "react";
 import GameViewport from "../GameViewport/GameViewport";
 import GameUI from "../GameUI/GameUI";
-import { GRID_WIDTH, GRID_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT, WORLD_DATA, MOVE_DURATION } from "../../utils/constants";
+import {
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  CAMERA_WIDTH,
+  CAMERA_HEIGHT,
+  WORLD_DATA,
+  MOVE_DURATION,
+  NPC_DIALOGUES,
+} from "../../utils/constants";
 import styles from "./Game.module.css";
 
 export default function AdventureGame() {
@@ -11,14 +19,13 @@ export default function AdventureGame() {
   const [playerGridPos, setPlayerGridPos] = useState({ x: 5, y: 5 });
   const [playerDisplayPos, setPlayerDisplayPos] = useState({ x: 5, y: 5 });
 
-  const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
   const [displayCameraPos, setDisplayCameraPos] = useState({ x: 0, y: 0 });
 
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
   const [isMoving, setIsMoving] = useState(false);
   const [facingDir, setFacingDir] = useState({ x: 1, y: 0 });
+  const [dialogue, setDialogue] = useState({ isOpen: false, text: "" });
 
-  const inputBuffer = useRef(null);
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
 
@@ -49,12 +56,6 @@ export default function AdventureGame() {
           setPlayerDisplayPos(playerGridPos);
           setIsMoving(false);
 
-          // Process buffered input
-          if (inputBuffer.current) {
-            const buf = inputBuffer.current;
-            inputBuffer.current = null;
-            handleMove(buf.x, buf.y);
-          }
         }
       }
 
@@ -82,24 +83,48 @@ export default function AdventureGame() {
     return WORLD_DATA[tileType][y]?.[x] || 0;
   };
 
+  const getNpcDialogue = (x, y) => {
+    return NPC_DIALOGUES[`${x},${y}`] || "Hello traveler. Stay safe out there.";
+  };
+
+  const getNearbyNpc = () => {
+    const candidateOffsets = [
+      facingDir,
+      { x: 0, y: -1 },
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: -1, y: 0 },
+    ];
+
+    for (const offset of candidateOffsets) {
+      const targetX = playerGridPos.x + offset.x;
+      const targetY = playerGridPos.y + offset.y;
+
+      if (getTileAt(targetX, targetY, "objects") === "npc" || getTileAt(targetX, targetY, "interactive") === 2) {
+        return {
+          x: targetX,
+          y: targetY,
+          text: getNpcDialogue(targetX, targetY),
+        };
+      }
+    }
+
+    return null;
+  };
+
   // ============================================
   // CAMERA SYSTEM - FOLLOWS GRID POSITION
   // ============================================
 
-  useEffect(() => {
-    // Center camera on player GRID POSITION (not display)
-    const cameraCenterX = CAMERA_WIDTH / 2;
-    const cameraCenterY = CAMERA_HEIGHT / 2;
-
-    let newCamX = playerGridPos.x - cameraCenterX;
-    let newCamY = playerGridPos.y - cameraCenterY;
-
-    // Clamp to world bounds
-    newCamX = Math.max(0, Math.min(newCamX, GRID_WIDTH - CAMERA_WIDTH));
-    newCamY = Math.max(0, Math.min(newCamY, GRID_HEIGHT - CAMERA_HEIGHT));
-
-    setCameraPos({ x: newCamX, y: newCamY });
-  }, [playerGridPos]); // Depend on GRID position, not display
+  const cameraCenterX = CAMERA_WIDTH / 2;
+  const cameraCenterY = CAMERA_HEIGHT / 2;
+  const cameraPos = useMemo(
+    () => ({
+      x: Math.max(0, Math.min(playerGridPos.x - cameraCenterX, GRID_WIDTH - CAMERA_WIDTH)),
+      y: Math.max(0, Math.min(playerGridPos.y - cameraCenterY, GRID_HEIGHT - CAMERA_HEIGHT)),
+    }),
+    [playerGridPos.x, playerGridPos.y, cameraCenterX, cameraCenterY],
+  );
 
   // smooth camera
   useEffect(() => {
@@ -123,7 +148,9 @@ export default function AdventureGame() {
   // MOVEMENT HANDLER
   // ============================================
 
-  const handleMove = (dx, dy) => {
+  function handleMove(dx, dy) {
+    if (dialogue.isOpen) return;
+
     // Update facing direction
     setFacingDir({ x: dx, y: dy });
 
@@ -155,56 +182,67 @@ export default function AdventureGame() {
     } else {
       setMessage("");
     }
-  };
+  }
 
   // ============================================
   // ACTION HANDLER
   // ============================================
 
-  const handleAction = () => {
+  function handleAction() {
+    if (dialogue.isOpen) {
+      setDialogue({ isOpen: false, text: "" });
+      setMessage("Conversation ended.");
+      return;
+    }
+
+    const nearbyNpc = getNearbyNpc();
+
+    if (nearbyNpc) {
+      setDialogue({ isOpen: true, text: nearbyNpc.text });
+      setMessage("Talking...");
+      return;
+    }
+
     const targetX = playerGridPos.x + facingDir.x;
     const targetY = playerGridPos.y + facingDir.y;
-
     const objectAtTarget = getTileAt(targetX, targetY);
 
-    if (objectAtTarget === "npc") {
-      setMessage("NPC: Hello traveler! stay safe.");
-    } else if (objectAtTarget !== "npc" && objectAtTarget !== 0) {
+    if (objectAtTarget !== 0) {
       setMessage(`Can't go this way, it's blocked by a ${objectAtTarget}!`);
     }
-  };
+  }
 
   // ============================================
   // KEYBOARD INPUT
   // ============================================
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
-        handleMove(0, -1);
-        e.preventDefault();
-      }
-      if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
-        handleMove(0, 1);
-        e.preventDefault();
-      }
-      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
-        handleMove(-1, 0);
-        e.preventDefault();
-      }
-      if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
-        handleMove(1, 0);
-        e.preventDefault();
-      }
-      if (e.key === "Enter") {
-        handleAction();
-        e.preventDefault();
-      }
-    };
+  const handleKeyDown = useEffectEvent((e) => {
+    if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+      handleMove(0, -1);
+      e.preventDefault();
+    }
+    if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
+      handleMove(0, 1);
+      e.preventDefault();
+    }
+    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+      handleMove(-1, 0);
+      e.preventDefault();
+    }
+    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+      handleMove(1, 0);
+      e.preventDefault();
+    }
+    if (e.key === "Enter") {
+      handleAction();
+      e.preventDefault();
+    }
+  });
 
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMoving, playerGridPos, playerDisplayPos, facingDir]);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -215,8 +253,9 @@ export default function AdventureGame() {
         gridWidth={GRID_WIDTH}
         gridHeight={GRID_HEIGHT}
         facingDir={facingDir}
+        dialogue={dialogue}
       />
-      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} isMoving={isMoving} facingDir={facingDir} />
+      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} />
     </div>
   );
 }
