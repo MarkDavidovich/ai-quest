@@ -10,19 +10,15 @@ const Player = ({ x, y, cameraPos, facingDir }) => {
   //TODO implement facing direction to change sprites
   //TODO CHECK WHY THIS DOESN'T WORK
 
-  const animateFacingDir = () => {
-    switch (facingDir) {
-      case { x: 0, y: -1 }:
-        return "🧍‍♂️";
-      case { x: 0, y: 1 }:
-        return "🧍";
-      case { x: -1, y: 0 }:
-        return "🚶‍♂️";
-      case { x: 1, y: 0 }:
-        return "🚶‍♂️‍➡️";
-      default:
-        return "🧙‍♂️";
-    }
+  const getSprite = () => {
+    const { x, y } = facingDir;
+
+    if (y === -1) return "🧍‍♂️"; // Up
+    if (y === 1) return "🧍"; // Down
+    if (x === -1) return "🚶‍♂️"; // Left
+    if (x === 1) return "🚶‍♂️‍➡️"; // Right
+
+    return "🧙‍♂️";
   };
 
   return (
@@ -34,7 +30,7 @@ const Player = ({ x, y, cameraPos, facingDir }) => {
         "--unit-size": `${UNIT_SIZE}px`,
       }}
     >
-      {animateFacingDir()}
+      {getSprite()}
     </div>
   );
 };
