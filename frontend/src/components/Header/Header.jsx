@@ -1,23 +1,41 @@
-import { useState } from "react";
 import styles from "./Header.module.css";
-
+import { useInventory } from "../../context/InventoryContext";
 
 const Header = () => {
+  const {
+    itemDefinitions,
+    slots,
+    selectedSlotIndex,
+    isInventoryOpen,
+    toggleInventory,
+    selectSlot,
+    useSelectedItem,
+  } = useInventory();
 
-  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
-
-  const toggleInventory = () => {
-    setIsInventoryOpen(!isInventoryOpen);
+  const handleInventoryToggle = () => {
+    toggleInventory();
   };
 
+  const handleSlotClick = (slotIndex, hasItem) => {
+    if (!hasItem) {
+      selectSlot(null);
+      return;
+    }
 
-  return (<header className={styles.header}>
-    <div className={styles.statsContainer}>
-    <div className={styles.charInfo}>
+    selectSlot(selectedSlotIndex === slotIndex ? null : slotIndex);
+  };
+
+  const selectedSlot = selectedSlotIndex !== null ? slots[selectedSlotIndex] : null;
+  const selectedItem = selectedSlot ? itemDefinitions[selectedSlot.itemId] : null;
+
+  return (
+    <header className={styles.header}>
+      <div className={styles.statsContainer}>
+        <div className={styles.charInfo}>
           <span className={styles.name}>Hero</span>
           <span className={styles.level}>Lv. 1</span>
         </div>
-        
+
         <div className={styles.bars}>
           <div className={styles.barWrapper}>
             <span className={styles.barLabel}>HP: 100 / 100</span>
@@ -31,29 +49,68 @@ const Header = () => {
       </div>
 
       <nav className={styles.nav}>
-        <button className={styles.navButton} onClick={toggleInventory}>
+        <button
+          className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`}
+          type="button"
+          onClick={handleInventoryToggle}
+        >
           Inventory
         </button>
-        <button className={styles.navButton}>Quest</button>
-        <button className={styles.navButton}>Map</button>
-        <button className={styles.navButton}>Chat</button>
+        <button className={styles.navButton} type="button">
+          Quest
+        </button>
+        <button className={styles.navButton} type="button">
+          Map
+        </button>
+        <button className={styles.navButton} type="button">
+          Chat
+        </button>
       </nav>
 
       {isInventoryOpen && (
         <div className={styles.inventoryPanel}>
           <div className={styles.inventoryHeader}>
             <h3>Inventory</h3>
-            <button onClick={toggleInventory} className={styles.closeBtn}>X</button>
+            <button type="button" onClick={handleInventoryToggle} className={styles.closeBtn}>
+              X
+            </button>
           </div>
           <div className={styles.grid}>
-         
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className={styles.slot}></div>
-            ))}
+            {slots.map((slot, index) => {
+              const item = slot ? itemDefinitions[slot.itemId] : null;
+              const isSelected = index === selectedSlotIndex;
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  className={`${styles.slot} ${isSelected ? styles.selectedSlot : ""}`}
+                  onClick={() => handleSlotClick(index, Boolean(slot))}
+                  aria-pressed={isSelected}
+                >
+                  {item ? <span className={styles.slotIcon}>{item.icon}</span> : null}
+                  {slot && slot.quantity > 1 ? <span className={styles.slotQuantity}>{slot.quantity}</span> : null}
+                </button>
+              );
+            })}
+          </div>
+          <div className={styles.inventoryActions}>
+            <p className={styles.selectionLabel}>
+              {selectedItem ? `Selected: ${selectedItem.name}` : "Selected: none"}
+            </p>
+            <button
+              type="button"
+              className={styles.useItemButton}
+              onClick={useSelectedItem}
+              disabled={!selectedSlot}
+            >
+              Use Item
+            </button>
           </div>
         </div>
       )}
-    </header>);
+    </header>
+  );
 };
 
 export default Header;

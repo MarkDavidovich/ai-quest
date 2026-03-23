@@ -168,6 +168,73 @@
     background-color: #444;
     border: 1px solid #666;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .slot:hover {
+    border-color: #d4af37;
+    background-color: #52555d;
+  }
+
+  .selectedSlot {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25);
+    background-color: #5b4d32;
+  }
+
+  .slotIcon {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  .slotQuantity {
+    position: absolute;
+    right: 6px;
+    bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #f2f4f7;
+  }
+
+  .inventoryActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .selectionLabel {
+    margin: 0;
+    color: #d8dce3;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .useItemButton {
+    padding: 10px 14px;
+    border: 1px solid #4a4d55;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #4e4435 0%, #3a3226 100%);
+    color: #f6df8b;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .useItemButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .useItemButton:not(:disabled):hover {
+    border-color: #d4af37;
   }
 
   .closeBtn {
@@ -232,6 +299,10 @@
 
     .grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .slotIcon {
+      font-size: 1.4rem;
     }
   }
 

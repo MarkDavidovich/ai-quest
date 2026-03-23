@@ -4,6 +4,58 @@ export const GRID_HEIGHT = 24;
 export const CAMERA_WIDTH = 24;
 export const CAMERA_HEIGHT = 12;
 export const MOVE_DURATION = 150; // milliseconds for smooth movement animation
+export const INVENTORY_SIZE = 12;
+
+export const ITEM_DEFINITIONS = {
+  potion: {
+    id: "potion",
+    name: "Potion",
+    icon: "🧪",
+    kind: "consumable",
+    stackable: true,
+    maxStack: 99,
+  },
+  sword: {
+    id: "sword",
+    name: "Sword",
+    icon: "⚔️",
+    kind: "equipment",
+    stackable: false,
+    maxStack: 1,
+  },
+};
+
+export const INITIAL_INVENTORY = Array.from({ length: INVENTORY_SIZE }, (_, index) => {
+  if (index === 0) {
+    return { itemId: "potion", quantity: 2 };
+  }
+
+  if (index === 1) {
+    return { itemId: "sword", quantity: 1 };
+  }
+
+  return null;
+});
+
+export const INITIAL_WORLD_LOOT = {
+  "22,4": {
+    kind: "chest",
+    opened: false,
+    drops: [{ itemId: "potion", quantity: 3 }],
+  },
+  "28,13": {
+    kind: "chest",
+    opened: false,
+    drops: [{ itemId: "sword", quantity: 1 }],
+  },
+  "16,20": {
+    kind: "chest",
+    opened: false,
+    drops: [{ itemId: "potion", quantity: 2 }],
+  },
+};
+
+export const toWorldKey = (x, y) => `${x},${y}`;
 
 export const NPC_DIALOGUES = {
   "10,9": "The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear.",

@@ -9,10 +9,14 @@ import {
   WORLD_DATA,
   MOVE_DURATION,
   NPC_DIALOGUES,
+  toWorldKey,
 } from "../../utils/constants";
 import styles from "./Game.module.css";
+import { useInventory } from "../../context/InventoryContext";
 
 export default function AdventureGame() {
+  const { worldLoot, feedbackMessage, openContainer } = useInventory();
+
   // SMOOTH MOVEMENT: Two position systems
   // playerGridPos = actual game position (for collision, logic)
   // playerDisplayPos = rendered position (smooth animation)
@@ -175,9 +179,7 @@ export default function AdventureGame() {
 
     // Check for interactive tiles
     const interactive = getTileAt(newX, newY, "interactive");
-    if (interactive === 1) {
-      setMessage("🎁 You found a treasure chest!");
-    } else if (interactive === 2) {
+    if (interactive === 2) {
       setMessage("🧙 You met a wanderer!");
     } else {
       setMessage("");
@@ -205,10 +207,25 @@ export default function AdventureGame() {
 
     const targetX = playerGridPos.x + facingDir.x;
     const targetY = playerGridPos.y + facingDir.y;
+    const targetLoot = worldLoot[toWorldKey(targetX, targetY)];
+
+    if (targetLoot?.kind === "chest") {
+      const openResult = openContainer(toWorldKey(targetX, targetY));
+      setMessage(openResult.message);
+      return;
+    }
+
     const objectAtTarget = getTileAt(targetX, targetY);
 
     if (objectAtTarget !== 0) {
       setMessage(`Can't go this way, it's blocked by a ${objectAtTarget}!`);
+      return;
+    }
+
+    const interactiveAtTarget = getTileAt(targetX, targetY, "interactive");
+
+    if (interactiveAtTarget === 1) {
+      setMessage("There is a chest here, but it cannot be opened right now.");
     }
   }
 
@@ -249,7 +266,7 @@ export default function AdventureGame() {
       <GameUI
         playerGridPos={playerGridPos}
         playerDisplayPos={playerDisplayPos}
-        message={message}
+        message={feedbackMessage || message}
         gridWidth={GRID_WIDTH}
         gridHeight={GRID_HEIGHT}
         facingDir={facingDir}
