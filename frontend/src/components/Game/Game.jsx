@@ -105,7 +105,9 @@ export default function AdventureGame() {
 
   const handleMove = (dx, dy) => {
     // Set player facing towards their move direction
-    setFacingDir({ x: dx, y: dy });
+    if (dx !== 0 || dy !== 0) {
+      setFacingDir({ x: dx, y: dy });
+    }
 
     // If already moving, buffer the input
     if (isMoving) {
@@ -182,7 +184,7 @@ export default function AdventureGame() {
         handleMove(1, 0);
         e.preventDefault();
       }
-      if (e.key === "Enter" || "Spacebar") {
+      if (e.key === "Enter") {
         handleAction();
         e.preventDefault();
       }
@@ -194,7 +196,14 @@ export default function AdventureGame() {
 
   return (
     <div className={styles.container}>
-      <GameUI playerGridPos={playerGridPos} playerDisplayPos={playerDisplayPos} message={message} gridWidth={GRID_WIDTH} gridHeight={GRID_HEIGHT} />
+      <GameUI
+        playerGridPos={playerGridPos}
+        playerDisplayPos={playerDisplayPos}
+        message={message}
+        gridWidth={GRID_WIDTH}
+        gridHeight={GRID_HEIGHT}
+        facingDir={facingDir}
+      />
       <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={cameraPos} isMoving={isMoving} facingDir={facingDir} />
     </div>
   );

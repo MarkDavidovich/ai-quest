@@ -13,10 +13,10 @@ const Player = ({ x, y, cameraPos, facingDir }) => {
   const getSprite = () => {
     const { x, y } = facingDir;
 
-    if (y === -1) return "🧍‍♂️"; // Up
-    if (y === 1) return "🧍"; // Down
-    if (x === -1) return "🚶‍♂️"; // Left
-    if (x === 1) return "🚶‍♂️‍➡️"; // Right
+    if (y < 0) return "🧍‍♂️"; // Up
+    if (y > 0) return "🧍"; // Down
+    if (x < 0) return "🚶‍♂️"; // Left
+    if (x > 0) return "🚶‍♂️‍➡️"; // Right
 
     return "🧙‍♂️";
   };
