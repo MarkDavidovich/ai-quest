@@ -7,9 +7,6 @@ const Player = ({ x, y, cameraPos, facingDir }) => {
   const playerScreenX = (x - cameraPos.x) * UNIT_SIZE;
   const playerScreenY = (y - cameraPos.y) * UNIT_SIZE;
 
-  //TODO implement facing direction to change sprites
-  //TODO CHECK WHY THIS DOESN'T WORK
-
   const getSprite = () => {
     const { x, y } = facingDir;
 
