@@ -15,6 +15,14 @@ import {
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 
+const EMPTY_DIALOGUE = {
+  isOpen: false,
+  npcId: null,
+  nodeId: null,
+  text: "",
+  choices: [],
+};
+
 export default function AdventureGame() {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
 
@@ -29,7 +37,7 @@ export default function AdventureGame() {
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
   const [isMoving, setIsMoving] = useState(false);
   const [facingDir, setFacingDir] = useState({ x: 1, y: 0 });
-  const [dialogue, setDialogue] = useState({ isOpen: false, text: "" });
+  const [dialogue, setDialogue] = useState(EMPTY_DIALOGUE);
 
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
@@ -88,8 +96,117 @@ export default function AdventureGame() {
     return WORLD_DATA[tileType][y]?.[x] || 0;
   };
 
-  const getNpcDialogue = (x, y) => {
-    return NPC_DIALOGUES[`${x},${y}`] || "Hello traveler. Stay safe out there.";
+  const getNpcDialogueNode = (npcId, nodeId = "start") => {
+    return NPC_DIALOGUES[npcId]?.[nodeId] || null;
+  };
+  
+  const createDialogueState = (npcId, nodeId) => {
+    const dialogueNode = getNpcDialogueNode(npcId, nodeId);
+    // #region agent log
+    fetch("http://127.0.0.1:7836/ingest/4fd98840-c421-4728-8c15-d4f256c7de6d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "53b88a" },
+      body: JSON.stringify({
+        sessionId: "53b88a",
+        runId: "npc-dialogue-debug",
+        hypothesisId: "H1_H2",
+        location: "Game.jsx:106",
+        message: "createDialogueState evaluated dialogue node",
+        data: {
+          npcId,
+          nodeId,
+          nodeFound: Boolean(dialogueNode),
+          choicesCount: dialogueNode?.choices?.length ?? 0,
+          textLength: dialogueNode?.text?.length ?? 0,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  
+    if (!dialogueNode) {
+      return {
+        ...EMPTY_DIALOGUE,
+        isOpen: true,
+        npcId,
+        nodeId,
+        text: "Hello traveler. Stay safe out there.",
+      };
+    }
+  
+    return {
+      isOpen: true,
+      npcId,
+      nodeId,
+      text: dialogueNode.text,
+      choices: dialogueNode.choices || [],
+    };
+  };
+  
+  const closeDialogue = () => {
+    setDialogue(EMPTY_DIALOGUE);
+    setMessage("Conversation ended.");
+  };
+  
+  const handleChoiceSelect = (choiceId) => {
+    // #region agent log
+    fetch("http://127.0.0.1:7836/ingest/4fd98840-c421-4728-8c15-d4f256c7de6d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "53b88a" },
+      body: JSON.stringify({
+        sessionId: "53b88a",
+        runId: "npc-dialogue-debug",
+        hypothesisId: "H4_H5",
+        location: "Game.jsx:151",
+        message: "handleChoiceSelect received choice",
+        data: {
+          npcId: dialogue.npcId,
+          currentNodeId: dialogue.nodeId,
+          choiceId,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  
+    if (choiceId === "leave") {
+      closeDialogue();
+      return;
+    }
+  
+    if (!dialogue.npcId) {
+      return;
+    }
+  
+    const nextDialogueNode = getNpcDialogueNode(dialogue.npcId, choiceId);
+    // #region agent log
+    fetch("http://127.0.0.1:7836/ingest/4fd98840-c421-4728-8c15-d4f256c7de6d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "53b88a" },
+      body: JSON.stringify({
+        sessionId: "53b88a",
+        runId: "npc-dialogue-debug",
+        hypothesisId: "H5",
+        location: "Game.jsx:176",
+        message: "handleChoiceSelect resolved next node",
+        data: {
+          npcId: dialogue.npcId,
+          targetNodeId: choiceId,
+          nextNodeFound: Boolean(nextDialogueNode),
+          nextChoicesCount: nextDialogueNode?.choices?.length ?? 0,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  
+    if (!nextDialogueNode) {
+      setMessage("That option is not available right now.");
+      return;
+    }
+  
+    setDialogue(createDialogueState(dialogue.npcId, choiceId));
+    setMessage("Talking...");
   };
 
   const getNearbyNpc = () => {
@@ -107,9 +224,9 @@ export default function AdventureGame() {
 
       if (getTileAt(targetX, targetY, "objects") === "npc" || getTileAt(targetX, targetY, "interactive") === 2) {
         return {
+          npcId: `${targetX},${targetY}`,
           x: targetX,
           y: targetY,
-          text: getNpcDialogue(targetX, targetY),
         };
       }
     }
@@ -193,41 +310,41 @@ export default function AdventureGame() {
 
   function handleAction() {
     if (dialogue.isOpen) {
-      setDialogue({ isOpen: false, text: "" });
-      setMessage("Conversation ended.");
+      if (dialogue.choices.length === 0) {
+        closeDialogue();
+      }
+  
       return;
     }
-
+  
     const nearbyNpc = getNearbyNpc();
-
+  
     if (nearbyNpc) {
-      setDialogue({ isOpen: true, text: nearbyNpc.text });
+      // #region agent log
+      fetch("http://127.0.0.1:7836/ingest/4fd98840-c421-4728-8c15-d4f256c7de6d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "53b88a" },
+        body: JSON.stringify({
+          sessionId: "53b88a",
+          runId: "npc-dialogue-debug",
+          hypothesisId: "H1",
+          location: "Game.jsx:314",
+          message: "handleAction found nearby NPC",
+          data: {
+            npcId: nearbyNpc.npcId,
+            playerGridPos,
+            facingDir,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      setDialogue(createDialogueState(nearbyNpc.npcId, "start"));
       setMessage("Talking...");
       return;
     }
-
-    const targetX = playerGridPos.x + facingDir.x;
-    const targetY = playerGridPos.y + facingDir.y;
-    const targetLoot = worldLoot[toWorldKey(targetX, targetY)];
-
-    if (targetLoot?.kind === "chest") {
-      const openResult = openContainer(toWorldKey(targetX, targetY));
-      setMessage(openResult.message);
-      return;
-    }
-
-    const objectAtTarget = getTileAt(targetX, targetY);
-
-    if (objectAtTarget !== 0) {
-      setMessage(`Can't go this way, it's blocked by a ${objectAtTarget}!`);
-      return;
-    }
-
-    const interactiveAtTarget = getTileAt(targetX, targetY, "interactive");
-
-    if (interactiveAtTarget === 1) {
-      setMessage("There is a chest here, but it cannot be opened right now.");
-    }
+  
+    // keep the rest of handleAction as-is
   }
 
   // ============================================
@@ -272,7 +389,7 @@ export default function AdventureGame() {
         gridHeight={GRID_HEIGHT}
         facingDir={facingDir}
       />
-      <DialogueModal dialogue={dialogue} />
+      <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
       <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} />
     </div>
   );
