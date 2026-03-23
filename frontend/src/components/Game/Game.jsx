@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useEffectEvent, useMemo } from "react";
 import GameViewport from "../GameViewport/GameViewport";
 import GameUI from "../GameUI/GameUI";
+import DialogueModal from "../DialogueModal/DialogueModal";
 import {
   GRID_WIDTH,
   GRID_HEIGHT,
@@ -270,8 +271,8 @@ export default function AdventureGame() {
         gridWidth={GRID_WIDTH}
         gridHeight={GRID_HEIGHT}
         facingDir={facingDir}
-        dialogue={dialogue}
       />
+      <DialogueModal dialogue={dialogue} />
       <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} />
     </div>
   );
