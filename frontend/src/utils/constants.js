@@ -58,12 +58,79 @@ export const INITIAL_WORLD_LOOT = {
 export const toWorldKey = (x, y) => `${x},${y}`;
 
 export const NPC_DIALOGUES = {
-  "10,9": "The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear.",
+  "10,9":
+    "The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear.",
   "20,15": "Some treasures are hidden in plain sight. Wander slowly and look twice.",
   "25,7": "The road bends near the water. Travelers who rush usually miss something useful.",
   "10,21": "A steady adventurer always knows when to stop, listen, and move again.",
   "25,3": "The old stones remember every traveler. Leave this place a little wiser than you found it.",
   "8,17": "Press Enter when you need to speak, and press it again when you're ready for the road.",
+};
+
+export const COMBAT_MOVES = {
+  strike: {
+    id: "strike",
+    name: "Strike",
+    power: 40,
+    accuracy: 100,
+    type: "physical",
+    description: "A direct melee attack",
+  },
+  doubleSlash: {
+    id: "doubleSlash",
+    name: "Double Slash",
+    power: 60,
+    accuracy: 75,
+    type: "physical",
+    description: "Two quick strikes",
+  },
+  parry: {
+    id: "parry",
+    name: "Parry",
+    power: 0,
+    accuracy: 100,
+    type: "defensive",
+    description: "Reduce incoming damage",
+  },
+  fireball: {
+    id: "fireball",
+    name: "Fireball",
+    power: 60,
+    accuracy: 75,
+    type: "magic",
+    description: "Shoot a ball of fire",
+  },
+};
+
+export const ENEMIES = {
+  goblin: {
+    id: "goblin",
+    name: "Goblin",
+    sprite: "👺",
+    maxHp: 70,
+    attack: 8,
+    defense: 4,
+    speed: 6,
+    moves: ["strike", "doubleSlash"],
+  },
+  dragon: {
+    id: "dragon",
+    name: "Dragon",
+    sprite: "🐉",
+    maxHp: 150,
+    attack: 12,
+    defense: 8,
+    speed: 10,
+    moves: ["strike", "fireball"],
+  },
+};
+
+export const PLAYER_STATS = {
+  maxHp: 100,
+  attack: 15,
+  defense: 10,
+  speed: 12,
+  moves: ["strike", "doubleSlash"],
 };
 
 //currently the map is constant
@@ -114,6 +181,7 @@ export const WORLD_DATA = {
         .map((_, col) => {
           if ((row === 4 && col === 22) || (row === 13 && col === 28) || (row === 20 && col === 16)) return 1; // chest
           if ((row === 3 && col === 25) || (row === 17 && col === 8)) return 2; // npc
+          if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return 3; // encounter tile
           return 0;
         }),
     ),

@@ -2,27 +2,17 @@ import { useState, useEffect, useRef, useEffectEvent, useMemo } from "react";
 import GameViewport from "../GameViewport/GameViewport";
 import GameUI from "../GameUI/GameUI";
 import DialogueModal from "../DialogueModal/DialogueModal";
-import {
-  GRID_WIDTH,
-  GRID_HEIGHT,
-  CAMERA_WIDTH,
-  CAMERA_HEIGHT,
-  WORLD_DATA,
-  MOVE_DURATION,
-  NPC_DIALOGUES,
-  toWorldKey,
-} from "../../utils/constants";
+import { GRID_WIDTH, GRID_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT, WORLD_DATA, MOVE_DURATION, NPC_DIALOGUES, toWorldKey } from "../../utils/constants";
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 
-export default function AdventureGame() {
+export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
 
   // SMOOTH MOVEMENT: Two position systems
   // playerGridPos = actual game position (for collision, logic)
   // playerDisplayPos = rendered position (smooth animation)
-  const [playerGridPos, setPlayerGridPos] = useState({ x: 5, y: 5 });
-  const [playerDisplayPos, setPlayerDisplayPos] = useState({ x: 5, y: 5 });
+  const [playerDisplayPos, setPlayerDisplayPos] = useState(playerGridPos);
 
   const [displayCameraPos, setDisplayCameraPos] = useState({ x: 0, y: 0 });
 
@@ -60,7 +50,6 @@ export default function AdventureGame() {
         if (progress >= 1) {
           setPlayerDisplayPos(playerGridPos);
           setIsMoving(false);
-
         }
       }
 
@@ -93,13 +82,7 @@ export default function AdventureGame() {
   };
 
   const getNearbyNpc = () => {
-    const candidateOffsets = [
-      facingDir,
-      { x: 0, y: -1 },
-      { x: 1, y: 0 },
-      { x: 0, y: 1 },
-      { x: -1, y: 0 },
-    ];
+    const candidateOffsets = [facingDir, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
 
     for (const offset of candidateOffsets) {
       const targetX = playerGridPos.x + offset.x;
@@ -178,15 +161,25 @@ export default function AdventureGame() {
     setIsMoving(true);
     moveStartTime.current = Date.now();
 
+    // ============================================
+    // CHECK FOR RANDOM ENCOUNTER
+    // ============================================
+
     // Check for interactive tiles
     const interactive = getTileAt(newX, newY, "interactive");
-    if (interactive === 2) {
-      setMessage("🧙 You met a wanderer!");
-    } else {
+    if (interactive === 3) {
+      // NEW: Encounter tile (invisible)
+      const ENCOUNTER_CHANCE = 15;
+      if (Math.random() * 100 < ENCOUNTER_CHANCE) {
+        // Biome-based enemy selection
+        let enemyId = "goblin"; // Default
+        onCombatTrigger?.(enemyId);
+        return; // Exit early so we don't keep moving
+      }
+
       setMessage("");
     }
   }
-
   // ============================================
   // ACTION HANDLER
   // ============================================

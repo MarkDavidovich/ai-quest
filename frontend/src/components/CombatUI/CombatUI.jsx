@@ -1,13 +1,10 @@
 import style from "./CombatUI.module.css";
 
-const CombatUI = () => {
-  const maxHp = 100;
-  const currHp = 60;
-
+const CombatUI = ({ hp, maxHp, name }) => {
   return (
     <div className={style.container}>
-      <div>LEVEL:999</div>
-      <div>HP:BAR</div>
+      <div>{name}</div>
+      <div>{hp + "/" + maxHp}</div>
     </div>
   );
 };
