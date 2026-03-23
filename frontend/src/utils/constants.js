@@ -6,7 +6,7 @@ export const CAMERA_HEIGHT = 12;
 export const MOVE_DURATION = 150; // milliseconds for smooth movement animation
 
 export const NPC_DIALOGUES = {
-  "10,9": "The forest ahead is thick. Keep your eyes open and your path clear.",
+  "10,9": "The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear. The forest ahead is thick. Keep your eyes open and your path clear.",
   "20,15": "Some treasures are hidden in plain sight. Wander slowly and look twice.",
   "25,7": "The road bends near the water. Travelers who rush usually miss something useful.",
   "10,21": "A steady adventurer always knows when to stop, listen, and move again.",
