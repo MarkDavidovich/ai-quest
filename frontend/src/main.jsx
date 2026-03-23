@@ -5,9 +5,18 @@ import "@mantine/core/styles.css";
 import "./index.css";
 import App from "./App.jsx";
 
+const appFontFamily = "'Jersey 25', system-ui, sans-serif";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <MantineProvider>
+    <MantineProvider
+      theme={{
+        fontFamily: appFontFamily,
+        headings: {
+          fontFamily: appFontFamily,
+        },
+      }}
+    >
       <App />
     </MantineProvider>
   </StrictMode>
