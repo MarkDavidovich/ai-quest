@@ -15,6 +15,7 @@ import {
 } from "../../utils/constants";
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
+import { fetchAiDialogue } from '../../services/npcDialogueApi';
 
 export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
@@ -30,6 +31,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   const [isMoving, setIsMoving] = useState(false);
   const [facingDir, setFacingDir] = useState({ x: 1, y: 0 });
   const [dialogue, setDialogue] = useState(EMPTY_DIALOGUE);
+  const [npcMemories, setNpcMemories] = useState({});
 
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
@@ -119,7 +121,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     setMessage("Conversation ended.");
   };
 
-  const handleChoiceSelect = (choiceId) => {
+  const handleChoiceSelect = async (choiceId) => {
     if (choiceId === "leave") {
       closeDialogue();
       return;
@@ -129,16 +131,73 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       return;
     }
 
-    const nextDialogueNode = getNpcDialogueNode(dialogue.npcId, choiceId);
+    if (dialogue.source !== "ai") {
+      const nextDialogueNode = getNpcDialogueNode(dialogue.npcId, choiceId);
 
-    if (!nextDialogueNode) {
-      setMessage("That option is not available right now.");
+      if (!nextDialogueNode) {
+        setMessage("That option is not available right now.");
+        return;
+      }
+
+      setDialogue(createDialogueState(dialogue.npcId, choiceId));
+      setMessage("Talking...");
       return;
     }
 
-    setDialogue(createDialogueState(dialogue.npcId, choiceId));
-    setMessage("Talking...");
-  };
+    /* AI route */
+    const selectedChoice = dialogue.choices.find(c => c.id === choiceId);
+    const playerText = selectedChoice ? selectedChoice.label : "";
+
+
+    const pastHistory = npcMemories[dialogue.npcId] || [];
+
+    const updatedHistory = [
+      ...pastHistory,
+      { source: "player", text: playerText }
+    ];
+
+    setDialogue(prev => ({
+      ...prev,
+      isLoading: true,
+      text: "Thinking...",
+      choices: []
+    }));
+
+    try {
+      const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory);
+
+      const newHistory = [
+        ...updatedHistory,
+        { source: "ai", text: aiData.text }
+      ];
+
+      setDialogue({
+        isOpen: true,
+        npcId: dialogue.npcId,
+        nodeId: aiData.nodeId,
+        text: aiData.text,
+        choices: aiData.choices,
+        isLoading: false,
+        source: "ai",
+        history: newHistory
+      });
+
+      setNpcMemories(prev => ({ ...prev, [dialogue.npcId]: newHistory }));
+
+    } catch (error) {
+      setDialogue({
+        isOpen: true,
+        npcId: dialogue.npcId,
+        text: "*The NPC seems distracted and ignores you.*",
+        choices: [{ id: "leave", label: "(Leave)" }],
+        isLoading: false,
+        source: "static"
+      });
+    }
+  }
+
+
+
 
   const getNearbyNpc = () => {
     const candidateOffsets = [facingDir, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
@@ -255,8 +314,9 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   // ACTION HANDLER
   // ============================================
 
-  function handleAction() {
+  async function handleAction() {
     if (dialogue.isOpen) {
+      if (dialogue.isLoading) return;
       if (dialogue.choices.length === 0) {
         closeDialogue();
       }
@@ -267,8 +327,46 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     const nearbyNpc = getNearbyNpc();
 
     if (nearbyNpc) {
-      setDialogue(createDialogueState(nearbyNpc.npcId, "start"));
       setMessage("Talking...");
+
+      const pastHistory = npcMemories[nearbyNpc.npcId] || [];
+
+      setDialogue({
+        isOpen: true,
+        npcId: nearbyNpc.npcId,
+        nodeId: "start",
+        text: "...",
+        choices: [],
+        isLoading: true,
+        source: "ai",
+        history: pastHistory
+      });
+
+      try {
+        const aiData = await fetchAiDialogue(nearbyNpc.npcId, "Hello", pastHistory);
+
+        const newHistory = [...pastHistory, { source: "ai", text: aiData.text }];
+
+        setDialogue({
+          isOpen: true,
+          npcId: nearbyNpc.npcId,
+          nodeId: aiData.nodeId,
+          text: aiData.text,
+          choices: aiData.choices,
+          isLoading: false,
+          source: "ai",
+          history: newHistory
+        });
+
+        setNpcMemories(prev => ({ ...prev, [nearbyNpc.npcId]: newHistory }));
+
+      } catch (error) {
+        console.warn("Falling back to static dialogue");
+        setDialogue({
+          ...createDialogueState(nearbyNpc.npcId, "start"),
+          source: "static"
+        });
+      }
       return;
     }
 
