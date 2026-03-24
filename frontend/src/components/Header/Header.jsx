@@ -1,5 +1,6 @@
 import styles from "./Header.module.css";
 import { useInventory } from "../../context/InventoryContext";
+import { useAuth } from "../../context/AuthContext";
 
 const Header = () => {
   const {
@@ -11,6 +12,8 @@ const Header = () => {
     selectSlot,
     useSelectedItem,
   } = useInventory();
+
+  const { user, logout } = useAuth();
 
   const handleInventoryToggle = () => {
     toggleInventory();
@@ -32,7 +35,7 @@ const Header = () => {
     <header className={styles.header}>
       <div className={styles.statsContainer}>
         <div className={styles.charInfo}>
-          <span className={styles.name}>Hero</span>
+          <span className={styles.name}>{user ? `${user.firstName} ${user.lastName}` : "Hero"}</span>
           <span className={styles.level}>Lv. 1</span>
         </div>
 
@@ -64,6 +67,13 @@ const Header = () => {
         </button>
         <button className={styles.navButton} type="button">
           Chat
+        </button>
+        <button 
+          className={`${styles.navButton} ${styles.logoutButton}`} 
+          type="button"
+          onClick={logout}
+        >
+          Logout
         </button>
       </nav>
 

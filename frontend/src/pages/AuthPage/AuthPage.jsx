@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import style from "./AuthPage.module.css";
+import { useAuth } from "../../context/AuthContext";
 
 const AUTH_COPY = {
   login: {
@@ -37,13 +38,21 @@ const AUTH_COPY = {
 
 const AuthPage = () => {
   const [mode, setMode] = useState("login");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const { login, register } = useAuth();
+
   const copy = AUTH_COPY[mode];
   const isRegisterMode = mode === "register";
+
   const form = useForm({
     initialValues: {
       email: "",
       password: "",
       confirmPassword: "",
+      firstName: "",
+      lastName: "",
       terms: false,
     },
     validate: {
@@ -55,24 +64,43 @@ const AuthPage = () => {
         isRegisterMode && value !== values.password
           ? "Passwords do not match"
           : null,
-      terms: (value) =>
-        isRegisterMode && !value ? "You need to accept the terms" : null,
+      firstName: (value) =>
+        isRegisterMode && value.trim().length === 0 ? "First name is required" : null,
+      lastName: (value) =>
+        isRegisterMode && value.trim().length === 0 ? "Last name is required" : null,
+      // terms: (value) =>
+      //   isRegisterMode && !value ? "You need to accept the terms" : null,
     },
   });
 
-  const handleSubmit = form.onSubmit((values) => {
-    const payload = isRegisterMode
-      ? {
-          email: values.email,
-          password: values.password,
-          terms: values.terms,
-        }
-      : {
-          email: values.email,
-          password: values.password,
-        };
+  const handleSubmit = form.onSubmit(async (values) => {
+    setLoading(true);
+    setError(null);
 
-    console.log(`${mode} payload`, payload);
+    try {
+      if (isRegisterMode) {
+        const result = await register(
+          values.email,
+          values.password,
+          values.firstName,
+          values.lastName
+        );
+        console.log("Registration successful:", result);
+        // Switch to login mode after successful registration
+        setMode("login");
+        form.reset();
+        alert("Registration successful! Please log in.");
+      } else {
+        const result = await login(values.email, values.password);
+        console.log("Login successful:", result);
+        // No need for window.location.reload() since context state change will trigger re-render
+      }
+    } catch (err) {
+      console.error(`${mode} error:`, err);
+      setError(err.message || "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   });
 
   return (
@@ -84,14 +112,20 @@ const AuthPage = () => {
               <Button
                 variant={mode === "login" ? "filled" : "default"}
                 radius="xl"
-                onClick={() => setMode("login")}
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                }}
               >
                 Log in
               </Button>
               <Button
                 variant={mode === "register" ? "filled" : "default"}
                 radius="xl"
-                onClick={() => setMode("register")}
+                onClick={() => {
+                  setMode("register");
+                  setError(null);
+                }}
               >
                 Register
               </Button>
@@ -109,11 +143,39 @@ const AuthPage = () => {
 
             <form onSubmit={handleSubmit}>
               <Stack gap="md">
+                {error && (
+                  <Text color="red" size="sm" ta="center">
+                    {error}
+                  </Text>
+                )}
+
+                {isRegisterMode && (
+                  <Group grow>
+                    <TextInput
+                      label="First Name"
+                      placeholder="John"
+                      size="md"
+                      radius="md"
+                      required
+                      {...form.getInputProps("firstName")}
+                    />
+                    <TextInput
+                      label="Last Name"
+                      placeholder="Doe"
+                      size="md"
+                      radius="md"
+                      required
+                      {...form.getInputProps("lastName")}
+                    />
+                  </Group>
+                )}
+
                 <TextInput
                   label="Email"
                   placeholder="you@example.com"
                   size="md"
                   radius="md"
+                  required
                   {...form.getInputProps("email")}
                 />
                 <PasswordInput
@@ -121,6 +183,7 @@ const AuthPage = () => {
                   placeholder="Enter your password"
                   size="md"
                   radius="md"
+                  required
                   {...form.getInputProps("password")}
                 />
 
@@ -131,25 +194,19 @@ const AuthPage = () => {
                       placeholder="Repeat your password"
                       size="md"
                       radius="md"
+                      required
                       {...form.getInputProps("confirmPassword")}
                     />
-                    {/* <Checkbox
-                      label="I agree to the terms and privacy policy"
-                      {...form.getInputProps("terms", { type: "checkbox" })}
-                    /> */}
                   </>
                 )}
 
-                {/* {!isRegisterMode && (
-                  <Group justify="space-between" align="center">
-                    <Checkbox label="Remember me" />
-                    <Anchor href="#" size="sm">
-                      Forgot password?
-                    </Anchor>
-                  </Group>
-                )} */}
-
-                <Button type="submit" size="md" radius="xl" fullWidth>
+                <Button 
+                  type="submit" 
+                  size="md" 
+                  radius="xl" 
+                  fullWidth 
+                  loading={loading}
+                >
                   {copy.submitLabel}
                 </Button>
               </Stack>
@@ -162,7 +219,11 @@ const AuthPage = () => {
               <Anchor
                 component="button"
                 type="button"
-                onClick={() => setMode(isRegisterMode ? "login" : "register")}
+                onClick={() => {
+                  const newMode = isRegisterMode ? "login" : "register";
+                  setMode(newMode);
+                  setError(null);
+                }}
               >
                 {copy.switchLabel}
               </Anchor>
