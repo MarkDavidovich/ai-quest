@@ -1,8 +1,8 @@
-import React from "react";
+import { memo } from "react";
 import styles from "./Tile.module.css";
 import { UNIT_SIZE } from "../../utils/constants";
 
-const Tile = ({ type, x, y, cameraPos, category }) => {
+const Tile = memo(({ type, x, y, cameraPos, category }) => {
   const screenX = (x - cameraPos.x) * UNIT_SIZE;
   const screenY = (y - cameraPos.y) * UNIT_SIZE;
 
@@ -33,6 +33,6 @@ const Tile = ({ type, x, y, cameraPos, category }) => {
       {content}
     </div>
   );
-};
+});
 
 export default Tile;

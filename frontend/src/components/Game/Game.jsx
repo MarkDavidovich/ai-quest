@@ -164,8 +164,8 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   const cameraCenterY = CAMERA_HEIGHT / 2;
   const cameraPos = useMemo(
     () => ({
-      x: Math.max(0, Math.min(playerGridPos.x - cameraCenterX, GRID_WIDTH - CAMERA_WIDTH)),
-      y: Math.max(0, Math.min(playerGridPos.y - cameraCenterY, GRID_HEIGHT - CAMERA_HEIGHT)),
+      x: Math.max(0, Math.min(Math.floor(playerGridPos.x) - cameraCenterX, GRID_WIDTH - CAMERA_WIDTH)),
+      y: Math.max(0, Math.min(Math.floor(playerGridPos.y) - cameraCenterY, GRID_HEIGHT - CAMERA_HEIGHT)),
     }),
     [playerGridPos.x, playerGridPos.y, cameraCenterX, cameraCenterY],
   );
