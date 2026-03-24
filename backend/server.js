@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { logger } = require("./middleware/logger.js");
 const authRouter = require("./routes/authRoutes.js");
+const npcDialogueRoutes = require("./routes/npcDialogueRoutes.js");
 
 // ייבוא ה-Instance של Sequelize מהתיקייה החדשה
 // וודא שבתוך db/models יש קובץ index.js שתומך ב-ES Modules
@@ -18,10 +19,11 @@ app.use(logger);
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello World!, this is recipe API");
+  res.send("Welcome to AI Quest API!");
 });
 
 app.use("/auth", authRouter);
+app.use("/api/npc-dialogue", npcDialogueRoutes);
 
 // 404 Handler
 app.all(/^(.*)$/, (req, res) => {
