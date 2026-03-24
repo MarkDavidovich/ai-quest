@@ -20,8 +20,6 @@ const AUTH_COPY = {
   login: {
     badge: "Welcome back",
     title: "Log in to continue your quest",
-    description:
-      "Step back into the world, check your progress, and continue your adventure.",
     submitLabel: "Log in",
     switchPrompt: "Need an account?",
     switchLabel: "Register",
@@ -29,8 +27,6 @@ const AUTH_COPY = {
   register: {
     badge: "New here",
     title: "Create your account",
-    description:
-      "Build your hero profile and get ready to start your first quest.",
     submitLabel: "Create account",
     switchPrompt: "Already have an account?",
     switchLabel: "Log in",
@@ -137,11 +133,11 @@ const AuthPage = () => {
               <Title order={2} className={style.formTitle}>
                 {copy.title}
               </Title>
-              <Text className={style.formDescription}>{copy.description}</Text>
             </Stack>
 
             <form onSubmit={handleSubmit}>
-              <Stack gap="md">
+              <div className={style.formContainer}>
+                <Stack gap="md">
                 {error && (
                   <Text className={style.errorText} ta="center">
                     {error}
@@ -213,28 +209,8 @@ const AuthPage = () => {
                   {copy.submitLabel}
                 </Button>
               </Stack>
-            </form>
-
-            <Divider
-              className={style.divider}
-              label="or"
-              labelPosition="center"
-            />
-
-            <Text ta="center" size="sm" className={style.switchText}>
-              {copy.switchPrompt}{" "}
-              <Anchor
-                className={style.switchLink}
-                component="button"
-                type="button"
-                onClick={() => {
-                  setMode(isRegisterMode ? "login" : "register");
-                  setError(null);
-                }}
-              >
-                {copy.switchLabel}
-              </Anchor>
-            </Text>
+            </div>
+          </form>
           </Stack>
         </Paper>
       </div>

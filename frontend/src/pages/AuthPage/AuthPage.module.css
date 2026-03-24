@@ -68,7 +68,7 @@
 }
 
 .nameRow {
-  gap: 16px;
+  gap: 10px;
 }
 
 .field :global(.mantine-InputWrapper-label) {
@@ -148,6 +148,15 @@
 .switchLink {
   color: #f1c43f;
   font-size: inherit;
+}
+
+.formContainer {
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 20px;
+  transition: min-height 0.3s ease;
 }
 
 @media (max-width: 960px) {
