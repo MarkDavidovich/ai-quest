@@ -1,2 +1,38 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.name {
+  font-weight: 800;
+  color: #f7f1e5;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.hpBarContainer {
+  height: 10px;
+  background: #1a1c22;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hpBarFill {
+  height: 100%;
+  /* Premium Green Gradient */
+  background: linear-gradient(90deg, #4ef13f 0%, #19ca42 100%);
+  /* This is the secret to the 'slow transition' */
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(78, 241, 63, 0.3);
+}
+.hpText {
+  color: #979eab;
+  text-align: center;
+  font-weight: 600;
+  margin-top: 2px;
 }
