@@ -6,6 +6,14 @@ export const CAMERA_HEIGHT = 12;
 export const MOVE_DURATION = 150; // milliseconds for smooth movement animation
 export const INVENTORY_SIZE = 12;
 
+export const EMPTY_DIALOGUE = {
+  isOpen: false,
+  npcId: null,
+  nodeId: null,
+  text: "",
+  choices: [],
+};
+
 export const ITEM_DEFINITIONS = {
   potion: {
     id: "potion",

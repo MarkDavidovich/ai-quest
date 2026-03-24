@@ -2,17 +2,19 @@ import { useState, useEffect, useRef, useEffectEvent, useMemo } from "react";
 import GameViewport from "../GameViewport/GameViewport";
 import GameUI from "../GameUI/GameUI";
 import DialogueModal from "../DialogueModal/DialogueModal";
-import { GRID_WIDTH, GRID_HEIGHT, CAMERA_WIDTH, CAMERA_HEIGHT, WORLD_DATA, MOVE_DURATION, NPC_DIALOGUES, toWorldKey } from "../../utils/constants";
+import {
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  CAMERA_WIDTH,
+  CAMERA_HEIGHT,
+  WORLD_DATA,
+  MOVE_DURATION,
+  NPC_DIALOGUES,
+  toWorldKey,
+  EMPTY_DIALOGUE,
+} from "../../utils/constants";
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
-
-const EMPTY_DIALOGUE = {
-  isOpen: false,
-  npcId: null,
-  nodeId: null,
-  text: "",
-  choices: [],
-};
 
 export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
