@@ -45,7 +45,6 @@ const GameViewport = ({ playerDisplayPos, cameraPos, facingDir }) => {
     return tiles;
   }, [cameraPos.x, cameraPos.y]); // Only recalc when camera grid position changes
 
-  console.log("GameViewport rendering", { cameraPos, playerDisplayPos });
   return (
     <div
       className={style.viewport}

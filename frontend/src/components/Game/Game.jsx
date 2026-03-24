@@ -37,28 +37,29 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   // ============================================
 
   useEffect(() => {
+    // Only run the animation loop when actually moving
+    if (!isMoving) return;
+
     let animationId;
 
     const animate = () => {
-      if (isMoving) {
-        // Calculate animation progress (0 to 1)
-        const elapsed = Date.now() - moveStartTime.current;
-        const progress = Math.min(elapsed / MOVE_DURATION, 1);
+      const elapsed = Date.now() - moveStartTime.current;
+      const progress = Math.min(elapsed / MOVE_DURATION, 1);
 
-        // Apply easing function (ease-out cubic)
-        const easeProgress = 1 - Math.pow(1 - progress, 3);
+      // Apply easing function (ease-out cubic)
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-        // Interpolate between old and new position
-        const newX = prevDisplayPos.current.x + (playerGridPos.x - prevDisplayPos.current.x) * easeProgress;
-        const newY = prevDisplayPos.current.y + (playerGridPos.y - prevDisplayPos.current.y) * easeProgress;
+      // Interpolate between old and new position
+      const newX = prevDisplayPos.current.x + (playerGridPos.x - prevDisplayPos.current.x) * easeProgress;
+      const newY = prevDisplayPos.current.y + (playerGridPos.y - prevDisplayPos.current.y) * easeProgress;
 
-        setPlayerDisplayPos({ x: newX, y: newY });
+      setPlayerDisplayPos({ x: newX, y: newY });
 
-        // Animation finished?
-        if (progress >= 1) {
-          setPlayerDisplayPos(playerGridPos);
-          setIsMoving(false);
-        }
+      // Animation finished?
+      if (progress >= 1) {
+        setPlayerDisplayPos(playerGridPos);
+        setIsMoving(false);
+        return; // stop the loop
       }
 
       animationId = requestAnimationFrame(animate);
@@ -174,12 +175,24 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   useEffect(() => {
     let animationId;
     const cameraSpeed = 0.1; // Adjust between 0.05 (slower) to 0.2 (faster)
+    const SNAP_THRESHOLD = 0.01;
 
     const animateCamera = () => {
-      setDisplayCameraPos((prev) => ({
-        x: prev.x + (cameraPos.x - prev.x) * cameraSpeed,
-        y: prev.y + (cameraPos.y - prev.y) * cameraSpeed,
-      }));
+      setDisplayCameraPos((prev) => {
+        const dx = cameraPos.x - prev.x;
+        const dy = cameraPos.y - prev.y;
+
+        // Snap to target when close enough to avoid endless micro-updates.
+        // Must return `prev` (same reference) so React bails out and does NOT re-render.
+        if (Math.abs(dx) < SNAP_THRESHOLD && Math.abs(dy) < SNAP_THRESHOLD) {
+          return prev;
+        }
+
+        return {
+          x: prev.x + dx * cameraSpeed,
+          y: prev.y + dy * cameraSpeed,
+        };
+      });
 
       animationId = requestAnimationFrame(animateCamera);
     };
