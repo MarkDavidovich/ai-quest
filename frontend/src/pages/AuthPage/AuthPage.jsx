@@ -1,17 +1,5 @@
 import { useState } from "react";
-import {
-  Anchor,
-  Badge,
-  Button,
-  Divider,
-  Group,
-  Paper,
-  PasswordInput,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-} from "@mantine/core";
+import { Anchor, Badge, Button, Divider, Group, Paper, PasswordInput, Stack, Text, TextInput, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import style from "./AuthPage.module.css";
 import { useAuth } from "../../context/AuthContext";
@@ -52,22 +40,11 @@ const AuthPage = () => {
       lastName: "",
     },
     validate: {
-      email: (value) =>
-        /^\S+@\S+$/.test(value) ? null : "Enter a valid email address",
-      password: (value) =>
-        value.length < 6 ? "Password must include at least 6 characters" : null,
-      confirmPassword: (value, values) =>
-        isRegisterMode && value !== values.password
-          ? "Passwords do not match"
-          : null,
-      firstName: (value) =>
-        isRegisterMode && value.trim().length === 0
-          ? "First name is required"
-          : null,
-      lastName: (value) =>
-        isRegisterMode && value.trim().length === 0
-          ? "Last name is required"
-          : null,
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Enter a valid email address"),
+      password: (value) => (value.length < 6 ? "Password must include at least 6 characters" : null),
+      confirmPassword: (value, values) => (isRegisterMode && value !== values.password ? "Passwords do not match" : null),
+      firstName: (value) => (isRegisterMode && value.trim().length === 0 ? "First name is required" : null),
+      lastName: (value) => (isRegisterMode && value.trim().length === 0 ? "Last name is required" : null),
     },
   });
 
@@ -77,12 +54,7 @@ const AuthPage = () => {
 
     try {
       if (isRegisterMode) {
-        await register(
-          values.email,
-          values.password,
-          values.firstName,
-          values.lastName,
-        );
+        await register(values.email, values.password, values.firstName, values.lastName);
         setMode("login");
         form.reset();
         alert("Registration successful! Please log in.");
@@ -127,9 +99,6 @@ const AuthPage = () => {
             </Group>
 
             <Stack gap="xs">
-              <Badge className={style.badge} radius="xl" w="fit-content">
-                {copy.badge}
-              </Badge>
               <Title order={2} className={style.formTitle}>
                 {copy.title}
               </Title>
@@ -138,79 +107,72 @@ const AuthPage = () => {
             <form onSubmit={handleSubmit}>
               <div className={style.formContainer}>
                 <Stack gap="md">
-                {error && (
-                  <Text className={style.errorText} ta="center">
-                    {error}
-                  </Text>
-                )}
+                  {error && (
+                    <Text className={style.errorText} ta="center">
+                      {error}
+                    </Text>
+                  )}
 
-                {isRegisterMode && (
-                  <Group grow className={style.nameRow}>
-                    <TextInput
-                      className={style.field}
-                      label="First Name"
-                      placeholder="John"
-                      size="md"
-                      radius="md"
-                      required
-                      {...form.getInputProps("firstName")}
-                    />
-                    <TextInput
-                      className={style.field}
-                      label="Last Name"
-                      placeholder="Doe"
-                      size="md"
-                      radius="md"
-                      required
-                      {...form.getInputProps("lastName")}
-                    />
-                  </Group>
-                )}
+                  {isRegisterMode && (
+                    <Group grow className={style.nameRow}>
+                      <TextInput
+                        className={style.field}
+                        label="First Name"
+                        placeholder="John"
+                        size="md"
+                        radius="md"
+                        required
+                        {...form.getInputProps("firstName")}
+                      />
+                      <TextInput
+                        className={style.field}
+                        label="Last Name"
+                        placeholder="Doe"
+                        size="md"
+                        radius="md"
+                        required
+                        {...form.getInputProps("lastName")}
+                      />
+                    </Group>
+                  )}
 
-                <TextInput
-                  className={style.field}
-                  label="Email"
-                  placeholder="you@example.com"
-                  size="md"
-                  radius="md"
-                  required
-                  {...form.getInputProps("email")}
-                />
-                <PasswordInput
-                  className={style.field}
-                  label="Password"
-                  placeholder="Enter your password"
-                  size="md"
-                  radius="md"
-                  required
-                  {...form.getInputProps("password")}
-                />
-
-                {isRegisterMode && (
-                  <PasswordInput
+                  <TextInput
                     className={style.field}
-                    label="Confirm password"
-                    placeholder="Repeat your password"
+                    label="Email"
+                    placeholder="you@example.com"
                     size="md"
                     radius="md"
                     required
-                    {...form.getInputProps("confirmPassword")}
+                    {...form.getInputProps("email")}
                   />
-                )}
+                  <PasswordInput
+                    className={style.field}
+                    label="Password"
+                    placeholder="Enter your password"
+                    size="md"
+                    radius="md"
+                    required
+                    {...form.getInputProps("password")}
+                  />
 
-                <Button
-                  className={style.submitButton}
-                  type="submit"
-                  size="md"
-                  radius="xl"
-                  fullWidth
-                  loading={loading}
-                >
-                  {copy.submitLabel}
-                </Button>
-              </Stack>
-            </div>
-          </form>
+                  {isRegisterMode && (
+                    <PasswordInput
+                      className={style.field}
+                      label="Confirm password"
+                      placeholder="Repeat your password"
+                      size="md"
+                      radius="md"
+                      required
+                      {...form.getInputProps("confirmPassword")}
+                    />
+                  )}
+
+                  <Button className={style.submitButton} type="submit" size="md" radius="xl" fullWidth loading={loading}>
+                    {copy.submitLabel}
+                  </Button>
+                </Stack>
+              </div>
+            </form>
           </Stack>
         </Paper>
       </div>
