@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import style from "./Combat.module.css";
-import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, COMBAT_MOVES, ENEMIES, PLAYER_STATS } from "../../utils/constants";
+import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, COMBAT_MOVES, ENEMIES, PLAYER_STATS, EMPTY_DIALOGUE } from "../../utils/constants";
 import { calculateDamage, getRandomMove } from "../../utils/combatHelpers";
 import PlayerCombatSprite from "../PlayerCombatSprite/PlayerCombatSprite";
 import EnemyCombatSprite from "../EnemyCombatSprite/EnemyCombatSprite";
 import CombatUI from "../CombatUI/CombatUI";
+import DialogueModal from "../DialogueModal/DialogueModal";
 
 const Combat = ({ enemyId, onCombatEnd }) => {
   // ============================================
@@ -17,7 +18,66 @@ const Combat = ({ enemyId, onCombatEnd }) => {
   const [currentEnemy, setCurrentEnemy] = useState(null);
   const [battlePhase, setBattlePhase] = useState("waiting"); // "waiting" | "playerTurn" | "playerAttacking" | "enemyTurn" | "enemyAttacking" | "battleEnd"
   const [move, setSelectedMove] = useState(null);
-  const [combatLog, setCombatLog] = useState([]);
+  const [dialogue, setDialogue] = useState(EMPTY_DIALOGUE);
+  const [actionResult, setActionResult] = useState(null);
+
+  const handleChoiceSelect = (choiceId) => {
+    if (choiceId === "attack") {
+      //Show skills
+      setDialogue({
+        isOpen: true,
+        text: "Select an attack:",
+        choices: PLAYER_STATS.moves.map((id) => ({
+          id,
+          label: `${COMBAT_MOVES[id].name} `,
+        })),
+      });
+    } else if (choiceId === "run") {
+      setDialogue({ isOpen: true, text: "You tried to run, but you trip on a rock!", choices: [] });
+      //TODO implement normal escape logic
+    } else {
+      //It's a moveId
+      handlePlayerMove(choiceId);
+    }
+  };
+
+  const advanceDialogue = () => {
+    // Only advance if there are no choices and the modal is open
+    if (dialogue.isOpen && dialogue.choices.length === 0) {
+      setDialogue(EMPTY_DIALOGUE);
+    }
+
+    if (battlePhase === "starting" || battlePhase === "playerTurnStarting") {
+      setBattlePhase("playerTurn");
+      // Show main menu
+      setDialogue({
+        isOpen: true,
+        text: "What will you do?",
+        choices: [
+          { id: "attack", label: "Attack" },
+          { id: "run", label: "Run" },
+        ],
+      });
+    } else if (battlePhase === "playerAttacking") {
+      handlePlayerAttack(move);
+    } else if (battlePhase === "enemyTurnStarting") {
+      handleEnemyTurn();
+    } else if (battlePhase === "enemyAttacking") {
+      handleEnemyAttack(move);
+    } else if (battlePhase === "battleEnd") {
+      endCombat();
+    }
+  };
+
+  useEffect(() => {
+    // Auto-advance dialogue after 2 seconds if there are no choices
+    if (dialogue.isOpen && dialogue.choices.length === 0 && battlePhase !== "battleEnd") {
+      const timer = setTimeout(() => {
+        advanceDialogue();
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [dialogue]);
 
   // ============================================
   // START COMBAT FUNCTION
@@ -37,8 +97,14 @@ const Combat = ({ enemyId, onCombatEnd }) => {
     setCurrentEnemy(enemy);
     setEnemyHp(enemy.maxHp);
     setPlayerHp(PLAYER_STATS.maxHp);
-    setBattlePhase("playerTurn");
-    setCombatLog([`A ${enemy.name} appeared!`]);
+
+    setBattlePhase("starting");
+
+    setDialogue({
+      isOpen: true,
+      text: `A ${enemy.name} has appeared!`,
+      choices: [],
+    });
   };
 
   // ============================================
@@ -50,7 +116,6 @@ const Combat = ({ enemyId, onCombatEnd }) => {
     setIsActive(false);
     setCurrentEnemy(null);
     setBattlePhase("waiting");
-    setCombatLog([]);
     onCombatEnd?.();
     // TODO: Give rewards if player wins, etc
   };
@@ -59,95 +124,89 @@ const Combat = ({ enemyId, onCombatEnd }) => {
   // HANDLE PLAYER ATTACK
   // ============================================
 
-  const handlePlayerAttack = (move) => {
-    if (!move || !currentEnemy) return;
-
-    const result = calculateDamage(PLAYER_STATS, currentEnemy, move);
-
-    let newLog = [...combatLog];
-    let newEnemyHp = enemyHp;
-
-    if (!result.hit) {
-      newLog.push(`${move.name} missed!`);
-    } else {
-      newLog.push(`You hit for ${result.damage} damage!`);
-      if (result.isCritical) {
-        newLog.push("Critical hit!");
-      }
-      newEnemyHp = Math.max(0, enemyHp - result.damage);
-    }
-
-    setEnemyHp(newEnemyHp);
-    setCombatLog(newLog);
-    setSelectedMove(null);
-
-    // Check if enemy is defeated
-    if (newEnemyHp <= 0) {
+  const handlePlayerAttack = () => {
+    if (!actionResult) return;
+    setDialogue({
+      isOpen: true,
+      text: actionResult.hit ? `Hero hit for ${actionResult.damage} damage! ${actionResult.isCritical ? "CRITICAL!" : ""}` : `Hero missed!`,
+      choices: [],
+    });
+    if (enemyHp <= 0) {
       setBattlePhase("battleEnd");
-      setCombatLog((prev) => [...prev, `${currentEnemy.name} was defeated!`]);
-      return;
+      setDialogue({ isOpen: true, text: `${currentEnemy.name} was defeated!`, choices: [] });
+    } else {
+      setBattlePhase("enemyTurnStarting");
     }
-
-    // Enemy's turn
-    setTimeout(() => {
-      handleEnemyTurn();
-    }, 1000);
+    setActionResult(null); // Clear it for the next turn
   };
 
   // ============================================
-  // HANDLE ENEMY ATTACK
+  // HANDLE ENEMY TURN
   // ============================================
 
   const handleEnemyTurn = () => {
     const enemyMove = getRandomMove(currentEnemy);
+    // 1. Calculate result immediately
     const result = calculateDamage(currentEnemy, PLAYER_STATS, enemyMove);
-
-    let newLog = [...combatLog];
-    let newPlayerHp = playerHp;
-
-    newLog.push(`${currentEnemy.name} used ${enemyMove.name}!`);
-
-    if (!result.hit) {
-      newLog.push(`${currentEnemy.name}'s attack missed!`);
-    } else {
-      newLog.push(`${currentEnemy.name} hit for ${result.damage} damage!`);
-      if (result.isCritical) {
-        newLog.push("Critical hit!");
-      }
-      newPlayerHp = Math.max(0, playerHp - result.damage);
-    }
-
+    setActionResult(result); // Store it
+    // 2. Update Player HP instantly!
+    const newPlayerHp = Math.max(0, playerHp - (result.hit ? result.damage : 0));
     setPlayerHp(newPlayerHp);
-    setCombatLog(newLog);
+    setSelectedMove(enemyMove);
+    setBattlePhase("enemyAttacking");
+    setDialogue({
+      isOpen: true,
+      text: `${currentEnemy.name} used ${enemyMove.name}!`,
+      choices: [],
+    });
+  };
 
-    // Check if player is defeated
-    if (newPlayerHp <= 0) {
+  const handleEnemyAttack = () => {
+    if (!actionResult) return;
+    setDialogue({
+      isOpen: true,
+      text: actionResult.hit
+        ? `${currentEnemy.name} hit for ${actionResult.damage} damage! ${actionResult.isCritical ? "CRITICAL!" : ""}`
+        : `${currentEnemy.name}'s attack missed!`,
+      choices: [],
+    });
+    if (playerHp <= 0) {
       setBattlePhase("battleEnd");
-      setCombatLog((prev) => [...prev, "You were defeated!"]);
-      return;
+      setDialogue({ isOpen: true, text: "You were defeated...", choices: [] });
+    } else {
+      setBattlePhase("playerTurnStarting");
     }
-
-    // Back to player turn
-    setBattlePhase("playerTurn");
+    setActionResult(null); // Clear it!
   };
 
   // ============================================
-  // HANDLE PLAYER MOVE SELECTION (UPDATED)
+  // HANDLE PLAYER MOVE SELECTION
   // ============================================
 
   const handlePlayerMove = (moveId) => {
     if (battlePhase !== "playerTurn") return;
 
     const move = COMBAT_MOVES[moveId];
-    if (!move) return;
+    if (!move) {
+      return;
+    }
+
+    const result = calculateDamage(PLAYER_STATS, currentEnemy, move);
+    setActionResult(result);
+
+    const newEnemyHp = Math.max(0, enemyHp - (result.hit ? result.damage : 0));
+    setEnemyHp(newEnemyHp);
 
     setSelectedMove(move);
     setBattlePhase("playerAttacking");
 
+    setDialogue({
+      isOpen: true,
+      text: `Hero used ${move.name}!`,
+      choices: [],
+    });
+
     // Start attack animation after a short delay
-    setTimeout(() => {
-      handlePlayerAttack(move);
-    }, 800);
   };
 
   if (!isActive || !currentEnemy) {
@@ -157,7 +216,9 @@ const Combat = ({ enemyId, onCombatEnd }) => {
   return (
     <div
       className={style.container}
+      onClick={advanceDialogue}
       style={{
+        cursor: dialogue.isOpen && dialogue.choices.length === 0 ? "pointer" : "default",
         "--viewport-width": `${CAMERA_WIDTH * UNIT_SIZE}px`,
         "--viewport-height": `${CAMERA_HEIGHT * UNIT_SIZE}px`,
       }}
@@ -174,34 +235,7 @@ const Combat = ({ enemyId, onCombatEnd }) => {
         </div>
       </div>
 
-      {/* Combat Log */}
-      <div className={style.combatLog}>
-        {combatLog.slice(-3).map((log, i) => (
-          <p key={i}>{log}</p>
-        ))}
-      </div>
-
-      {/* Move Buttons - Only show during player turn */}
-      {battlePhase === "playerTurn" && (
-        <div className={style.moveButtons}>
-          {PLAYER_STATS.moves.map((moveId) => {
-            const move = COMBAT_MOVES[moveId];
-            return (
-              <button key={moveId} onClick={() => handlePlayerMove(moveId)} className={style.moveButton}>
-                {move.name}
-                <span className={style.movePower}>PWR: {move.power}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* End Combat Button - Show when battle ends */}
-      {battlePhase === "battleEnd" && (
-        <button onClick={() => endCombat()} className={style.endButton}>
-          Continue
-        </button>
-      )}
+      <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
     </div>
   );
 };
