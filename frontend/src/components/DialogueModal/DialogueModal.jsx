@@ -35,9 +35,9 @@ const DialogueModal = ({ dialogue, onChoiceSelect }) => {
         {showCursor && <span className={styles.dialogueCursor} aria-hidden="true"></span>}
       </p>
       {dialogue.choices.length > 0 && (
-        <div>
+        <div className={styles.choicesContainer}>
           {dialogue.choices.map((choice) => (
-            <button key={choice.id} type="button" onClick={() => onChoiceSelect(choice.id)} disabled={isTyping}>
+            <button key={choice.id} type="button" className={styles.choiceButton} onClick={() => onChoiceSelect(choice.id)} disabled={isTyping}>
               {choice.label}
             </button>
           ))}

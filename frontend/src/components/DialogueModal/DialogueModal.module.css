@@ -46,6 +46,41 @@
   color: rgba(255, 247, 235, 0.72);
 }
 
+.choicesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.choiceButton {
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #f1c43f 0%, #ca9919 100%);
+  color: #181711;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.1s ease,
+    filter 0.2s ease;
+}
+
+.choiceButton:hover {
+  filter: brightness(1.1);
+}
+.choiceButton:active {
+  transform: scale(0.96);
+}
+.choiceButton:disabled {
+  filter: grayscale(0.8) opacity(0.5);
+  cursor: wait;
+}
+
 @keyframes blinkCursor {
   0%,
   49% {
