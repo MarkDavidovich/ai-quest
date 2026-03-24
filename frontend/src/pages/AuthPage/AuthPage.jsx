@@ -3,7 +3,6 @@ import {
   Anchor,
   Badge,
   Button,
-  Checkbox,
   Divider,
   Group,
   Paper,
@@ -21,7 +20,8 @@ const AUTH_COPY = {
   login: {
     badge: "Welcome back",
     title: "Log in to continue your quest",
-    description: "",
+    description:
+      "Step back into the world, check your progress, and continue your adventure.",
     submitLabel: "Log in",
     switchPrompt: "Need an account?",
     switchLabel: "Register",
@@ -29,7 +29,8 @@ const AUTH_COPY = {
   register: {
     badge: "New here",
     title: "Create your account",
-    description: "",
+    description:
+      "Build your hero profile and get ready to start your first quest.",
     submitLabel: "Create account",
     switchPrompt: "Already have an account?",
     switchLabel: "Log in",
@@ -40,7 +41,7 @@ const AuthPage = () => {
   const [mode, setMode] = useState("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const { login, register } = useAuth();
 
   const copy = AUTH_COPY[mode];
@@ -53,7 +54,6 @@ const AuthPage = () => {
       confirmPassword: "",
       firstName: "",
       lastName: "",
-      terms: false,
     },
     validate: {
       email: (value) =>
@@ -65,11 +65,13 @@ const AuthPage = () => {
           ? "Passwords do not match"
           : null,
       firstName: (value) =>
-        isRegisterMode && value.trim().length === 0 ? "First name is required" : null,
+        isRegisterMode && value.trim().length === 0
+          ? "First name is required"
+          : null,
       lastName: (value) =>
-        isRegisterMode && value.trim().length === 0 ? "Last name is required" : null,
-      // terms: (value) =>
-      //   isRegisterMode && !value ? "You need to accept the terms" : null,
+        isRegisterMode && value.trim().length === 0
+          ? "Last name is required"
+          : null,
     },
   });
 
@@ -79,24 +81,19 @@ const AuthPage = () => {
 
     try {
       if (isRegisterMode) {
-        const result = await register(
+        await register(
           values.email,
           values.password,
           values.firstName,
-          values.lastName
+          values.lastName,
         );
-        console.log("Registration successful:", result);
-        // Switch to login mode after successful registration
         setMode("login");
         form.reset();
         alert("Registration successful! Please log in.");
       } else {
-        const result = await login(values.email, values.password);
-        console.log("Login successful:", result);
-        // No need for window.location.reload() since context state change will trigger re-render
+        await login(values.email, values.password);
       }
     } catch (err) {
-      console.error(`${mode} error:`, err);
       setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -106,11 +103,12 @@ const AuthPage = () => {
   return (
     <section className={style.page}>
       <div className={style.layout}>
-        <Paper className={style.formPanel} radius="24px" shadow="xl">
+        <Paper className={style.formPanel} radius="28px" shadow="xl">
           <Stack gap="xl">
             <Group grow className={style.modeSwitch}>
               <Button
-                variant={mode === "login" ? "filled" : "default"}
+                className={style.modeButton}
+                variant={mode === "login" ? "filled" : "subtle"}
                 radius="xl"
                 onClick={() => {
                   setMode("login");
@@ -120,7 +118,8 @@ const AuthPage = () => {
                 Log in
               </Button>
               <Button
-                variant={mode === "register" ? "filled" : "default"}
+                className={style.modeButton}
+                variant={mode === "register" ? "filled" : "subtle"}
                 radius="xl"
                 onClick={() => {
                   setMode("register");
@@ -132,7 +131,7 @@ const AuthPage = () => {
             </Group>
 
             <Stack gap="xs">
-              <Badge variant="light" color="violet" radius="xl" w="fit-content">
+              <Badge className={style.badge} radius="xl" w="fit-content">
                 {copy.badge}
               </Badge>
               <Title order={2} className={style.formTitle}>
@@ -144,14 +143,15 @@ const AuthPage = () => {
             <form onSubmit={handleSubmit}>
               <Stack gap="md">
                 {error && (
-                  <Text color="red" size="sm" ta="center">
+                  <Text className={style.errorText} ta="center">
                     {error}
                   </Text>
                 )}
 
                 {isRegisterMode && (
-                  <Group grow>
+                  <Group grow className={style.nameRow}>
                     <TextInput
+                      className={style.field}
                       label="First Name"
                       placeholder="John"
                       size="md"
@@ -160,6 +160,7 @@ const AuthPage = () => {
                       {...form.getInputProps("firstName")}
                     />
                     <TextInput
+                      className={style.field}
                       label="Last Name"
                       placeholder="Doe"
                       size="md"
@@ -171,6 +172,7 @@ const AuthPage = () => {
                 )}
 
                 <TextInput
+                  className={style.field}
                   label="Email"
                   placeholder="you@example.com"
                   size="md"
@@ -179,6 +181,7 @@ const AuthPage = () => {
                   {...form.getInputProps("email")}
                 />
                 <PasswordInput
+                  className={style.field}
                   label="Password"
                   placeholder="Enter your password"
                   size="md"
@@ -188,23 +191,23 @@ const AuthPage = () => {
                 />
 
                 {isRegisterMode && (
-                  <>
-                    <PasswordInput
-                      label="Confirm password"
-                      placeholder="Repeat your password"
-                      size="md"
-                      radius="md"
-                      required
-                      {...form.getInputProps("confirmPassword")}
-                    />
-                  </>
+                  <PasswordInput
+                    className={style.field}
+                    label="Confirm password"
+                    placeholder="Repeat your password"
+                    size="md"
+                    radius="md"
+                    required
+                    {...form.getInputProps("confirmPassword")}
+                  />
                 )}
 
-                <Button 
-                  type="submit" 
-                  size="md" 
-                  radius="xl" 
-                  fullWidth 
+                <Button
+                  className={style.submitButton}
+                  type="submit"
+                  size="md"
+                  radius="xl"
+                  fullWidth
                   loading={loading}
                 >
                   {copy.submitLabel}
@@ -212,16 +215,20 @@ const AuthPage = () => {
               </Stack>
             </form>
 
-            <Divider label="or" labelPosition="center" />
+            <Divider
+              className={style.divider}
+              label="or"
+              labelPosition="center"
+            />
 
             <Text ta="center" size="sm" className={style.switchText}>
               {copy.switchPrompt}{" "}
               <Anchor
+                className={style.switchLink}
                 component="button"
                 type="button"
                 onClick={() => {
-                  const newMode = isRegisterMode ? "login" : "register";
-                  setMode(newMode);
+                  setMode(isRegisterMode ? "login" : "register");
                   setError(null);
                 }}
               >
