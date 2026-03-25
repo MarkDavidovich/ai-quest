@@ -1,0 +1,17 @@
+{
+  "name": "ai-quest",
+  "version": "1.0.0",
+  "description": "AI Quest - Concurrent Execution",
+  "main": "index.js",
+  "scripts": {
+    "backend": "npm start --prefix backend",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
