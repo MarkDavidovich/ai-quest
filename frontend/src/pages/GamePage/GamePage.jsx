@@ -8,6 +8,7 @@ import { useState } from "react";
 const GamePage = () => {
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState({ x: 5, y: 5 }); //default position
+  const [currentMapId, setCurrentMapId] = useState("forest");
 
   const triggerCombat = (enemyId) => {
     setCombatData({ enemyId, isActive: true });
@@ -23,7 +24,13 @@ const GamePage = () => {
         {!combatData && (
           <>
             <Header />
-            <Game onCombatTrigger={triggerCombat} playerGridPos={playerGridPos} setPlayerGridPos={setPlayerGridPos} />
+            <Game 
+              onCombatTrigger={triggerCombat} 
+              playerGridPos={playerGridPos} 
+              setPlayerGridPos={setPlayerGridPos} 
+              currentMapId={currentMapId}
+              setCurrentMapId={setCurrentMapId}
+            />
           </>
         )}
         {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} />}

@@ -2,9 +2,9 @@ import { memo } from "react";
 import styles from "./Tile.module.css";
 import { UNIT_SIZE } from "../../utils/constants";
 
-const Tile = memo(({ type, x, y, cameraPos, category }) => {
-  const screenX = (x - cameraPos.x) * UNIT_SIZE;
-  const screenY = (y - cameraPos.y) * UNIT_SIZE;
+const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, category }) => {
+  const screenX = (x - cameraPos.x + centerOffsets.x) * UNIT_SIZE;
+  const screenY = (y - cameraPos.y + centerOffsets.y) * UNIT_SIZE;
 
   const style = {
     left: screenX,
@@ -13,7 +13,11 @@ const Tile = memo(({ type, x, y, cameraPos, category }) => {
   };
 
   if (category === "floor") {
-    const bgColor = type === 0 ? "#4a7c59" : type === "water" ? "#2a5a7f" : "#7a7a7a";
+    let bgColor = "#4a7c59"; // Grass default
+    if (type === "water") bgColor = "#2a5a7f";
+    else if (type === "stone") bgColor = "#5c5c5c";
+    else if (type === 2) bgColor = "#7a7a7a"; // Old numeric stone type
+
     return <div className={`${styles.tile} ${styles.floor}`} style={{ ...style, backgroundColor: bgColor }} />;
   }
 

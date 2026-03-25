@@ -2,10 +2,10 @@ import React from "react";
 import style from "./Player.module.css";
 import { UNIT_SIZE } from "../../utils/constants";
 
-const Player = ({ x, y, cameraPos, facingDir }) => {
+const Player = ({ x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, facingDir }) => {
   // Use the display position (smooth animation) for rendering
-  const playerScreenX = (x - cameraPos.x) * UNIT_SIZE;
-  const playerScreenY = (y - cameraPos.y) * UNIT_SIZE;
+  const playerScreenX = (x - cameraPos.x + centerOffsets.x) * UNIT_SIZE;
+  const playerScreenY = (y - cameraPos.y + centerOffsets.y) * UNIT_SIZE;
 
   const getSprite = () => {
     const { x, y } = facingDir;

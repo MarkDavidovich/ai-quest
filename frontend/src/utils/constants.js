@@ -277,3 +277,58 @@ export const WORLD_DATA = {
         }),
     ),
 };
+
+// Teleport metadata: [x,y] on current map -> { targetMap, targetX, targetY }
+export const TELEPORTS = {
+  forest: {
+    "20,3": { targetMap: "house", targetX: 5, targetY: 10 },
+    "15,12": { targetMap: "house", targetX: 5, targetY: 10 },
+    "5,19": { targetMap: "house", targetX: 5, targetY: 10 },
+  },
+  house: {
+    "5,11": { targetMap: "forest", targetX: 20, targetY: 4 },
+  },
+};
+
+export const MAPS = {
+  forest: {
+    width: GRID_WIDTH,
+    height: GRID_HEIGHT,
+    floor: WORLD_DATA.floor,
+    objects: WORLD_DATA.objects,
+    interactive: WORLD_DATA.interactive.map((row, rIdx) =>
+      row.map((tile, cIdx) => {
+        // Place entrances one tile BELOW the house objects
+        if ((rIdx === 3 && cIdx === 20) || (rIdx === 12 && cIdx === 15) || (rIdx === 19 && cIdx === 5)) return 4;
+        return tile;
+      }),
+    ),
+  },
+  house: {
+    width: 12,
+    height: 12,
+    floor: Array(12)
+      .fill(null)
+      .map(() => Array(12).fill("stone")),
+    objects: Array(12)
+      .fill(null)
+      .map((_, row) =>
+        Array(12)
+          .fill(null)
+          .map((_, col) => {
+            if (row === 0 || (row === 11 && col !== 5) || col === 0 || col === 11) return "tree";
+            return 0;
+          }),
+      ),
+    interactive: Array(12)
+      .fill(null)
+      .map((_, row) =>
+        Array(12)
+          .fill(null)
+          .map((_, col) => {
+            if (row === 11 && col === 5) return 4; // Exit
+            return 0;
+          }),
+      ),
+  },
+};

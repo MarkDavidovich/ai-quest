@@ -7,7 +7,8 @@ import {
   GRID_HEIGHT,
   CAMERA_WIDTH,
   CAMERA_HEIGHT,
-  WORLD_DATA,
+  MAPS,
+  TELEPORTS,
   MOVE_DURATION,
   NPC_DIALOGUES,
   toWorldKey,
@@ -17,8 +18,10 @@ import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from '../../services/npcDialogueApi';
 
-export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos }) {
+export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
+
+  const currentMapData = useMemo(() => MAPS[currentMapId], [currentMapId]);
 
   // SMOOTH MOVEMENT: Two position systems
   // playerGridPos = actual game position (for collision, logic)
@@ -79,15 +82,15 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
   const canMoveTo = (x, y) => {
     // Out of bounds?
-    if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT) return false;
+    if (x < 0 || x >= currentMapData.width || y < 0 || y >= currentMapData.height) return false;
     // Solid object there?
-    if (WORLD_DATA.objects[y]?.[x] !== 0) return false;
+    if (currentMapData.objects[y]?.[x] !== 0) return false;
     return true;
   };
 
   // Check what tile is at position x, y
   const getTileAt = (x, y, tileType = "objects") => {
-    return WORLD_DATA[tileType][y]?.[x] || 0;
+    return currentMapData[tileType][y]?.[x] || 0;
   };
 
   const getNpcDialogueNode = (npcId, nodeId = "start") => {
@@ -226,10 +229,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   const cameraCenterY = CAMERA_HEIGHT / 2;
   const cameraPos = useMemo(
     () => ({
-      x: Math.max(0, Math.min(Math.floor(playerGridPos.x) - cameraCenterX, GRID_WIDTH - CAMERA_WIDTH)),
-      y: Math.max(0, Math.min(Math.floor(playerGridPos.y) - cameraCenterY, GRID_HEIGHT - CAMERA_HEIGHT)),
+      x: Math.max(0, Math.min(Math.floor(playerGridPos.x) - cameraCenterX, currentMapData.width - CAMERA_WIDTH)),
+      y: Math.max(0, Math.min(Math.floor(playerGridPos.y) - cameraCenterY, currentMapData.height - CAMERA_HEIGHT)),
     }),
-    [playerGridPos.x, playerGridPos.y, cameraCenterX, cameraCenterY],
+    [playerGridPos.x, playerGridPos.y, cameraCenterX, cameraCenterY, currentMapData.width, currentMapData.height],
   );
 
   // smooth camera
@@ -297,6 +300,27 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
     // Check for interactive tiles
     const interactive = getTileAt(newX, newY, "interactive");
+    
+    // ============================================
+    // CHECK FOR TELEPORT
+    // ============================================
+    if (interactive === 4) {
+      const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
+      if (teleportData) {
+        const { targetMap, targetX, targetY } = teleportData;
+        
+        // Brief delay or visual indicator could go here
+        setMessage(`Teleporting to ${targetMap}...`);
+        
+        // Update state
+        setCurrentMapId(targetMap);
+        setPlayerGridPos({ x: targetX, y: targetY });
+        setPlayerDisplayPos({ x: targetX, y: targetY }); // Snap display pos to target
+        setIsMoving(false); // Stop current movement animation
+        return;
+      }
+    }
+
     if (interactive === 3) {
       // NEW: Encounter tile (invisible)
       const ENCOUNTER_CHANCE = 15;
@@ -432,12 +456,17 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         playerGridPos={playerGridPos}
         playerDisplayPos={playerDisplayPos}
         message={feedbackMessage || message}
-        gridWidth={GRID_WIDTH}
-        gridHeight={GRID_HEIGHT}
+        gridWidth={currentMapData.width}
+        gridHeight={currentMapData.height}
         facingDir={facingDir}
       />
       <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
-      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} />
+      <GameViewport 
+        playerDisplayPos={playerDisplayPos} 
+        cameraPos={displayCameraPos} 
+        facingDir={facingDir} 
+        currentMapData={currentMapData}
+      />
     </div>
   );
 }
