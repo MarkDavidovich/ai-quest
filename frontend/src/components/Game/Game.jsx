@@ -16,7 +16,7 @@ import {
 } from "../../utils/constants";
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
-import { fetchAiDialogue } from '../../services/npcDialogueApi';
+import { fetchAiDialogue } from "../../services/npcDialogueApi";
 
 export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
@@ -148,31 +148,24 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     }
 
     /* AI route */
-    const selectedChoice = dialogue.choices.find(c => c.id === choiceId);
+    const selectedChoice = dialogue.choices.find((c) => c.id === choiceId);
     const playerText = selectedChoice ? selectedChoice.label : "";
-
 
     const pastHistory = npcMemories[dialogue.npcId] || [];
 
-    const updatedHistory = [
-      ...pastHistory,
-      { source: "player", text: playerText }
-    ];
+    const updatedHistory = [...pastHistory, { source: "player", text: playerText }];
 
-    setDialogue(prev => ({
+    setDialogue((prev) => ({
       ...prev,
       isLoading: true,
       text: "Thinking...",
-      choices: []
+      choices: [],
     }));
 
     try {
       const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory);
 
-      const newHistory = [
-        ...updatedHistory,
-        { source: "ai", text: aiData.text }
-      ];
+      const newHistory = [...updatedHistory, { source: "ai", text: aiData.text }];
 
       setDialogue({
         isOpen: true,
@@ -182,11 +175,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         choices: aiData.choices,
         isLoading: false,
         source: "ai",
-        history: newHistory
+        history: newHistory,
       });
 
-      setNpcMemories(prev => ({ ...prev, [dialogue.npcId]: newHistory }));
-
+      setNpcMemories((prev) => ({ ...prev, [dialogue.npcId]: newHistory }));
     } catch (error) {
       setDialogue({
         isOpen: true,
@@ -194,13 +186,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         text: "*The NPC seems distracted and ignores you.*",
         choices: [{ id: "leave", label: "(Leave)" }],
         isLoading: false,
-        source: "static"
+        source: "static",
       });
     }
-  }
-
-
-
+  };
 
   const getNearbyNpc = () => {
     const candidateOffsets = [facingDir, { x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];
@@ -300,7 +289,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
     // Check for interactive tiles
     const interactive = getTileAt(newX, newY, "interactive");
-    
+
     // ============================================
     // CHECK FOR TELEPORT
     // ============================================
@@ -308,10 +297,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
       if (teleportData) {
         const { targetMap, targetX, targetY } = teleportData;
-        
+
         // Brief delay or visual indicator could go here
         setMessage(`Teleporting to ${targetMap}...`);
-        
+
         // Update state
         setCurrentMapId(targetMap);
         setPlayerGridPos({ x: targetX, y: targetY });
@@ -363,7 +352,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         choices: [],
         isLoading: true,
         source: "ai",
-        history: pastHistory
+        history: pastHistory,
       });
 
       try {
@@ -379,16 +368,15 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           choices: aiData.choices,
           isLoading: false,
           source: "ai",
-          history: newHistory
+          history: newHistory,
         });
 
-        setNpcMemories(prev => ({ ...prev, [nearbyNpc.npcId]: newHistory }));
-
+        setNpcMemories((prev) => ({ ...prev, [nearbyNpc.npcId]: newHistory }));
       } catch (error) {
         console.warn("Falling back to static dialogue");
         setDialogue({
           ...createDialogueState(nearbyNpc.npcId, "start"),
-          source: "static"
+          source: "static",
         });
       }
       return;
@@ -401,6 +389,11 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     if (targetLoot?.kind === "chest") {
       const openResult = openContainer(toWorldKey(targetX, targetY));
       setMessage(openResult.message);
+      setDialogue({
+        isOpen: true,
+        text: openResult.message,
+        choices: [],
+      });
       return;
     }
 
@@ -452,21 +445,16 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
   return (
     <div className={styles.container}>
-      <GameUI
+      {/* <GameUI
         playerGridPos={playerGridPos}
         playerDisplayPos={playerDisplayPos}
         message={feedbackMessage || message}
         gridWidth={currentMapData.width}
         gridHeight={currentMapData.height}
         facingDir={facingDir}
-      />
+      /> */}
       <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
-      <GameViewport 
-        playerDisplayPos={playerDisplayPos} 
-        cameraPos={displayCameraPos} 
-        facingDir={facingDir} 
-        currentMapData={currentMapData}
-      />
+      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} currentMapData={currentMapData} />
     </div>
   );
 }
