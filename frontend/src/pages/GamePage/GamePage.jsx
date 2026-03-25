@@ -21,9 +21,9 @@ const GamePage = () => {
   return (
     <InventoryProvider>
       <div className={style.container}>
+        <Header isBattle={Boolean(combatData)} />
         {!combatData && (
           <>
-            <Header />
             <Game 
               onCombatTrigger={triggerCombat} 
               playerGridPos={playerGridPos} 

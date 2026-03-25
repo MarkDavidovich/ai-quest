@@ -1,8 +1,9 @@
 import styles from "./Header.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { useAuth } from "../../context/AuthContext";
+import { CAMERA_WIDTH, UNIT_SIZE } from "../../utils/constants";
 
-const Header = () => {
+const Header = ({ isBattle = false }) => {
   const {
     itemDefinitions,
     slots,
@@ -30,9 +31,17 @@ const Header = () => {
 
   const selectedSlot = selectedSlotIndex !== null ? slots[selectedSlotIndex] : null;
   const selectedItem = selectedSlot ? itemDefinitions[selectedSlot.itemId] : null;
+  const gameWidth = `${CAMERA_WIDTH * UNIT_SIZE}px`;
 
   return (
-    <header className={styles.header}>
+    <header
+      className={styles.header}
+      style={{
+        width: gameWidth,
+        minWidth: gameWidth,
+        maxWidth: gameWidth,
+      }}
+    >
       <div className={styles.statsContainer}>
         <div className={styles.charInfo}>
           <span className={styles.name}>{user ? `${user.firstName} ${user.lastName}` : "Hero"}</span>
@@ -51,33 +60,50 @@ const Header = () => {
         </div>
       </div>
 
-      <nav className={styles.nav}>
-        <button
-          className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`}
-          type="button"
-          onClick={handleInventoryToggle}
+      {isBattle ? (
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#f6c63d",
+            fontSize: "2.4rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+          }}
         >
-          Inventory
-        </button>
-        <button className={styles.navButton} type="button">
-          Quest
-        </button>
-        <button className={styles.navButton} type="button">
-          Map
-        </button>
-        <button className={styles.navButton} type="button">
-          Chat
-        </button>
-        <button 
-          className={`${styles.navButton} ${styles.logoutButton}`} 
-          type="button"
-          onClick={logout}
-        >
-          Logout
-        </button>
-      </nav>
+          Battle
+        </div>
+      ) : (
+        <nav className={styles.nav}>
+          <button
+            className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`}
+            type="button"
+            onClick={handleInventoryToggle}
+          >
+            Inventory
+          </button>
+          <button className={styles.navButton} type="button">
+            Quest
+          </button>
+          <button className={styles.navButton} type="button">
+            Map
+          </button>
+          <button className={styles.navButton} type="button">
+            Chat
+          </button>
+          <button
+            className={`${styles.navButton} ${styles.logoutButton}`}
+            type="button"
+            onClick={logout}
+          >
+            Logout
+          </button>
+        </nav>
+      )}
 
-      {isInventoryOpen && (
+      {!isBattle && isInventoryOpen && (
         <div className={styles.inventoryPanel}>
           <div className={styles.inventoryHeader}>
             <h3>Inventory</h3>
