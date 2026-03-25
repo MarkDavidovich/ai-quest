@@ -191,6 +191,14 @@ export const COMBAT_MOVES = {
     type: "magic",
     description: "Shoot a ball of fire",
   },
+  kill: {
+    id: "kill",
+    name: "Kill",
+    power: 9999,
+    accuracy: 100,
+    type: "physical",
+    description: "Kill the enemy",
+  },
 };
 
 export const ENEMIES = {
@@ -221,7 +229,7 @@ export const PLAYER_STATS = {
   attack: 15,
   defense: 10,
   speed: 12,
-  moves: ["strike", "doubleSlash"],
+  moves: ["strike", "doubleSlash", "kill"],
 };
 
 //currently the map is constant
