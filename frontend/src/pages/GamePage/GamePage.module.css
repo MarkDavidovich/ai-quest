@@ -5,3 +5,10 @@
   align-items: center;
   font-family: var(--font-sans, sans-serif);
 }
+
+.gameWrapper {
+  position: relative;
+  width: fit-content;
+  overflow: hidden;
+  border-radius: 8px; /* Optional: matches game look */
+}

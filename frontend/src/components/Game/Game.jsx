@@ -18,7 +18,7 @@ import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from "../../services/npcDialogueApi";
 
-export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId }) {
+export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
 
   const currentMapData = useMemo(() => MAPS[currentMapId], [currentMapId]);
@@ -298,14 +298,12 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       if (teleportData) {
         const { targetMap, targetX, targetY } = teleportData;
 
-        // Brief delay or visual indicator could go here
-        setMessage(`Teleporting to ${targetMap}...`);
-
-        // Update state
-        setCurrentMapId(targetMap);
-        setPlayerGridPos({ x: targetX, y: targetY });
-        setPlayerDisplayPos({ x: targetX, y: targetY }); // Snap display pos to target
-        setIsMoving(false); // Stop current movement animation
+        triggerTransition?.("map", () => {
+          setCurrentMapId(targetMap);
+          setPlayerGridPos({ x: targetX, y: targetY });
+          setPlayerDisplayPos({ x: targetX, y: targetY }); // Snap display pos to target
+          setIsMoving(false); // Stop current movement animation
+        });
         return;
       }
     }
@@ -316,7 +314,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       if (Math.random() * 100 < ENCOUNTER_CHANCE) {
         // Biome-based enemy selection
         let enemyId = "goblin"; // Default
-        onCombatTrigger?.(enemyId);
+
+        triggerTransition?.("battle", () => {
+          onCombatTrigger?.(enemyId);
+        });
         return; // Exit early so we don't keep moving
       }
 
