@@ -44,11 +44,16 @@ const Header = ({ isBattle = false }) => {
     >
       <div className={styles.statsContainer}>
         <div className={styles.charInfo}>
-          <span className={styles.name}>{user ? `${user.firstName} ${user.lastName}` : "Hero"}</span>
-          <span className={styles.level}>Lv. 1</span>
+          {!isBattle && (
+            <>
+              <span className={styles.name}>{user ? `${user.firstName} ${user.lastName}` : "Hero"}</span>
+              <span className={styles.level}>Lv. 1</span>
+            </>
+          )}
         </div>
 
-        <div className={styles.bars}>
+       {!isBattle && (
+         <div className={styles.bars}>
           <div className={styles.barWrapper}>
             <span className={styles.barLabel}>HP: 100 / 100</span>
             <div className={`${styles.bar} ${styles.hpBar}`}></div>
@@ -58,6 +63,7 @@ const Header = ({ isBattle = false }) => {
             <div className={`${styles.bar} ${styles.mpBar}`}></div>
           </div>
         </div>
+       )}
       </div>
 
       {isBattle ? (
