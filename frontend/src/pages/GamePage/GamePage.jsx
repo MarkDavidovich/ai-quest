@@ -14,8 +14,14 @@ const GamePage = () => {
   const [playerHp, setPlayerHp] = useState(PLAYER_STATS.maxHp);
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
 
+  const handleItemUse = (itemId) => {
+    if (itemId === "potion") {
+      // Heal 50 HP, but don't exceed max
+      setPlayerHp((prev) => Math.min(PLAYER_STATS.maxHp, prev + 50));
+    }
+  };
+
   const triggerTransition = async (type, onCommit) => {
-    // 1. Start transition
     setTransition({ step: "entering", type });
 
     // 2. Wait for cover animation (0.5s)
@@ -50,7 +56,7 @@ const GamePage = () => {
   return (
     <InventoryProvider>
       <div className={style.container}>
-        <Header isBattle={Boolean(combatData)} playerHp={playerHp} />
+        <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} />
 
         <div
           className={style.gameWrapper}
@@ -72,14 +78,7 @@ const GamePage = () => {
               isTransitioning={transition.step !== "closed"}
             />
           )}
-          {combatData && (
-            <Combat 
-              enemyId={combatData.enemyId} 
-              onCombatEnd={endCombat} 
-              playerHp={playerHp}
-              setPlayerHp={setPlayerHp}
-            />
-          )}
+          {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
 
           <TransitionOverlay step={transition.step} type={transition.type} />
         </div>

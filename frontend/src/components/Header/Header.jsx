@@ -3,21 +3,20 @@ import { useInventory } from "../../context/InventoryContext";
 import { useAuth } from "../../context/AuthContext";
 import { CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
 
-const Header = ({ isBattle = false, playerHp = 100 }) => {
-  const {
-    itemDefinitions,
-    slots,
-    selectedSlotIndex,
-    isInventoryOpen,
-    toggleInventory,
-    selectSlot,
-    useSelectedItem,
-  } = useInventory();
+const Header = ({ isBattle = false, playerHp = 100, onUseItem }) => {
+  const { itemDefinitions, slots, selectedSlotIndex, isInventoryOpen, toggleInventory, selectSlot, useSelectedItem } = useInventory();
 
   const { user, logout } = useAuth();
 
   const handleInventoryToggle = () => {
     toggleInventory();
+  };
+
+  const handleItemUsage = () => {
+    const result = useSelectedItem();
+    if (result.status === "used") {
+      onUseItem?.(result.itemId);
+    }
   };
 
   const handleSlotClick = (slotIndex, hasItem) => {
@@ -55,24 +54,20 @@ const Header = ({ isBattle = false, playerHp = 100 }) => {
           )}
         </div>
 
-       {!isBattle && (
-         <div className={styles.bars}>
-          <div className={styles.barWrapper}>
-            <span className={styles.barLabel}>HP: {playerHp} / {PLAYER_STATS.maxHp}</span>
-            <div 
-              className={`${styles.bar} ${styles.hpBar}`} 
-              style={{ width: `${hpPercent}%` }}
-            ></div>
+        {!isBattle && (
+          <div className={styles.bars}>
+            <div className={styles.barWrapper}>
+              <span className={styles.barLabel}>
+                HP: {playerHp} / {PLAYER_STATS.maxHp}
+              </span>
+              <div className={`${styles.bar} ${styles.hpBar}`} style={{ width: `${hpPercent}%` }}></div>
+            </div>
+            <div className={styles.barWrapper}>
+              <span className={styles.barLabel}>MP: 50 / 50</span>
+              <div className={`${styles.bar} ${styles.mpBar}`} style={{ width: `100%` }}></div>
+            </div>
           </div>
-          <div className={styles.barWrapper}>
-            <span className={styles.barLabel}>MP: 50 / 50</span>
-            <div 
-              className={`${styles.bar} ${styles.mpBar}`}
-              style={{ width: `100%` }}
-            ></div>
-          </div>
-        </div>
-       )}
+        )}
       </div>
 
       {isBattle ? (
@@ -92,11 +87,7 @@ const Header = ({ isBattle = false, playerHp = 100 }) => {
         </div>
       ) : (
         <nav className={styles.nav}>
-          <button
-            className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`}
-            type="button"
-            onClick={handleInventoryToggle}
-          >
+          <button className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`} type="button" onClick={handleInventoryToggle}>
             Inventory
           </button>
           <button className={styles.navButton} type="button">
@@ -108,11 +99,7 @@ const Header = ({ isBattle = false, playerHp = 100 }) => {
           <button className={styles.navButton} type="button">
             Chat
           </button>
-          <button
-            className={`${styles.navButton} ${styles.logoutButton}`}
-            type="button"
-            onClick={logout}
-          >
+          <button className={`${styles.navButton} ${styles.logoutButton}`} type="button" onClick={logout}>
             Logout
           </button>
         </nav>
@@ -146,15 +133,8 @@ const Header = ({ isBattle = false, playerHp = 100 }) => {
             })}
           </div>
           <div className={styles.inventoryActions}>
-            <p className={styles.selectionLabel}>
-              {selectedItem ? `Selected: ${selectedItem.name}` : "Selected: none"}
-            </p>
-            <button
-              type="button"
-              className={styles.useItemButton}
-              onClick={useSelectedItem}
-              disabled={!selectedSlot}
-            >
+            <p className={styles.selectionLabel}>{selectedItem ? `Selected: ${selectedItem.name}` : "Selected: none"}</p>
+            <button type="button" className={styles.useItemButton} onClick={handleItemUsage} disabled={!selectedSlot}>
               Use Item
             </button>
           </div>
