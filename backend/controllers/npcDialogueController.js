@@ -2,13 +2,13 @@ const { generateNpcResponse } = require('../services/openaiClient');
 
 const chatWithNpc = async (req, res) => {
     try {
-        const { npcId, meesage, history } = req.body;
+        const { npcId, message, history } = req.body;
 
         if (!npcId) {
             return res.status(400).json({ error: 'npcId is required!' });
         }
 
-        const aiResponse = await generateNpcResponse(npcId, meesage, history);
+        const aiResponse = await generateNpcResponse(npcId, message, history);
 
         return res.json({
             npcId,
