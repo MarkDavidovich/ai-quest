@@ -16,7 +16,7 @@ const GamePage = () => {
   const triggerTransition = async (type, onCommit) => {
     // 1. Start transition
     setTransition({ step: "entering", type });
-    
+
     // 2. Wait for cover animation (0.5s)
     await new Promise((resolve) => setTimeout(resolve, 500));
     setTransition({ step: "black", type });
@@ -26,12 +26,12 @@ const GamePage = () => {
 
     // 4. Brief pause for render stability (increased for better masking)
     await new Promise((resolve) => setTimeout(resolve, 200));
-    
+
     // 5. Retreat transition
     setTransition({ step: "exiting", type });
 
     // 6. Cleanup
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     setTransition({ step: "closed", type });
   };
 
@@ -50,8 +50,8 @@ const GamePage = () => {
     <InventoryProvider>
       <div className={style.container}>
         <Header isBattle={Boolean(combatData)} />
-        
-        <div 
+
+        <div
           className={style.gameWrapper}
           style={{
             width: gameWidth,
@@ -68,10 +68,11 @@ const GamePage = () => {
               currentMapId={currentMapId}
               setCurrentMapId={setCurrentMapId}
               triggerTransition={triggerTransition}
+              isTransitioning={transition.step !== "closed"}
             />
           )}
           {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} />}
-          
+
           <TransitionOverlay step={transition.step} type={transition.type} />
         </div>
       </div>

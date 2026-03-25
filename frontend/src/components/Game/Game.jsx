@@ -18,7 +18,7 @@ import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from "../../services/npcDialogueApi";
 
-export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition }) {
+export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition, isTransitioning }) {
   const { worldLoot, feedbackMessage, openContainer } = useInventory();
 
   const currentMapData = useMemo(() => MAPS[currentMapId], [currentMapId]);
@@ -259,7 +259,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   // ============================================
 
   function handleMove(dx, dy) {
-    if (dialogue.isOpen) return;
+    if (dialogue.isOpen || isTransitioning) return;
 
     // Update facing direction
     setFacingDir({ x: dx, y: dy });
