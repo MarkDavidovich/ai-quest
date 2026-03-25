@@ -7,13 +7,13 @@ import EnemyCombatSprite from "../EnemyCombatSprite/EnemyCombatSprite";
 import CombatUI from "../CombatUI/CombatUI";
 import DialogueModal from "../DialogueModal/DialogueModal";
 
-const Combat = ({ enemyId, onCombatEnd }) => {
+const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
   // ============================================
   // COMBAT STATE
   // ============================================
 
   const [isActive, setIsActive] = useState(false);
-  const [playerHp, setPlayerHp] = useState(PLAYER_STATS.maxHp);
+  // playerHp is now managed by props
   const [enemyHp, setEnemyHp] = useState(0);
   const [currentEnemy, setCurrentEnemy] = useState(null);
   const [battlePhase, setBattlePhase] = useState("waiting"); // "waiting" | "playerTurn" | "playerAttacking" | "enemyTurn" | "enemyAttacking" | "battleEnd"
@@ -96,7 +96,7 @@ const Combat = ({ enemyId, onCombatEnd }) => {
     setIsActive(true);
     setCurrentEnemy(enemy);
     setEnemyHp(enemy.maxHp);
-    setPlayerHp(PLAYER_STATS.maxHp);
+    // Health reset removed to support persistence
 
     setBattlePhase("starting");
 

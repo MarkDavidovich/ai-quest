@@ -3,7 +3,7 @@ import Game from "../../components/Game/Game";
 import Combat from "../../components/Combat/Combat";
 import Header from "../../components/Header/Header";
 import TransitionOverlay from "../../components/TransitionOverlay/TransitionOverlay";
-import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE } from "../../utils/constants";
+import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
 import { InventoryProvider } from "../../context/InventoryContext";
 import { useState } from "react";
 
@@ -11,6 +11,7 @@ const GamePage = () => {
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState({ x: 5, y: 5 }); //default position
   const [currentMapId, setCurrentMapId] = useState("forest");
+  const [playerHp, setPlayerHp] = useState(PLAYER_STATS.maxHp);
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
 
   const triggerTransition = async (type, onCommit) => {
@@ -49,7 +50,7 @@ const GamePage = () => {
   return (
     <InventoryProvider>
       <div className={style.container}>
-        <Header isBattle={Boolean(combatData)} />
+        <Header isBattle={Boolean(combatData)} playerHp={playerHp} />
 
         <div
           className={style.gameWrapper}
@@ -71,7 +72,14 @@ const GamePage = () => {
               isTransitioning={transition.step !== "closed"}
             />
           )}
-          {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} />}
+          {combatData && (
+            <Combat 
+              enemyId={combatData.enemyId} 
+              onCombatEnd={endCombat} 
+              playerHp={playerHp}
+              setPlayerHp={setPlayerHp}
+            />
+          )}
 
           <TransitionOverlay step={transition.step} type={transition.type} />
         </div>

@@ -1,9 +1,9 @@
 import styles from "./Header.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { useAuth } from "../../context/AuthContext";
-import { CAMERA_WIDTH, UNIT_SIZE } from "../../utils/constants";
+import { CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
 
-const Header = ({ isBattle = false }) => {
+const Header = ({ isBattle = false, playerHp = 100 }) => {
   const {
     itemDefinitions,
     slots,
@@ -33,6 +33,9 @@ const Header = ({ isBattle = false }) => {
   const selectedItem = selectedSlot ? itemDefinitions[selectedSlot.itemId] : null;
   const gameWidth = `${CAMERA_WIDTH * UNIT_SIZE}px`;
 
+  // Calculate HP percentage
+  const hpPercent = Math.max(0, Math.min(100, (playerHp / PLAYER_STATS.maxHp) * 100));
+
   return (
     <header
       className={styles.header}
@@ -55,12 +58,18 @@ const Header = ({ isBattle = false }) => {
        {!isBattle && (
          <div className={styles.bars}>
           <div className={styles.barWrapper}>
-            <span className={styles.barLabel}>HP: 100 / 100</span>
-            <div className={`${styles.bar} ${styles.hpBar}`}></div>
+            <span className={styles.barLabel}>HP: {playerHp} / {PLAYER_STATS.maxHp}</span>
+            <div 
+              className={`${styles.bar} ${styles.hpBar}`} 
+              style={{ width: `${hpPercent}%` }}
+            ></div>
           </div>
           <div className={styles.barWrapper}>
             <span className={styles.barLabel}>MP: 50 / 50</span>
-            <div className={`${styles.bar} ${styles.mpBar}`}></div>
+            <div 
+              className={`${styles.bar} ${styles.mpBar}`}
+              style={{ width: `100%` }}
+            ></div>
           </div>
         </div>
        )}
