@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api/npc-dialogue/chat';
+const API_URL = '/api/npc-dialogue/chat';
 
 export const fetchAiDialogue = async (npcId, message = "", history = []) => {
     try {

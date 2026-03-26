@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const { logger } = require("./middleware/logger.js");
 const authRouter = require("./routes/authRoutes.js");
 const npcDialogueRoutes = require("./routes/npcDialogueRoutes.js");
@@ -15,19 +16,16 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 app.use(logger);
 
-// Routes
-app.get("/", (req, res) => {
-  res.send("Welcome to AI Quest API!");
-});
-
+// API Routes
 app.use("/auth", authRouter);
 app.use("/api/npc-dialogue", npcDialogueRoutes);
 
-// 404 Handler
-app.all(/^(.*)$/, (req, res) => {
-  res.status(404).send("Page not found");
+// Catch-all route to serve the React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
 // Global Error Handler
