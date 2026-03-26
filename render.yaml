@@ -20,5 +20,4 @@ services:
 databases:
   - name: ai-quest-db
     databaseName: ai_quest_prod
-    user: postgres
     plan: free
