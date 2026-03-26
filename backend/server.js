@@ -24,7 +24,7 @@ app.use("/auth", authRouter);
 app.use("/api/npc-dialogue", npcDialogueRoutes);
 
 // Catch-all route to serve the React app
-app.get("*", (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
