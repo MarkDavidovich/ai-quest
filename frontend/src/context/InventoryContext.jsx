@@ -39,6 +39,20 @@ const createInitialState = (initialItems) => {
   };
 
 };
+/* helper function indicate to tell which item availble and time counter*/
+const getContainerDrops = (container, coordinateKey) => {
+  const now = Date.now();
+  const COOLDOWN_MS = 60000;
+  if (!container.openedAt) {
+    return { drops: container.drops, remainingSecs: 0 };
+  }
+  const timePassed = now - container.openedAt;
+  if (timePassed < COOLDOWN_MS) {
+    return { drops: [], remainingSecs: Math.ceil((COOLDOWN_MS - timePassed) / 1000) };
+  }
+  const originalLoot = INITIAL_WORLD_LOOT[coordinateKey];
+  return { drops: originalLoot ? originalLoot.drops.map(cloneDrop) : [], remainingSecs: 0 };
+};
 
 const getItemDefinition = (itemId) => ITEM_DEFINITIONS[itemId];
 
@@ -115,48 +129,34 @@ const reduceOpenContainer = (state, coordinateKey) => {
   const container = state.worldLoot[coordinateKey];
 
   if (!container) {
-    return {
-      nextState: state,
-      result: { status: "missing", message: "There is nothing here." },
-    };
+    return { nextState: state, result: { status: "missing", message: "There is nothing here." } };
   }
 
-  if (container.opened || container.drops.length === 0) {
-    return {
-      nextState: {
-        ...state,
-        feedbackMessage: "This chest is empty.",
-      },
-      result: { status: "empty", message: "This chest is empty." },
-    };
+  const { drops: currentDrops, remainingSecs } = getContainerDrops(container, coordinateKey);
+
+  if (remainingSecs > 0) {
+    const message = `Empty. Try again in ${remainingSecs}s.`;
+    return { nextState: { ...state, feedbackMessage: message }, result: { status: "empty", message } };
   }
+
+  if (currentDrops.length === 0) {
+    return { nextState: { ...state, feedbackMessage: "This chest is empty." }, result: { status: "empty", message: "This chest is empty." } };
+  }
+
 
   let nextSlots = state.slots.map(cloneSlot);
   const grantedDrops = [];
   const leftoverDrops = [];
 
-  container.drops.forEach((drop) => {
-    const addResult = addItemToSlots(nextSlots, drop.itemId, drop.quantity);
-    nextSlots = addResult.nextSlots;
+  currentDrops.forEach((drop) => {
+    const { nextSlots: updatedSlots, addedQuantity, leftoverQuantity } = addItemToSlots(nextSlots, drop.itemId, drop.quantity);
+    nextSlots = updatedSlots;
 
-    if (addResult.addedQuantity > 0) {
-      grantedDrops.push({ itemId: drop.itemId, quantity: addResult.addedQuantity });
-    }
-
-    if (addResult.leftoverQuantity > 0) {
-      leftoverDrops.push({ itemId: drop.itemId, quantity: addResult.leftoverQuantity });
-    }
+    if (addedQuantity > 0) grantedDrops.push({ itemId: drop.itemId, quantity: addedQuantity });
+    if (leftoverQuantity > 0) leftoverDrops.push({ itemId: drop.itemId, quantity: leftoverQuantity });
   });
 
-  const nextWorldLoot = {
-    ...state.worldLoot,
-    [coordinateKey]: {
-      ...container,
-      opened: leftoverDrops.length === 0,
-      drops: leftoverDrops.map(cloneDrop),
-    },
-  };
-
+  const isNowEmpty = leftoverDrops.length === 0;
   const message = getInventorySummary(grantedDrops, leftoverDrops);
 
   return {
@@ -164,17 +164,15 @@ const reduceOpenContainer = (state, coordinateKey) => {
       ...state,
       slots: nextSlots,
       selectedSlotIndex: resolveInventorySelection(nextSlots, state.selectedSlotIndex),
-      worldLoot: nextWorldLoot,
+      worldLoot: {
+        ...state.worldLoot,
+        [coordinateKey]: { ...container, opened: isNowEmpty, openedAt: isNowEmpty ? Date.now() : null, drops: leftoverDrops }
+      },
       feedbackMessage: message,
     },
-    result: {
-      status: grantedDrops.length > 0 ? "opened" : "full",
-      message,
-      grantedDrops,
-      leftoverDrops,
-    },
+    result: { status: grantedDrops.length > 0 ? "opened" : "full", message, grantedDrops, leftoverDrops },
   };
-};
+}
 
 const reduceUseSelectedItem = (state) => {
   if (state.selectedSlotIndex === null) {
