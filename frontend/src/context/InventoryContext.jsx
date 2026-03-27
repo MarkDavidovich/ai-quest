@@ -8,21 +8,37 @@ const FEEDBACK_TIMEOUT_MS = 1800;
 const cloneSlot = (slot) => (slot ? { ...slot } : null);
 const cloneDrop = (drop) => ({ ...drop });
 
-const createInitialState = () => ({
-  slots: INITIAL_INVENTORY.map(cloneSlot),
-  selectedSlotIndex: null,
-  isInventoryOpen: false,
-  worldLoot: Object.fromEntries(
-    Object.entries(INITIAL_WORLD_LOOT).map(([coordinateKey, loot]) => [
-      coordinateKey,
-      {
-        ...loot,
-        drops: loot.drops.map(cloneDrop),
-      },
-    ]),
-  ),
-  feedbackMessage: "",
-});
+const createInitialState = (initialItems) => {
+
+  let startingSlots = INITIAL_INVENTORY.map(() => null);
+
+  if (initialItems && initialItems.length > 0) {
+    initialItems.forEach((item, index) => {
+      if (index < startingSlots.length) {
+        startingSlots[index] = { itemId: item.name, quantity: item.quantity };
+      }
+    });
+  } else {
+    startingSlots = INITIAL_INVENTORY.map(cloneSlot);
+  }
+
+  return {
+    slots: startingSlots,
+    selectedSlotIndex: null,
+    isInventoryOpen: false,
+    worldLoot: Object.fromEntries(
+      Object.entries(INITIAL_WORLD_LOOT).map(([coordinateKey, loot]) => [
+        coordinateKey,
+        {
+          ...loot,
+          drops: loot.drops.map(cloneDrop),
+        },
+      ]),
+    ),
+    feedbackMessage: "",
+  };
+
+};
 
 const getItemDefinition = (itemId) => ITEM_DEFINITIONS[itemId];
 
@@ -247,8 +263,8 @@ const inventoryReducer = (state, action) => {
   }
 };
 
-export const InventoryProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(inventoryReducer, undefined, createInitialState);
+export const InventoryProvider = ({ children, initialItems }) => {
+  const [state, dispatch] = useReducer(inventoryReducer, initialItems, createInitialState);
 
   useEffect(() => {
     if (!state.feedbackMessage) {
