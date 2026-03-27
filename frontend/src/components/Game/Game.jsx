@@ -116,6 +116,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       nodeId,
       text: dialogueNode.text,
       choices: dialogueNode.choices || [],
+      caller: "NPC",
     };
   };
 
@@ -176,6 +177,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         isLoading: false,
         source: "ai",
         history: newHistory,
+        caller: "Villager",
       });
 
       setNpcMemories((prev) => ({ ...prev, [dialogue.npcId]: newHistory }));
@@ -354,6 +356,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         isLoading: true,
         source: "ai",
         history: pastHistory,
+        caller: "Villager",
       });
 
       try {
@@ -370,6 +373,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           isLoading: false,
           source: "ai",
           history: newHistory,
+          caller: "Villager",
         });
 
         setNpcMemories((prev) => ({ ...prev, [nearbyNpc.npcId]: newHistory }));

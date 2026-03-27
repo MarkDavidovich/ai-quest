@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import styles from "./DialogueModal.module.css";
+
 const DialogueModal = ({ dialogue, onChoiceSelect }) => {
   const [typedDialogue, setTypedDialogue] = useState("");
   const [showCursor, setShowCursor] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+
   useEffect(() => {
     if (!dialogue.isOpen) {
       setTypedDialogue("");
@@ -24,12 +26,14 @@ const DialogueModal = ({ dialogue, onChoiceSelect }) => {
         setIsTyping(false);
       }
     }, 28);
+
     return () => window.clearInterval(typingInterval);
   }, [dialogue.isOpen, dialogue.text]);
   if (!dialogue.isOpen) return null;
+
   return (
     <div className={styles.dialogueModal}>
-      <p className={styles.dialogueLabel}>NPC</p>
+      <p className={styles.dialogueLabel}>{dialogue.caller}</p>
       <p className={styles.dialogueText}>
         {typedDialogue}
         {showCursor && <span className={styles.dialogueCursor} aria-hidden="true"></span>}
@@ -47,4 +51,5 @@ const DialogueModal = ({ dialogue, onChoiceSelect }) => {
     </div>
   );
 };
+
 export default DialogueModal;
