@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'inventory' // השם שישמש אותנו כשנשלוף את התיק של השחקן
       });
+
+      User.hasOne(models.GameSassion, {
+        foreignKey: 'user_id',
+        as: 'session'
+      });
     }
   }
 
