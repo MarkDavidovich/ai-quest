@@ -17,8 +17,8 @@ const MenuPage = () => {
       navigate('/game', { state: { loadSave: savedData } });
 
     } catch (error) {
-      console.error('Load game failed:', error);
-      alert('No existing save has found' + error.message);
+      console.error('Load game failed: ', error);
+      alert('No existing save has found ' + error.message);
     }
   };
 
@@ -38,11 +38,11 @@ const MenuPage = () => {
                 New Game
               </Button>
 
-              <Button className={style.secondaryButton} variant="subtle" radius="xl" fullWidth onClick={() => alert("Load Game feature coming soon!")}>
+              <Button className={style.secondaryButton} variant="subtle" radius="xl" fullWidth onClick={handleLoadGame}>
                 Load Game
               </Button>
 
-              <Button className={style.secondaryButton} variant="subtle" radius="xl" fullWidth onClick={handleLoadGame}>
+              <Button className={style.secondaryButton} variant="subtle" radius="xl" fullWidth onClick={() => alert("Settings feature coming soon!")}>
                 Settings
               </Button>
 
@@ -53,7 +53,7 @@ const MenuPage = () => {
           </Paper>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 
