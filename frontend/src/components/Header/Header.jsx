@@ -97,7 +97,7 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem }) => {
               Quest
             </button>
             <button className={styles.navButton} type="button">
-              Map
+              Save game
             </button>
             <button className={styles.navButton} type="button" onClick={() => navigate("/menu")}>
               Quit

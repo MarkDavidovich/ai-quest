@@ -1,7 +1,4 @@
-const { where } = require('sequelize');
-const { default: Player } = require('../../frontend/src/components/Player/Player');
 const { PlayerProfile, GameSession, Inventory, sequelize } = require('../db/models');
-const inventory = require('../db/models/inventory');
 
 exports.saveGameState = async (req, res) => {
     const userId = req.user.id;
@@ -44,7 +41,7 @@ exports.saveGameState = async (req, res) => {
     }
 }
 
-exports.loadGameState = async (req, res){
+exports.loadGameState = async (req, res) => {
     const userId = req.user.id;
 
     try {
