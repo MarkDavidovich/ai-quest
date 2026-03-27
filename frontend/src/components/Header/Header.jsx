@@ -2,11 +2,13 @@ import styles from "./Header.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { useAuth } from "../../context/AuthContext";
 import { CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
+import { useNavigate } from "react-router-dom";
 
-const Header = ({ isBattle = false, isMenu = false, playerHp = 100, onUseItem }) => {
+const Header = ({ isBattle = false, playerHp = 100, onUseItem }) => {
   const { itemDefinitions, slots, selectedSlotIndex, isInventoryOpen, toggleInventory, selectSlot, useSelectedItem } = useInventory();
-
   const { user, logout } = useAuth();
+
+  const navigate = useNavigate();
 
   const handleInventoryToggle = () => {
     toggleInventory();
@@ -46,7 +48,7 @@ const Header = ({ isBattle = false, isMenu = false, playerHp = 100, onUseItem })
     >
       <div className={styles.statsContainer}>
         <div className={styles.charInfo}>
-          {!isBattle && !isMenu && (
+          {!isBattle && (
             <>
               <span className={styles.name}>{user ? `${user.firstName} ${user.lastName}` : "Hero"}</span>
               <span className={styles.level}>Lv. 1</span>
@@ -54,7 +56,7 @@ const Header = ({ isBattle = false, isMenu = false, playerHp = 100, onUseItem })
           )}
         </div>
 
-        {!isBattle && !isMenu && (
+        {!isBattle && (
           <div className={styles.bars}>
             <div className={styles.barWrapper}>
               <span className={styles.barLabel}>
@@ -87,29 +89,28 @@ const Header = ({ isBattle = false, isMenu = false, playerHp = 100, onUseItem })
         </div>
       ) : (
         <nav className={styles.nav}>
-          {!isMenu && (
-            <>
-              <button className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`} type="button" onClick={handleInventoryToggle}>
-                Inventory
-              </button>
-              <button className={styles.navButton} type="button">
-                Quest
-              </button>
-              <button className={styles.navButton} type="button">
-                Map
-              </button>
-              <button className={styles.navButton} type="button">
-                Chat
-              </button>
-            </>
-          )}
+          <>
+            <button className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`} type="button" onClick={handleInventoryToggle}>
+              Inventory
+            </button>
+            <button className={styles.navButton} type="button">
+              Quest
+            </button>
+            <button className={styles.navButton} type="button">
+              Map
+            </button>
+            <button className={styles.navButton} type="button" onClick={() => navigate("/menu")}>
+              Quit
+            </button>
+          </>
+
           <button className={`${styles.navButton} ${styles.logoutButton}`} type="button" onClick={logout}>
             Logout
           </button>
         </nav>
       )}
 
-      {!isBattle && !isMenu && isInventoryOpen && (
+      {!isBattle && isInventoryOpen && (
         <div className={styles.inventoryPanel}>
           <div className={styles.inventoryHeader}>
             <h3>Inventory</h3>
