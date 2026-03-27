@@ -1,26 +1,31 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  class user extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class User extends Model {
     static associate(models) {
-      // define association here
+      User.hasOne(models.PlayerProfile, {
+        foreignKey: 'user_id',
+        as: 'profile'
+      });
+
+      User.hasMany(models.Inventory, {
+        foreignKey: 'user_id',
+        as: 'inventory' // השם שישמש אותנו כשנשלוף את התיק של השחקן
+      });
     }
   }
-  user.init({
+
+  User.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'user',
+    modelName: 'User', // שונה ל-U גדולה
+    tableName: 'users' // מומלץ תמיד להוסיף כדי שה-ORM ידע בדיוק לאיזו טבלה לפנות
   });
-  return user;
+
+  return User;
 };
