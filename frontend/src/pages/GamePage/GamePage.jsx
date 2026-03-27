@@ -6,13 +6,47 @@ import TransitionOverlay from "../../components/TransitionOverlay/TransitionOver
 import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
 import { InventoryProvider } from "../../context/InventoryContext";
 import { useState } from "react";
+import { saveGameToBackend } from "../../services/gameApi";
+import { useLocation } from "react-router-dom";
+
 
 const GamePage = () => {
+  const location = useLocation();
+  const loadedData = location.state?.loadSave;
   const [combatData, setCombatData] = useState(null);
-  const [playerGridPos, setPlayerGridPos] = useState({ x: 5, y: 5 }); //default position
-  const [currentMapId, setCurrentMapId] = useState("forest");
-  const [playerHp, setPlayerHp] = useState(PLAYER_STATS.maxHp);
+  const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
+  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "forest");
+  const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);;
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
+
+
+
+
+  const handleSaveGame = async (inventoryItems) => {
+    try {
+      const gameState = {
+        profile: {
+          hp: playerHp,
+          max_hp: PLAYER_STATS.maxHp,
+          attack: PLAYER_STATS.attack,
+          defense: PLAYER_STATS.defense,
+          position_x: playerGridPos.x,
+          position_y: playerGridPos.y,
+          level: 1
+        },
+        session: {
+          current_map: currentMapId,
+          status: combatData ? "in_combat" : "playing"
+        },
+        inventory: inventoryItems
+      };
+      await saveGameToBackend(gameState);
+      alert("Game Saved Successfully! 💾");
+    } catch (error) {
+      console.error("Failed to save game:", error);
+      alert("Error saving game. Please try again.")
+    }
+  }
 
   const handleItemUse = (itemId) => {
     if (itemId === "potion") {
@@ -54,9 +88,9 @@ const GamePage = () => {
   const gameHeight = `${CAMERA_HEIGHT * UNIT_SIZE}px`;
 
   return (
-    <InventoryProvider>
+    <InventoryProvider initialItems={loadedData ? loadedData.inventory : []}>
       <div className={style.container}>
-        <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} />
+        <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
 
         <div
           className={style.gameWrapper}

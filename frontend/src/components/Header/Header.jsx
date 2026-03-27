@@ -4,7 +4,8 @@ import { useAuth } from "../../context/AuthContext";
 import { CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ isBattle = false, playerHp = 100, onUseItem }) => {
+
+const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave }) => {
   const { itemDefinitions, slots, selectedSlotIndex, isInventoryOpen, toggleInventory, selectSlot, useSelectedItem } = useInventory();
   const { user, logout } = useAuth();
 
@@ -28,6 +29,25 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem }) => {
     }
 
     selectSlot(selectedSlotIndex === slotIndex ? null : slotIndex);
+  };
+
+  const handleSaveClick = () => {
+    console.log("1. Save button clicked!");
+    console.log("2. Does onSave exist?", Boolean(onSave));
+
+    const inventoryToSave = slots
+      .filter((slot) => slot !== null)
+      .map((slot) => ({
+        name: slot.itemId,
+        quantity: slot.quantity
+      }));
+
+    if (onSave) {
+      console.log("3. Calling onSave with inventory:", inventoryToSave);
+      onSave(inventoryToSave)
+    } else {
+      alert("שגיאה בדיבוג: הפרופ onSave חסר! הוא לא הגיע מ-GamePage.");
+    }
   };
 
   const selectedSlot = selectedSlotIndex !== null ? slots[selectedSlotIndex] : null;
@@ -96,7 +116,7 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem }) => {
             <button className={styles.navButton} type="button">
               Quest
             </button>
-            <button className={styles.navButton} type="button">
+            <button className={styles.navButton} type="button" onClick={handleSaveClick}>
               Save game
             </button>
             <button className={styles.navButton} type="button" onClick={() => navigate("/menu")}>
