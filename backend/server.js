@@ -4,6 +4,7 @@ const path = require("path");
 const { logger } = require("./middleware/logger.js");
 const authRouter = require("./routes/authRoutes.js");
 const npcDialogueRoutes = require("./routes/npcDialogueRoutes.js");
+const gameRoutes = require('./routes/gameRoutes');
 
 // ייבוא ה-Instance של Sequelize מהתיקייה החדשה
 // וודא שבתוך db/models יש קובץ index.js שתומך ב-ES Modules
@@ -19,9 +20,11 @@ app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 app.use(logger);
 
+
 // API Routes
 app.use("/auth", authRouter);
 app.use("/api/npc-dialogue", npcDialogueRoutes);
+app.use('/api/game', gameRoutes);
 
 // Catch-all route to serve the React app
 app.use((req, res) => {
