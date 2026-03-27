@@ -52,14 +52,16 @@ const AuthPage = () => {
     setLoading(true);
     setError(null);
 
+    const normalizedEmail = values.email.toLowerCase();
+
     try {
       if (isRegisterMode) {
-        await register(values.email, values.password, values.firstName, values.lastName);
+        await register(normalizedEmail, values.password, values.firstName, values.lastName);
         setMode("login");
         form.reset();
         alert("Registration successful! Please log in.");
       } else {
-        await login(values.email, values.password);
+        await login(normalizedEmail, values.password);
       }
     } catch (err) {
       setError(err.message || "An error occurred. Please try again.");
