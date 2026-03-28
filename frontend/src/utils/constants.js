@@ -66,6 +66,16 @@ const DEFAULT_NPC_CHOICES = [
   { id: "leave", label: "Goodbye" },
 ];
 
+export const NPC_NAMES = {
+  "10,9": "Sir Aldric",
+  "20,15": "Lady Elswyth",
+  "25,7": "Cedric",
+  "10,21": "Rowena",
+  "25,3": "Gareth",
+  "8,17": "Maeve",
+  tutorial_npc: "Royal Guide Isolde",
+};
+
 export const NPC_DIALOGUES = {
   "10,9": {
     start: {

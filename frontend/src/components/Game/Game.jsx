@@ -11,6 +11,7 @@ import {
   TELEPORTS,
   MOVE_DURATION,
   NPC_DIALOGUES,
+  NPC_NAMES,
   toWorldKey,
   EMPTY_DIALOGUE,
 } from "../../utils/constants";
@@ -79,6 +80,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     return NPC_DIALOGUES[npcId]?.[nodeId] || null;
   };
 
+  const getNpcCaller = (npcId) => {
+    return NPC_NAMES[npcId] || "Villager";
+  };
+
   const createDialogueState = (npcId, nodeId) => {
     const dialogueNode = getNpcDialogueNode(npcId, nodeId);
 
@@ -98,7 +103,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       nodeId,
       text: dialogueNode.text,
       choices: dialogueNode.choices || [],
-      caller: "NPC",
+      caller: getNpcCaller(npcId),
     };
   };
 
@@ -141,7 +146,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           text: 'Great! Pick something from the box inside the home. Just be close to the box and press "Enter".',
           choices: [{ id: "leave", label: "I will do that" }],
           source: "tutorial_quest",
-          caller: "Guide",
+          caller: getNpcCaller("tutorial_npc"),
         });
       } else if (choiceId === "quest_decline") {
         setDialogue({
@@ -150,7 +155,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           text: "I see. Let me know if you change your mind later.",
           choices: [{ id: "leave", label: "Goodbye" }],
           source: "tutorial_quest",
-          caller: "Guide",
+          caller: getNpcCaller("tutorial_npc"),
         });
       } else if (choiceId === "quest_give_potion") {
         removeItem("potion", 1);
@@ -161,7 +166,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           text: "Thank you! I will pack this. We are ready, you can go out from the house now.",
           choices: [{ id: "leave", label: "Exit House" }],
           source: "tutorial_quest",
-          caller: "Guide",
+          caller: getNpcCaller("tutorial_npc"),
         });
       }
       return;
@@ -233,7 +238,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         isLoading: false,
         source: "ai",
         history: newHistory,
-        caller: "Villager",
+        caller: getNpcCaller(dialogue.npcId),
       });
 
       setNpcMemories((prev) => ({ ...prev, [dialogue.npcId]: newHistory }));
@@ -388,7 +393,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
               { id: "quest_decline", label: "No, later" },
             ],
             source: "tutorial_quest",
-            caller: "Guide",
+            caller: getNpcCaller("tutorial_npc"),
           });
         } else if (step === "accepted") {
           if (hasItem("potion", 1)) {
@@ -401,7 +406,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
                 { id: "leave", label: "Not yet" },
               ],
               source: "tutorial_quest",
-              caller: "Guide",
+              caller: getNpcCaller("tutorial_npc"),
             });
           } else {
             setDialogue({
@@ -410,7 +415,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
               text: 'The journey ahead of you is long and you need all the help you can get, Please pick up the potion from the box inside the home. Just stand close to it and press "Enter".',
               choices: [{ id: "leave", label: "Got it" }],
               source: "tutorial_quest",
-              caller: "Guide",
+              caller: getNpcCaller("tutorial_npc"),
             });
           }
         } else if (step === "completed") {
@@ -420,7 +425,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
             text: "We are all set. You can go out from the house whenever you are ready.",
             choices: [{ id: "leave", label: "Let's go" }],
             source: "tutorial_quest",
-            caller: "Guide",
+            caller: getNpcCaller("tutorial_npc"),
           });
         }
         return;
@@ -439,7 +444,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         isLoading: true,
         source: "ai",
         history: pastHistory,
-        caller: "Villager",
+        caller: getNpcCaller(nearbyNpc.npcId),
       });
 
       try {
@@ -477,7 +482,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           isLoading: false,
           source: "ai",
           history: newHistory,
-          caller: "Villager",
+          caller: getNpcCaller(nearbyNpc.npcId),
         });
 
         setNpcMemories((prev) => ({ ...prev, [nearbyNpc.npcId]: newHistory }));
