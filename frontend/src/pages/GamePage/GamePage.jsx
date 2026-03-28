@@ -8,10 +8,12 @@ import { InventoryProvider } from "../../context/InventoryContext";
 import { useState } from "react";
 import { saveGameToBackend } from "../../services/gameApi";
 import { useLocation } from "react-router-dom";
+import { QuestProvider } from '../../context/QuestContext';
 
 const GamePage = () => {
   const location = useLocation();
   const loadedData = location.state?.loadSave;
+  const initialQuestProgress = loadedData?.session?.quest_progress || {};
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
   const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "house");
@@ -84,36 +86,38 @@ const GamePage = () => {
   const gameHeight = `${CAMERA_HEIGHT * UNIT_SIZE}px`;
 
   return (
-    <InventoryProvider initialItems={loadedData ? loadedData.inventory : []}>
-      <div className={style.container}>
-        <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
+    <QuestProvider initialQuestProgress={initialQuestProgress}>
+      <InventoryProvider initialItems={loadedData ? loadedData.inventory : []}>
+        <div className={style.container}>
+          <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
 
-        <div
-          className={style.gameWrapper}
-          style={{
-            width: gameWidth,
-            height: gameHeight,
-            minWidth: gameWidth,
-            minHeight: gameHeight,
-          }}
-        >
-          {!combatData && (
-            <Game
-              onCombatTrigger={triggerCombat}
-              playerGridPos={playerGridPos}
-              setPlayerGridPos={setPlayerGridPos}
-              currentMapId={currentMapId}
-              setCurrentMapId={setCurrentMapId}
-              triggerTransition={triggerTransition}
-              isTransitioning={transition.step !== "closed"}
-            />
-          )}
-          {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
+          <div
+            className={style.gameWrapper}
+            style={{
+              width: gameWidth,
+              height: gameHeight,
+              minWidth: gameWidth,
+              minHeight: gameHeight,
+            }}
+          >
+            {!combatData && (
+              <Game
+                onCombatTrigger={triggerCombat}
+                playerGridPos={playerGridPos}
+                setPlayerGridPos={setPlayerGridPos}
+                currentMapId={currentMapId}
+                setCurrentMapId={setCurrentMapId}
+                triggerTransition={triggerTransition}
+                isTransitioning={transition.step !== "closed"}
+              />
+            )}
+            {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
 
-          <TransitionOverlay step={transition.step} type={transition.type} />
+            <TransitionOverlay step={transition.step} type={transition.type} />
+          </div>
         </div>
-      </div>
-    </InventoryProvider>
+      </InventoryProvider>
+    </QuestProvider>
   );
 };
 

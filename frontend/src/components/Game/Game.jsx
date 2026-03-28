@@ -17,17 +17,16 @@ import {
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from "../../services/npcDialogueApi";
+import { useQuest } from "../../context/QuestContext"; // <--- תוספת הקווסטים
 
 export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition, isTransitioning }) {
-  const { worldLoot, feedbackMessage, openContainer } = useInventory();
+  // --- משכנו את הכלים החדשים שלנו ---
+  const { worldLoot, feedbackMessage, openContainer, hasItem, removeItem } = useInventory();
+  const { getQuestStep, advanceQuest } = useQuest();
 
   const currentMapData = useMemo(() => MAPS[currentMapId], [currentMapId]);
 
-  // SMOOTH MOVEMENT: Two position systems
-  // playerGridPos = actual game position (for collision, logic)
-  // playerDisplayPos = rendered position (smooth animation)
   const [playerDisplayPos, setPlayerDisplayPos] = useState(playerGridPos);
-
   const [displayCameraPos, setDisplayCameraPos] = useState({ x: 0, y: 0 });
 
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
@@ -39,12 +38,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
 
-  // ============================================
-  // SMOOTH MOVEMENT ANIMATION LOOP
-  // ============================================
-
   useEffect(() => {
-    // Only run the animation loop when actually moving
     if (!isMoving) return;
 
     let animationId;
@@ -52,21 +46,17 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     const animate = () => {
       const elapsed = Date.now() - moveStartTime.current;
       const progress = Math.min(elapsed / MOVE_DURATION, 1);
-
-      // Apply easing function (ease-out cubic)
       const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-      // Interpolate between old and new position
       const newX = prevDisplayPos.current.x + (playerGridPos.x - prevDisplayPos.current.x) * easeProgress;
       const newY = prevDisplayPos.current.y + (playerGridPos.y - prevDisplayPos.current.y) * easeProgress;
 
       setPlayerDisplayPos({ x: newX, y: newY });
 
-      // Animation finished?
       if (progress >= 1) {
         setPlayerDisplayPos(playerGridPos);
         setIsMoving(false);
-        return; // stop the loop
+        return;
       }
 
       animationId = requestAnimationFrame(animate);
@@ -76,19 +66,12 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     return () => cancelAnimationFrame(animationId);
   }, [isMoving, playerGridPos, facingDir]);
 
-  // ============================================
-  // COLLISION DETECTION
-  // ============================================
-
   const canMoveTo = (x, y) => {
-    // Out of bounds?
     if (x < 0 || x >= currentMapData.width || y < 0 || y >= currentMapData.height) return false;
-    // Solid object there?
     if (currentMapData.objects[y]?.[x] !== 0) return false;
     return true;
   };
 
-  // Check what tile is at position x, y
   const getTileAt = (x, y, tileType = "objects") => {
     return currentMapData[tileType][y]?.[x] || 0;
   };
@@ -131,6 +114,45 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       return;
     }
 
+    // ============================================
+    // טיפול בתשובות של קווסט המדריך (Tutorial Quest)
+    // ============================================
+    if (dialogue.source === "tutorial_quest") {
+      if (choiceId === "quest_accept") {
+        advanceQuest("tutorial", "accepted");
+        setDialogue({
+          isOpen: true,
+          npcId: "tutorial_npc",
+          text: 'Great! Pick something from the box inside the home. Just be close to the box and press "Enter".',
+          choices: [{ id: "leave", label: "I will do that" }],
+          source: "tutorial_quest",
+          caller: "Guide"
+        });
+      } else if (choiceId === "quest_decline") {
+        setDialogue({
+          isOpen: true,
+          npcId: "tutorial_npc",
+          text: "I see. Let me know if you change your mind later.",
+          choices: [{ id: "leave", label: "Goodbye" }],
+          source: "tutorial_quest",
+          caller: "Guide"
+        });
+      } else if (choiceId === "quest_give_potion") {
+        // השחקן מסר את השיקוי - נמחק מהתיק ומקדם את הקווסט
+        removeItem("potion", 1);
+        advanceQuest("tutorial", "completed");
+        setDialogue({
+          isOpen: true,
+          npcId: "tutorial_npc",
+          text: "Thank you! I will pack this. We are ready, you can go out from the house now.",
+          choices: [{ id: "leave", label: "Exit House" }],
+          source: "tutorial_quest",
+          caller: "Guide"
+        });
+      }
+      return;
+    }
+
     if (!dialogue.npcId) {
       return;
     }
@@ -153,7 +175,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     const playerText = selectedChoice ? selectedChoice.label : "";
 
     const pastHistory = npcMemories[dialogue.npcId] || [];
-
     const updatedHistory = [...pastHistory, { source: "player", text: playerText }];
 
     setDialogue((prev) => ({
@@ -165,7 +186,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
     try {
       const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory);
-
       const newHistory = [...updatedHistory, { source: "ai", text: aiData.text }];
 
       setDialogue({
@@ -212,10 +232,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     return null;
   };
 
-  // ============================================
-  // CAMERA SYSTEM - FOLLOWS GRID POSITION
-  // ============================================
-
   const cameraCenterX = CAMERA_WIDTH / 2;
   const cameraCenterY = CAMERA_HEIGHT / 2;
   const cameraPos = useMemo(
@@ -226,10 +242,9 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     [playerGridPos.x, playerGridPos.y, cameraCenterX, cameraCenterY, currentMapData.width, currentMapData.height],
   );
 
-  // smooth camera
   useEffect(() => {
     let animationId;
-    const cameraSpeed = 0.1; // Adjust between 0.05 (slower) to 0.2 (faster)
+    const cameraSpeed = 0.1;
     const SNAP_THRESHOLD = 0.01;
 
     const animateCamera = () => {
@@ -237,8 +252,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         const dx = cameraPos.x - prev.x;
         const dy = cameraPos.y - prev.y;
 
-        // Snap to target when close enough to avoid endless micro-updates.
-        // Must return `prev` (same reference) so React bails out and does NOT re-render.
         if (Math.abs(dx) < SNAP_THRESHOLD && Math.abs(dy) < SNAP_THRESHOLD) {
           return prev;
         }
@@ -256,17 +269,11 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     return () => cancelAnimationFrame(animationId);
   }, [cameraPos]);
 
-  // ============================================
-  // MOVEMENT HANDLER
-  // ============================================
-
   function handleMove(dx, dy) {
     if (dialogue.isOpen || isTransitioning) return;
 
-    // Update facing direction
     setFacingDir({ x: dx, y: dy });
 
-    // Don't move if already moving (COOLDOWN)
     if (isMoving) return;
 
     const newX = playerGridPos.x + dx;
@@ -276,6 +283,15 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     if (interactive === 4) {
       const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
       if (teleportData) {
+        // ============================================
+        // חסימת יציאה אם הקווסט לא הושלם
+        // ============================================
+        if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
+          setMessage("You must finish talking to the guide before leaving!");
+          setTimeout(() => setMessage(""), 2000);
+          return;
+        }
+
         const { targetMap, targetX, targetY } = teleportData;
 
         triggerTransition?.("map", () => {
@@ -288,42 +304,31 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       }
     }
 
-    // Check collision
     if (!canMoveTo(newX, newY)) {
       setMessage("🚫 Blocked by an obstacle!");
       setTimeout(() => setMessage(""), 1000);
       return;
     }
 
-    // Move is valid
     prevDisplayPos.current = playerDisplayPos;
     setPlayerGridPos({ x: newX, y: newY });
     setIsMoving(true);
     moveStartTime.current = Date.now();
 
-    // ============================================
-    // CHECK FOR RANDOM ENCOUNTER
-    // ============================================
-
     if (interactive === 3) {
-      // NEW: Encounter tile (invisible)
       const ENCOUNTER_CHANCE = 15;
       if (Math.random() * 100 < ENCOUNTER_CHANCE) {
-        // Biome-based enemy selection
-        let enemyId = "goblin"; // Default
+        let enemyId = "goblin";
 
         triggerTransition?.("battle", () => {
           onCombatTrigger?.(enemyId);
         });
-        return; // Exit early so we don't keep moving
+        return;
       }
 
       setMessage("");
     }
   }
-  // ============================================
-  // ACTION HANDLER
-  // ============================================
 
   async function handleAction() {
     if (dialogue.isOpen) {
@@ -331,13 +336,67 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       if (dialogue.choices.length === 0) {
         closeDialogue();
       }
-
       return;
     }
 
     const nearbyNpc = getNearbyNpc();
 
     if (nearbyNpc) {
+      // ============================================
+      // חטיפת הדיאלוג עבור ה-NPC של המדריך בבית
+      // ============================================
+      if (currentMapId === "house" && nearbyNpc.x === 6 && nearbyNpc.y === 4) {
+        const step = getQuestStep("tutorial");
+
+        if (step === "unstarted") {
+          setDialogue({
+            isOpen: true,
+            npcId: "tutorial_npc",
+            text: "I am preparing for a journey. Would you like to join me?",
+            choices: [
+              { id: "quest_accept", label: "Yes, let's go" },
+              { id: "quest_decline", label: "No, later" }
+            ],
+            source: "tutorial_quest",
+            caller: "Guide"
+          });
+        } else if (step === "accepted") {
+          if (hasItem("potion", 1)) {
+            setDialogue({
+              isOpen: true,
+              npcId: "tutorial_npc",
+              text: "Ah, you found the potion! Hand it over to me, and then we can leave.",
+              choices: [
+                { id: "quest_give_potion", label: "Here you go" },
+                { id: "leave", label: "Not yet" }
+              ],
+              source: "tutorial_quest",
+              caller: "Guide"
+            });
+          } else {
+            setDialogue({
+              isOpen: true,
+              npcId: "tutorial_npc",
+              text: 'Please pick up the potion from the box inside the home. Just stand close to it and press "Enter".',
+              choices: [{ id: "leave", label: "Got it" }],
+              source: "tutorial_quest",
+              caller: "Guide"
+            });
+          }
+        } else if (step === "completed") {
+          setDialogue({
+            isOpen: true,
+            npcId: "tutorial_npc",
+            text: "We are all set. You can go out from the house whenever you are ready.",
+            choices: [{ id: "leave", label: "Let's go" }],
+            source: "tutorial_quest",
+            caller: "Guide"
+          });
+        }
+        return; // יציאה מוקדמת כדי לא להפעיל את ה-AI
+      }
+
+      // ... המשך הפעלת ה-AI לכל שאר ה-NPCs במשחק
       setMessage("Talking...");
 
       const pastHistory = npcMemories[nearbyNpc.npcId] || [];
@@ -356,7 +415,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
       try {
         const aiData = await fetchAiDialogue(nearbyNpc.npcId, "Hello", pastHistory);
-
         const newHistory = [...pastHistory, { source: "ai", text: aiData.text }];
 
         setDialogue({
@@ -411,10 +469,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     }
   }
 
-  // ============================================
-  // KEYBOARD INPUT
-  // ============================================
-
   const handleKeyDown = useEffectEvent((e) => {
     if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
       handleMove(0, -1);
@@ -445,14 +499,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
   return (
     <div className={styles.container}>
-      {/* <GameUI
-        playerGridPos={playerGridPos}
-        playerDisplayPos={playerDisplayPos}
-        message={feedbackMessage || message}
-        gridWidth={currentMapData.width}
-        gridHeight={currentMapData.height}
-        facingDir={facingDir}
-      /> */}
       <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
       <GameViewport
         playerDisplayPos={playerDisplayPos}

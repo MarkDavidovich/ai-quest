@@ -39,6 +39,7 @@ const createInitialState = (initialItems) => {
   };
 
 };
+
 /* helper function indicate to tell which item availble and time counter*/
 const getContainerDrops = (container, coordinateKey) => {
   const now = Date.now();
@@ -235,6 +236,32 @@ const reduceUseSelectedItem = (state) => {
   };
 };
 
+// --- תוספת: פונקציית עזר להורדת חפץ ---
+const reduceRemoveItem = (state, itemId, quantity) => {
+  let remainingToRemove = quantity;
+  const nextSlots = state.slots.map(cloneSlot);
+
+  for (let i = 0; i < nextSlots.length; i++) {
+    const slot = nextSlots[i];
+    if (slot && slot.itemId === itemId) {
+      if (slot.quantity > remainingToRemove) {
+        slot.quantity -= remainingToRemove;
+        remainingToRemove = 0;
+        break;
+      } else {
+        remainingToRemove -= slot.quantity;
+        nextSlots[i] = null; // מרוקן את הסלוט אם לקחנו הכל
+      }
+    }
+  }
+
+  return {
+    ...state,
+    slots: nextSlots,
+    selectedSlotIndex: resolveInventorySelection(nextSlots, state.selectedSlotIndex),
+  };
+};
+
 const inventoryReducer = (state, action) => {
   switch (action.type) {
     case "TOGGLE_INVENTORY":
@@ -254,6 +281,8 @@ const inventoryReducer = (state, action) => {
       return reduceOpenContainer(state, action.payload.coordinateKey).nextState;
     case "USE_SELECTED_ITEM":
       return reduceUseSelectedItem(state).nextState;
+    case "REMOVE_ITEM": // --- תוספת ---
+      return reduceRemoveItem(state, action.payload.itemId, action.payload.quantity);
     case "CLEAR_FEEDBACK":
       return state.feedbackMessage ? { ...state, feedbackMessage: "" } : state;
     default:
@@ -299,6 +328,20 @@ export const InventoryProvider = ({ children, initialItems }) => {
     return result;
   }, [state]);
 
+  // --- תוספת: חשיפת פונקציית מחיקת חפץ לקומפוננטות אחרות ---
+  const removeItem = useCallback((itemId, quantity = 1) => {
+    dispatch({ type: "REMOVE_ITEM", payload: { itemId, quantity } });
+  }, []);
+
+  // --- תוספת: פונקציית בדיקה אם יש לנו מספיק מחפץ מסוים ---
+  const hasItem = useCallback((itemId, quantity = 1) => {
+    const total = state.slots.reduce((sum, slot) => {
+      if (slot && slot.itemId === itemId) return sum + slot.quantity;
+      return sum;
+    }, 0);
+    return total >= quantity;
+  }, [state.slots]);
+
   const value = useMemo(
     () => ({
       itemDefinitions: ITEM_DEFINITIONS,
@@ -311,6 +354,8 @@ export const InventoryProvider = ({ children, initialItems }) => {
       selectSlot,
       openContainer,
       useSelectedItem,
+      removeItem, // נחשף
+      hasItem,    // נחשף
     }),
     [
       state.feedbackMessage,
@@ -322,6 +367,8 @@ export const InventoryProvider = ({ children, initialItems }) => {
       selectSlot,
       openContainer,
       useSelectedItem,
+      removeItem,
+      hasItem,
     ],
   );
 
