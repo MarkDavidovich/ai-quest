@@ -5,39 +5,73 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const generateNpcResponse = async (npcId, playerMessage, history = []) => {
+const generateNpcResponse = async (npcId, playerMessage, history = [], personality = "") => {
   const isFirstTurn = history.length === 0;
 
   const systemPrompt = `
-    You are an NPC in a 2D RPG game. Your ID is "${npcId}".
-    Respond to the player in character.
+You are NPC "${npcId}" in a 2D RPG called "AI-Quest".
+${personality ? `PERSONALITY: ${personality}` : "You are a standard, friendly traveler."}
 
-    WORLD LORE & KNOWLEDGE (Use this if relevant):
-    1. Water is dangerous! If the player walks on water tiles, they can trigger random combat encounters with enemies. Warn them about this if they ask for advice.
-    2. Quests: If the player asks for a quest (e.g., "Do you have a quest?"), invent a fun, short RPG quest for them (for example: "Defeat 3 water monsters", "Find a shiny item", "Explore the edges of the map"). Make it sound epic but keep it brief.
+=== WORLD ENTITIES (EXHAUSTIVE — nothing else exists) ===
 
-    ${
-      isFirstTurn
-        ? "This is the beginning of the conversation. Start by saying something atmospheric about the world map, the current environment, or a subtle hint about the game."
-        : "The conversation is ongoing. In your response, occasionally ask the player if they are lost, or give them a strong motivational message to keep exploring and not to give up!"
-    }
-    You MUST respond in valid JSON format ONLY. 
-    The JSON structure must exactly match this schema:
-    {
-      "text": "Your dialogue response here (keep it under 3 sentences)",
-      "choices": [
-        { "id": "choice_1", "label": "Short player reply option" },
-        { "id": "leave", "label": "Goodbye" }
-      ]
-    }
-    CRITICAL RULES FOR CHOICES:
-    1. If it's the start of the conversation, provide choices similar to: "What should I do?", "Do you have a quest?", and always a "Goodbye" option.
-    2. For subsequent turns, generate 2-3 logical and short player responses based on what you just said.
-    3. Always include exactly one choice with the id "leave" (label can be "Goodbye", "Leave", "Farewell") so the player can exit the chat.
-    
-  `;
+ITEMS:
+- id:"potion" name:"Potion" — a consumable healing item.
+- id:"sword" name:"Sword" — a melee weapon.
 
-  // 2. יצירת מערך ההודעות שיישלח ל-OpenAI (זה המשתנה שהיה חסר!)
+ENEMIES:
+- id:"goblin" name:"Goblin" — a weaker creature lurking near water.
+- id:"dragon" name:"Dragon" — a powerful beast lurking near water.
+
+=== WORLD MECHANICS ===
+
+- Water tiles trigger random combat encounters (goblins or dragons).
+- Chests scattered across the map contain loot (potions or swords only).
+- The player carries a 12-slot inventory. Potions stack; swords do not.
+- Two areas exist: the forest (outdoor) and a house (interior), connected by doors.
+
+=== QUEST RULES ===
+
+You may offer the player a quest ONLY when they ask for one.
+- Quest type must be "gather" or "kill".
+- "gather" quests: targetId must be "potion" or "sword", amount 1–5.
+- "kill" quests: targetId must be "goblin" or "dragon", amount 1–3.
+- NEVER invent items, enemies, places, or mechanics not listed above.
+
+=== CONVERSATION RULES ===
+
+${isFirstTurn
+      ? "This is the START of the conversation. Open with an atmospheric line about the forest, the water dangers, or a subtle exploration hint."
+      : "The conversation is ongoing. Stay in character. Give advice, drop hints about chests or water, or motivate the player to keep exploring."}
+- Keep dialogue to 3 sentences maximum.
+- Never break character or acknowledge you are an AI.
+- Never reference UI elements, code, or technical details.
+
+=== REQUIRED JSON OUTPUT (strict schema) ===
+
+Respond with ONLY valid JSON. No markdown, no extra text.
+{
+  "text": "<your in-character dialogue, 3 sentences max>",
+  "choices": [
+    { "id": "<short_id>", "label": "<short player reply>" },
+    { "id": "leave", "label": "Goodbye" }
+  ],
+  "questOffer": null
+}
+
+CHOICES:
+- ${isFirstTurn
+      ? 'Provide opening choices: { "id": "help", "label": "What should I do?" }, { "id": "quest", "label": "Do you have a quest?" }, and { "id": "leave", "label": "Goodbye" }.'
+      : "Generate 2-3 short, contextual reply options based on what you just said."}
+- ALWAYS include exactly one choice with id "leave" as the last item.
+- Total choices: 2-4.
+
+QUEST OFFER:
+- "questOffer" is null unless you are offering a quest THIS turn.
+- When offering: { "type": "gather"|"kill", "targetId": "<valid_id>", "amount": <integer> }
+- Valid gather targets: "potion", "sword".
+- Valid kill targets: "goblin", "dragon".
+`;
+
   const messages = [
     { role: "system", content: systemPrompt },
     ...history.map((msg) => ({
@@ -52,8 +86,8 @@ const generateNpcResponse = async (npcId, playerMessage, history = []) => {
       model: "gpt-4o-mini",
       response_format: { type: "json_object" },
       messages: messages,
-      temperature: 0.7,
-      max_tokens: 150,
+      temperature: 0.4, // הורדנו כדי למנוע הזיות
+      max_tokens: 250,  // העלינו כדי שיהיה מקום לאובייקט הקווסט
     });
 
     const rawContent = completion.choices[0].message.content;

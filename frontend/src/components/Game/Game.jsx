@@ -188,6 +188,19 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory);
       const newHistory = [...updatedHistory, { source: "ai", text: aiData.text }];
 
+      // ============================================
+      // קליטת הקווסט מה-AI ושמירתו ב-Context
+      // ============================================
+      if (aiData.questOffer) {
+        // שומרים את הקווסט תחת ID ייחודי ל-NPC הזה
+        advanceQuest(`ai_quest_${dialogue.npcId}`, {
+          ...aiData.questOffer,
+          status: "active"
+        });
+        // מקפיצים הודעה קטנה במסך לשחקן
+        setMessage(`New Quest Received: ${aiData.questOffer.type} ${aiData.questOffer.amount} ${aiData.questOffer.targetId}(s)!`);
+      }
+
       setDialogue({
         isOpen: true,
         npcId: dialogue.npcId,
@@ -352,7 +365,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           setDialogue({
             isOpen: true,
             npcId: "tutorial_npc",
-            text: "I am preparing for a journey. Would you like to join me?",
+            text: "The king sent me to you, the people of Negev Talent kingdom need your help, the evil wizard Nir and his TA Adi are going to destorying the kingdom, go to the desert",
             choices: [
               { id: "quest_accept", label: "Yes, let's go" },
               { id: "quest_decline", label: "No, later" }
@@ -377,7 +390,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
             setDialogue({
               isOpen: true,
               npcId: "tutorial_npc",
-              text: 'Please pick up the potion from the box inside the home. Just stand close to it and press "Enter".',
+              text: 'The journey ahead of you is long and you need all the help you can get, Please pick up the potion from the box inside the home. Just stand close to it and press "Enter".',
               choices: [{ id: "leave", label: "Got it" }],
               source: "tutorial_quest",
               caller: "Guide"
