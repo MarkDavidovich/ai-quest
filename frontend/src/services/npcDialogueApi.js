@@ -1,13 +1,13 @@
 const API_URL = '/api/npc-dialogue/chat';
 
-export const fetchAiDialogue = async (npcId, message = "", history = []) => {
+export const fetchAiDialogue = async (npcId, message = "", history = [], questContext = "") => { // <-- הוספנו פה
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ npcId, message, history })
+            body: JSON.stringify({ npcId, message, history, questContext }) // <-- ופה
         });
 
         if (!response.ok) {

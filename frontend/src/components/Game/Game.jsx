@@ -17,10 +17,9 @@ import {
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from "../../services/npcDialogueApi";
-import { useQuest } from "../../context/QuestContext"; // <--- תוספת הקווסטים
+import { useQuest } from "../../context/QuestContext";
 
 export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition, isTransitioning }) {
-  // --- משכנו את הכלים החדשים שלנו ---
   const { worldLoot, feedbackMessage, openContainer, hasItem, removeItem } = useInventory();
   const { getQuestStep, advanceQuest } = useQuest();
 
@@ -108,6 +107,22 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     setMessage("Conversation ended.");
   };
 
+  // ============================================
+  // הפונקציה הזו בודקת אם יש לשחקן קווסט פעיל מה-NPC הספציפי ואם יש לו את החפצים
+  // ============================================
+  const buildQuestContext = (npcId) => {
+    const quest = getQuestStep(`ai_quest_${npcId}`);
+    if (!quest || quest === 'unstarted' || quest.status !== "active") return "";
+
+    const playerHasItems = hasItem(quest.targetId, quest.amount);
+
+    if (playerHasItems) {
+      return `The player is currently on your quest to gather ${quest.amount} ${quest.targetId}(s). GOOD NEWS: They HAVE collected the required items! You MUST thank them, tell them the quest is complete, and set "questCompleted": true in your JSON response.`;
+    } else {
+      return `The player is currently on your quest to gather ${quest.amount} ${quest.targetId}(s). BAD NEWS: They DO NOT have the required items yet. Remind them what they need to do. Do NOT set questCompleted to true.`;
+    }
+  };
+
   const handleChoiceSelect = async (choiceId) => {
     if (choiceId === "leave") {
       closeDialogue();
@@ -138,7 +153,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           caller: "Guide",
         });
       } else if (choiceId === "quest_give_potion") {
-        // השחקן מסר את השיקוי - נמחק מהתיק ומקדם את הקווסט
         removeItem("potion", 1);
         advanceQuest("tutorial", "completed");
         setDialogue({
@@ -185,20 +199,29 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     }));
 
     try {
-      const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory);
+      // === עדכנו את הקריאה פה ===
+      const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory, buildQuestContext(dialogue.npcId));
       const newHistory = [...updatedHistory, { source: "ai", text: aiData.text }];
 
       // ============================================
       // קליטת הקווסט מה-AI ושמירתו ב-Context
       // ============================================
       if (aiData.questOffer) {
-        // שומרים את הקווסט תחת ID ייחודי ל-NPC הזה
         advanceQuest(`ai_quest_${dialogue.npcId}`, {
           ...aiData.questOffer,
           status: "active",
         });
-        // מקפיצים הודעה קטנה במסך לשחקן
         setMessage(`New Quest Received: ${aiData.questOffer.type} ${aiData.questOffer.amount} ${aiData.questOffer.targetId}(s)!`);
+      }
+
+      // === תוספת השלמת הקווסט ===
+      if (aiData.questCompleted) {
+        const quest = getQuestStep(`ai_quest_${dialogue.npcId}`);
+        if (quest && quest.status === "active") {
+          removeItem(quest.targetId, quest.amount); // לוקחים לשחקן את החפצים
+          advanceQuest(`ai_quest_${dialogue.npcId}`, { ...quest, status: "completed" });
+          setMessage(`Quest Completed! Handed over ${quest.amount} ${quest.targetId}(s).`);
+        }
       }
 
       setDialogue({
@@ -296,18 +319,11 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     if (interactive === 4) {
       const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
       if (teleportData) {
-        // ============================================
-        // חסימת יציאה אם הקווסט לא הושלם
-        // ============================================
-        // if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
-        //   setDialogue({
-        //     isOpen: true,
-        //     npcId: dialogue.npcId,
-        //     text: "Hey! come back here and help me!",
-        //     choices: [],
-        //   });
-        //   return;
-        // }
+        if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
+          setMessage("You must finish talking to the guide before leaving!");
+          setTimeout(() => setMessage(""), 2000);
+          return;
+        }
 
         const { targetMap, targetX, targetY } = teleportData;
 
@@ -359,9 +375,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     const nearbyNpc = getNearbyNpc();
 
     if (nearbyNpc) {
-      // ============================================
-      // חטיפת הדיאלוג עבור ה-NPC של המדריך בבית
-      // ============================================
       if (currentMapId === "house" && nearbyNpc.x === 6 && nearbyNpc.y === 4) {
         const step = getQuestStep("tutorial");
 
@@ -410,10 +423,9 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
             caller: "Guide",
           });
         }
-        return; // יציאה מוקדמת כדי לא להפעיל את ה-AI
+        return;
       }
 
-      // ... המשך הפעלת ה-AI לכל שאר ה-NPCs במשחק
       setMessage("Talking...");
 
       const pastHistory = npcMemories[nearbyNpc.npcId] || [];
@@ -431,8 +443,30 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       });
 
       try {
-        const aiData = await fetchAiDialogue(nearbyNpc.npcId, "Hello", pastHistory);
+        // === עדכנו את הקריאה פה ===
+        const aiData = await fetchAiDialogue(nearbyNpc.npcId, "Hello", pastHistory, buildQuestContext(nearbyNpc.npcId));
         const newHistory = [...pastHistory, { source: "ai", text: aiData.text }];
+
+        // ============================================
+        // קליטת הקווסט מה-AI (גם בשיחה הראשונית)
+        // ============================================
+        if (aiData.questOffer) {
+          advanceQuest(`ai_quest_${nearbyNpc.npcId}`, {
+            ...aiData.questOffer,
+            status: "active",
+          });
+          setMessage(`New Quest Received: ${aiData.questOffer.type} ${aiData.questOffer.amount} ${aiData.questOffer.targetId}(s)!`);
+        }
+
+        // === תוספת השלמת הקווסט ===
+        if (aiData.questCompleted) {
+          const quest = getQuestStep(`ai_quest_${nearbyNpc.npcId}`);
+          if (quest && quest.status === "active") {
+            removeItem(quest.targetId, quest.amount); // לוקחים לשחקן את החפצים
+            advanceQuest(`ai_quest_${nearbyNpc.npcId}`, { ...quest, status: "completed" });
+            setMessage(`Quest Completed! Handed over ${quest.amount} ${quest.targetId}(s).`);
+          }
+        }
 
         setDialogue({
           isOpen: true,
