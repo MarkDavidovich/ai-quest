@@ -271,6 +271,22 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
     const newX = playerGridPos.x + dx;
     const newY = playerGridPos.y + dy;
+    const interactive = getTileAt(newX, newY, "interactive");
+
+    if (interactive === 4) {
+      const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
+      if (teleportData) {
+        const { targetMap, targetX, targetY } = teleportData;
+
+        triggerTransition?.("map", () => {
+          setCurrentMapId(targetMap);
+          setPlayerGridPos({ x: targetX, y: targetY });
+          setPlayerDisplayPos({ x: targetX, y: targetY });
+          setIsMoving(false);
+        });
+        return;
+      }
+    }
 
     // Check collision
     if (!canMoveTo(newX, newY)) {
@@ -288,27 +304,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     // ============================================
     // CHECK FOR RANDOM ENCOUNTER
     // ============================================
-
-    // Check for interactive tiles
-    const interactive = getTileAt(newX, newY, "interactive");
-
-    // ============================================
-    // CHECK FOR TELEPORT
-    // ============================================
-    if (interactive === 4) {
-      const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
-      if (teleportData) {
-        const { targetMap, targetX, targetY } = teleportData;
-
-        triggerTransition?.("map", () => {
-          setCurrentMapId(targetMap);
-          setPlayerGridPos({ x: targetX, y: targetY });
-          setPlayerDisplayPos({ x: targetX, y: targetY }); // Snap display pos to target
-          setIsMoving(false); // Stop current movement animation
-        });
-        return;
-      }
-    }
 
     if (interactive === 3) {
       // NEW: Encounter tile (invisible)

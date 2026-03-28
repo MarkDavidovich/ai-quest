@@ -6,15 +6,20 @@ import { SPRITE_MAP } from "../../utils/tilesets";
 const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, category }) => {
   const screenX = (x - cameraPos.x + centerOffsets.x) * UNIT_SIZE;
   const screenY = (y - cameraPos.y + centerOffsets.y) * UNIT_SIZE;
+  const spriteData = SPRITE_MAP[type];
+  const widthUnits = spriteData?.widthUnits ?? 1;
+  const heightUnits = spriteData?.heightUnits ?? 1;
+  const anchorX = spriteData?.anchorX ?? 0;
+  const anchorY = spriteData?.anchorY ?? 0;
 
   // Base positioning for exactly where on the screen this tile belongs
   let style = {
-    left: screenX,
-    top: screenY,
+    left: screenX - anchorX * UNIT_SIZE,
+    top: screenY - anchorY * UNIT_SIZE,
+    width: widthUnits * UNIT_SIZE,
+    height: heightUnits * UNIT_SIZE,
     "--unit-size": `${UNIT_SIZE}px`,
   };
-
-  const spriteData = SPRITE_MAP[type];
 
   // ==========================================
   // 1. FLOOR LEVEL RENDERING
@@ -26,7 +31,7 @@ const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, cate
            ...style, 
            backgroundImage: `url(${spriteData.img})`,
            backgroundPosition: `${spriteData.posX} ${spriteData.posY || "0%"}`,
-           backgroundSize: `${spriteData.size} ${spriteData.posY ? spriteData.size : "100%"}`,
+           backgroundSize: spriteData.size ?? `${spriteData.posY ? spriteData.size : "100%"} ${spriteData.posY ? spriteData.size : "100%"}`,
            imageRendering: "pixelated"
        };
        return <div className={`${styles.tile} ${styles.floor}`} style={style} />;
@@ -53,7 +58,7 @@ const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, cate
            ...style, 
            backgroundImage: `url(${spriteData.img})`,
            backgroundPosition: `${spriteData.posX} ${spriteData.posY || "0%"}`,
-           backgroundSize: `${spriteData.size} ${spriteData.posY ? spriteData.size : "100%"}`,
+           backgroundSize: spriteData.size ?? `${spriteData.posY ? spriteData.size : "100%"} ${spriteData.posY ? spriteData.size : "100%"}`,
            backgroundRepeat: "no-repeat",
            imageRendering: "pixelated"
        };

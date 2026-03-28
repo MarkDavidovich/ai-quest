@@ -243,7 +243,7 @@ export const WORLD_DATA = {
         .map((_, col) => {
           if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return "water"; // water
           if (row >= 3 && row <= 4 && col >= 30 && col <= 35) return 2; // stone
-          
+
           // Weighted Randomization: 70% gGrass1, 30% others
           const rand = Math.random();
           if (rand < 0.7) return "gGrass1";
@@ -257,16 +257,44 @@ export const WORLD_DATA = {
       Array(GRID_WIDTH)
         .fill(null)
         .map((_, col) => {
-          // 2x2 Tree Cluster Logic
-          const treeAnchors = [[2, 3], [5, 6], [10, 4], [14, 8], [3, 15], [8, 18], [12, 22], [6, 32], [18, 14], [20, 35]];
-          for (const [r, c] of treeAnchors) {
-            if (row === r && col === c) return "gTreeTL";
-            if (row === r && col === c + 1) return "gTreeTR";
-            if (row === r + 1 && col === c) return "gTreeBL";
-            if (row === r + 1 && col === c + 1) return "gTreeBR";
+          const houseAnchors = [
+            [2, 20],
+            [11, 15],
+            [18, 5],
+          ];
+
+          for (const [r, c] of houseAnchors) {
+            const houseTop = r - 2;
+            const houseBottom = r;
+            const houseLeft = c - 1;
+            const houseRight = c + 2;
+
+            if (row >= houseTop && row <= houseBottom && col >= houseLeft && col <= houseRight) {
+              if (row === r && col === c) return "house";
+              return "houseBlock";
+            }
           }
 
-          if ((row === 2 && col === 20) || (row === 11 && col === 15) || (row === 18 && col === 5)) return "house";
+          // 2x2 Tree Cluster Logic
+          const treeAnchors = [
+            [2, 3],
+            [5, 6],
+            [10, 4],
+            [14, 8],
+            [3, 15],
+            [8, 18],
+            [12, 22],
+            [6, 32],
+            [18, 14],
+            [20, 35],
+          ];
+          for (const [r, c] of treeAnchors) {
+            if (row === r && col === c) return "tree";
+            if (row === r && col === c + 1) return "treeBlock";
+            if (row === r + 1 && col === c) return "treeBlock";
+            if (row === r + 1 && col === c + 1) return "treeBlock";
+          }
+
           if ((row === 9 && col === 10) || (row === 15 && col === 20) || (row === 7 && col === 25) || (row === 21 && col === 10)) return "npc";
           return 0;
         }),
@@ -289,9 +317,9 @@ export const WORLD_DATA = {
 // Teleport metadata: [x,y] on current map -> { targetMap, targetX, targetY }
 export const TELEPORTS = {
   forest: {
-    "20,3": { targetMap: "house", targetX: 5, targetY: 10 },
-    "15,12": { targetMap: "house", targetX: 5, targetY: 10 },
-    "5,19": { targetMap: "house", targetX: 5, targetY: 10 },
+    "20,2": { targetMap: "house", targetX: 5, targetY: 10 },
+    "15,11": { targetMap: "house", targetX: 5, targetY: 10 },
+    "5,18": { targetMap: "house", targetX: 5, targetY: 10 },
   },
   house: {
     "5,11": { targetMap: "forest", targetX: 20, targetY: 4 },
@@ -306,8 +334,7 @@ export const MAPS = {
     objects: WORLD_DATA.objects,
     interactive: WORLD_DATA.interactive.map((row, rIdx) =>
       row.map((tile, cIdx) => {
-        // Place entrances one tile BELOW the house objects
-        if ((rIdx === 3 && cIdx === 20) || (rIdx === 12 && cIdx === 15) || (rIdx === 19 && cIdx === 5)) return 4;
+        if ((rIdx === 2 && cIdx === 20) || (rIdx === 11 && cIdx === 15) || (rIdx === 18 && cIdx === 5)) return 4;
         return tile;
       }),
     ),
