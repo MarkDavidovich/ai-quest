@@ -33,8 +33,14 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
         })),
       });
     } else if (choiceId === "run") {
-      setDialogue({ isOpen: true, text: "You tried to run, but you trip on a rock!", choices: [] });
-      //TODO implement normal escape logic
+      const escapeChance = Math.random();
+      if (escapeChance < 0.7) {
+        setBattlePhase("battleEnd");
+        setDialogue({ isOpen: true, text: "Got away safely!", choices: [] });
+      } else {
+        setBattlePhase("enemyTurnStarting");
+        setDialogue({ isOpen: true, text: "You tried to run, but couldn't escape!", choices: [] });
+      }
     } else {
       //It's a moveId
       handlePlayerMove(choiceId);
@@ -113,8 +119,9 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
 
   const endCombat = (winner) => {
     // winner: "player" or "enemy"
-    setIsActive(false);
-    setCurrentEnemy(null);
+    // Leave isActive and currentEnemy alone so we remain mounted!
+    // GamePage will set combatData to null, managing the unmount cleanly
+    // during the Map transition.
     setBattlePhase("waiting");
     onCombatEnd?.();
     // TODO: Give rewards if player wins, etc
