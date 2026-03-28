@@ -243,7 +243,11 @@ export const WORLD_DATA = {
         .map((_, col) => {
           if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return "water"; // water
           if (row >= 3 && row <= 4 && col >= 30 && col <= 35) return 2; // stone
-          return 0; // grass
+          
+          // Weighted Randomization: 70% gGrass1, 30% others
+          const rand = Math.random();
+          if (rand < 0.7) return "gGrass1";
+          return `gGrass${Math.floor(Math.random() * 4) + 2}`; // Random 2-5
         }),
     ),
 
@@ -253,19 +257,15 @@ export const WORLD_DATA = {
       Array(GRID_WIDTH)
         .fill(null)
         .map((_, col) => {
-          if (
-            (row === 2 && col === 3) ||
-            (row === 5 && col === 6) ||
-            (row === 10 && col === 4) ||
-            (row === 14 && col === 8) ||
-            (row === 3 && col === 15) ||
-            (row === 8 && col === 18) ||
-            (row === 12 && col === 22) ||
-            (row === 6 && col === 32) ||
-            (row === 18 && col === 14) ||
-            (row === 20 && col === 35)
-          )
-            return "tree";
+          // 2x2 Tree Cluster Logic
+          const treeAnchors = [[2, 3], [5, 6], [10, 4], [14, 8], [3, 15], [8, 18], [12, 22], [6, 32], [18, 14], [20, 35]];
+          for (const [r, c] of treeAnchors) {
+            if (row === r && col === c) return "gTreeTL";
+            if (row === r && col === c + 1) return "gTreeTR";
+            if (row === r + 1 && col === c) return "gTreeBL";
+            if (row === r + 1 && col === c + 1) return "gTreeBR";
+          }
+
           if ((row === 2 && col === 20) || (row === 11 && col === 15) || (row === 18 && col === 5)) return "house";
           if ((row === 9 && col === 10) || (row === 15 && col === 20) || (row === 7 && col === 25) || (row === 21 && col === 10)) return "npc";
           return 0;
