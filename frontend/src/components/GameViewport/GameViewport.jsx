@@ -2,9 +2,9 @@ import React, { useMemo } from "react";
 import style from "./GameViewport.module.css";
 import Tile from "../Tile/Tile";
 import Player from "../Player/Player";
-import { UNIT_SIZE, CAMERA_WIDTH, CAMERA_HEIGHT } from "../../utils/constants";
+import { UNIT_SIZE, CAMERA_WIDTH, CAMERA_HEIGHT, toWorldKey } from "../../utils/constants";
 
-const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData, isMoving }) => {
+const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData, worldLoot, isMoving }) => {
   // Center maps smaller than the camera
   const centerOffsets = useMemo(
     () => ({
@@ -34,7 +34,13 @@ const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData, 
     // Objects
     for (let y = renderStartY; y < renderEndY; y++) {
       for (let x = renderStartX; x < renderEndX; x++) {
-        const objType = objects[y][x];
+        let objType = objects[y][x];
+
+        if (objType === "chestBlock") {
+          const chestLoot = worldLoot?.[toWorldKey(x, y)];
+          objType = chestLoot?.openedAt ? "chestOpen" : "chestClosed";
+        }
+
         if (objType !== 0) {
           tiles.push(<Tile key={`obj-${x}-${y}`} type={objType} x={x} y={y} cameraPos={cameraPos} centerOffsets={centerOffsets} category="object" />);
         }
@@ -44,7 +50,8 @@ const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData, 
     // Interactive
     for (let y = renderStartY; y < renderEndY; y++) {
       for (let x = renderStartX; x < renderEndX; x++) {
-        const intType = interactive[y][x];
+        let intType = interactive[y][x];
+
         if (intType !== 0) {
           tiles.push(<Tile key={`int-${x}-${y}`} type={intType} x={x} y={y} cameraPos={cameraPos} centerOffsets={centerOffsets} category="interactive" />);
         }
@@ -52,7 +59,7 @@ const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData, 
     }
 
     return tiles;
-  }, [cameraPos.x, cameraPos.y, currentMapData, centerOffsets]); // Only recalc when camera grid position or map data changes
+  }, [cameraPos, currentMapData, worldLoot, centerOffsets]); // Only recalc when camera grid position or map data changes
 
   return (
     <div

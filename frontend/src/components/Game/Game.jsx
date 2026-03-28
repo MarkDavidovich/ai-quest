@@ -126,7 +126,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           text: 'Great! Pick something from the box inside the home. Just be close to the box and press "Enter".',
           choices: [{ id: "leave", label: "I will do that" }],
           source: "tutorial_quest",
-          caller: "Guide"
+          caller: "Guide",
         });
       } else if (choiceId === "quest_decline") {
         setDialogue({
@@ -135,7 +135,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           text: "I see. Let me know if you change your mind later.",
           choices: [{ id: "leave", label: "Goodbye" }],
           source: "tutorial_quest",
-          caller: "Guide"
+          caller: "Guide",
         });
       } else if (choiceId === "quest_give_potion") {
         // השחקן מסר את השיקוי - נמחק מהתיק ומקדם את הקווסט
@@ -147,7 +147,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           text: "Thank you! I will pack this. We are ready, you can go out from the house now.",
           choices: [{ id: "leave", label: "Exit House" }],
           source: "tutorial_quest",
-          caller: "Guide"
+          caller: "Guide",
         });
       }
       return;
@@ -195,7 +195,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         // שומרים את הקווסט תחת ID ייחודי ל-NPC הזה
         advanceQuest(`ai_quest_${dialogue.npcId}`, {
           ...aiData.questOffer,
-          status: "active"
+          status: "active",
         });
         // מקפיצים הודעה קטנה במסך לשחקן
         setMessage(`New Quest Received: ${aiData.questOffer.type} ${aiData.questOffer.amount} ${aiData.questOffer.targetId}(s)!`);
@@ -299,11 +299,15 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         // ============================================
         // חסימת יציאה אם הקווסט לא הושלם
         // ============================================
-        if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
-          setMessage("You must finish talking to the guide before leaving!");
-          setTimeout(() => setMessage(""), 2000);
-          return;
-        }
+        // if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
+        //   setDialogue({
+        //     isOpen: true,
+        //     npcId: dialogue.npcId,
+        //     text: "Hey! come back here and help me!",
+        //     choices: [],
+        //   });
+        //   return;
+        // }
 
         const { targetMap, targetX, targetY } = teleportData;
 
@@ -368,10 +372,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
             text: "The king sent me to you, the people of Negev Talent kingdom need your help, the evil wizard Nir and his TA Adi are going to destorying the kingdom, go to the desert",
             choices: [
               { id: "quest_accept", label: "Yes, let's go" },
-              { id: "quest_decline", label: "No, later" }
+              { id: "quest_decline", label: "No, later" },
             ],
             source: "tutorial_quest",
-            caller: "Guide"
+            caller: "Guide",
           });
         } else if (step === "accepted") {
           if (hasItem("potion", 1)) {
@@ -381,10 +385,10 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
               text: "Ah, you found the potion! Hand it over to me, and then we can leave.",
               choices: [
                 { id: "quest_give_potion", label: "Here you go" },
-                { id: "leave", label: "Not yet" }
+                { id: "leave", label: "Not yet" },
               ],
               source: "tutorial_quest",
-              caller: "Guide"
+              caller: "Guide",
             });
           } else {
             setDialogue({
@@ -393,7 +397,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
               text: 'The journey ahead of you is long and you need all the help you can get, Please pick up the potion from the box inside the home. Just stand close to it and press "Enter".',
               choices: [{ id: "leave", label: "Got it" }],
               source: "tutorial_quest",
-              caller: "Guide"
+              caller: "Guide",
             });
           }
         } else if (step === "completed") {
@@ -403,7 +407,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
             text: "We are all set. You can go out from the house whenever you are ready.",
             choices: [{ id: "leave", label: "Let's go" }],
             source: "tutorial_quest",
-            caller: "Guide"
+            caller: "Guide",
           });
         }
         return; // יציאה מוקדמת כדי לא להפעיל את ה-AI
@@ -518,6 +522,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         cameraPos={displayCameraPos}
         facingDir={facingDir}
         currentMapData={currentMapData}
+        worldLoot={worldLoot}
         isMoving={isMoving}
       />
     </div>

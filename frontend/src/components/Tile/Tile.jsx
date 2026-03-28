@@ -49,6 +49,18 @@ const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, cate
   // ==========================================
   // 2. COLLISION / INTERACTIVE LAYER RENDERING
   // ==========================================
+  if (category === "interactive" && spriteData) {
+    style = {
+      ...style,
+      backgroundImage: `url(${spriteData.img})`,
+      backgroundPosition: `${spriteData.posX} ${spriteData.posY || "0%"}`,
+      backgroundSize: spriteData.size ?? `${spriteData.posY ? spriteData.size : "100%"} ${spriteData.posY ? spriteData.size : "100%"}`,
+      backgroundRepeat: "no-repeat",
+      imageRendering: "pixelated",
+    };
+    return <div className={`${styles.tile} ${styles.object}`} style={style} />;
+  }
+
   let content = null;
 
   if (category === "object") {

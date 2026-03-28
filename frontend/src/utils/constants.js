@@ -280,6 +280,8 @@ export const WORLD_DATA = {
       Array(GRID_WIDTH)
         .fill(null)
         .map((_, col) => {
+          if ((row === 4 && col === 22) || (row === 13 && col === 28) || (row === 20 && col === 16)) return "chestBlock";
+
           const houseAnchors = [
             [2, 20],
             [11, 15],
@@ -329,7 +331,6 @@ export const WORLD_DATA = {
       Array(GRID_WIDTH)
         .fill(null)
         .map((_, col) => {
-          if ((row === 4 && col === 22) || (row === 13 && col === 28) || (row === 20 && col === 16)) return 1; // chest
           if ((row === 3 && col === 25) || (row === 17 && col === 8)) return 2; // npc
           if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return 3; // encounter tile
           return 0;
@@ -348,7 +349,6 @@ export const TELEPORTS = {
     "5,7": { targetMap: "forest", targetX: 20, targetY: 3 },
   },
 };
-
 
 export const MAPS = {
   forest: {
@@ -426,6 +426,16 @@ export const MAPS = {
             if (isTop) return "houseWallTRight";
             if (isBottom) return "houseWallBRight";
 
+            if (row === 2 && col === 3) return "houseTable";
+            if (row === 2 && col === 2) return "houseChair";
+            if (row === 1 && col === 7) return "houseClayPot";
+            if (row === 2 && col === 8) return "houseClayPot";
+            if (row === 6 && col === 1) return "houseClayPot";
+            if (row === 5 && col === 7) return "houseBucket";
+            if (row === 5 && col === 2) return "houseBox";
+            if (row === 1 && col === 1) return "houseBox";
+            if (row === 3 && col === 3) return "chestBlock";
+
             // --- הוספת ה-NPC לקווסט ---
             if (row === 4 && col === 6) return "npc";
 
@@ -441,7 +451,7 @@ export const MAPS = {
             if (row === 7 && col === 5) return 4; // Exit
 
             // --- הוספת התיבה לקווסט ---
-            if (row === 3 && col === 3) return 1; // 1 = קוד התיבה
+            if (row === 3 && col === 3) return 0;
 
             return 0;
           }),

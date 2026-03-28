@@ -3,8 +3,10 @@ import treeSprite from "../assets/sprites/kingdom/gTree.png";
 import waterSprite from "../assets/sprites/kingdom/gWater.png";
 import basicHouseSprite from "../assets/sprites/kingdom/basicHouse1.png";
 import basicHouseEntranceSprite from "../assets/sprites/kingdom/basicHouseEntrance.png";
+import basicHouseInteriorSprite from "../assets/sprites/kingdom/basicHouseInterior.png";
 import basicHouseFloorSprite from "../assets/sprites/kingdom/basicHouse1Floor.png";
 import basicHouseWallsSprite from "../assets/sprites/kingdom/basicHouse1Walls.png";
+import chestSprite from "../assets/sprites/kingdom/chest.png";
 import playerIdleSprite from "../assets/sprites/player/playerIdle.png";
 import playerWalkingSprite from "../assets/sprites/player/playerWalking.png";
 import oldWomanNpcSprite from "../assets/sprites/kingdom/oldWomanNpc.png";
@@ -41,6 +43,16 @@ export const SPRITE_MAP = {
   },
 
   houseEntrance: { img: basicHouseEntranceSprite, posX: "0%", posY: "0%", size: "100% 100%" },
+
+  houseChair: { img: basicHouseInteriorSprite, posX: "0%", posY: "0%", size: "300%" },
+  houseTable: { img: basicHouseInteriorSprite, posX: "50%", posY: "0%", size: "300%" },
+  houseClayPot: { img: basicHouseInteriorSprite, posX: "100%", posY: "0%", size: "300%" },
+  houseBox: { img: basicHouseInteriorSprite, posX: "0%", posY: "100%", size: "300%" },
+  houseBucket: { img: basicHouseInteriorSprite, posX: "50%", posY: "100%", size: "300%" },
+  housePotion: { img: basicHouseInteriorSprite, posX: "100%", posY: "100%", size: "300%" },
+
+  chestClosed: { img: chestSprite, posX: "0%", posY: "0%", size: "200%" },
+  chestOpen: { img: chestSprite, posX: "100%", posY: "0%", size: "200%" },
 
   houseFloorTL: { img: basicHouseFloorSprite, posX: "0%", posY: "0%", size: "300%" },
   houseFloorT: { img: basicHouseFloorSprite, posX: "50%", posY: "0%", size: "300%" },
