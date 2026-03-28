@@ -473,7 +473,6 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           if (quest && quest.status === "active") {
             removeItem(quest.targetId, quest.amount); // לוקחים לשחקן את החפצים
             advanceQuest(`ai_quest_${nearbyNpc.npcId}`, { ...quest, status: "completed" });
-            setMessage(`Quest Completed! Handed over ${quest.amount} ${quest.targetId}(s).`);
           }
         }
 
