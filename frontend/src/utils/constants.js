@@ -33,17 +33,7 @@ export const ITEM_DEFINITIONS = {
   },
 };
 
-export const INITIAL_INVENTORY = Array.from({ length: INVENTORY_SIZE }, (_, index) => {
-  if (index === 0) {
-    return { itemId: "potion", quantity: 2 };
-  }
-
-  if (index === 1) {
-    return { itemId: "sword", quantity: 1 };
-  }
-
-  return null;
-});
+export const INITIAL_INVENTORY = Array.from({ length: INVENTORY_SIZE }, () => null);
 
 export const INITIAL_WORLD_LOOT = {
   "22,4": {
@@ -60,6 +50,11 @@ export const INITIAL_WORLD_LOOT = {
     kind: "chest",
     opened: false,
     drops: [{ itemId: "potion", quantity: 2 }],
+  },
+  "3,3": {
+    kind: "chest",
+    opened: false,
+    drops: [{ itemId: "potion", quantity: 1 }],
   },
 };
 
@@ -326,6 +321,7 @@ export const TELEPORTS = {
   },
 };
 
+
 export const MAPS = {
   forest: {
     width: GRID_WIDTH,
@@ -388,6 +384,7 @@ export const MAPS = {
             const isTopNearRight = isTop && col === 8;
             const isBottomExitLeft = isBottom && col === 4;
             const isBottomExitRight = isBottom && col === 6;
+
             if (isExit) return 0;
             if (isTop && isLeft) return "houseWallTL";
             if (isTopNearLeft || isTopNearRight) return "houseWallTRight";
@@ -400,6 +397,10 @@ export const MAPS = {
             if (isBottom && isRight) return "houseWallBR";
             if (isTop) return "houseWallTRight";
             if (isBottom) return "houseWallBRight";
+
+            // --- הוספת ה-NPC לקווסט ---
+            if (row === 4 && col === 6) return "npc";
+
             return 0;
           }),
       ),
@@ -410,6 +411,10 @@ export const MAPS = {
           .fill(null)
           .map((_, col) => {
             if (row === 7 && col === 5) return 4; // Exit
+
+            // --- הוספת התיבה לקווסט ---
+            if (row === 3 && col === 3) return 1; // 1 = קוד התיבה
+
             return 0;
           }),
       ),
