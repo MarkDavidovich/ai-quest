@@ -112,7 +112,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   // ============================================
   const buildQuestContext = (npcId) => {
     const quest = getQuestStep(`ai_quest_${npcId}`);
-    if (!quest || quest === 'unstarted' || quest.status !== "active") return "";
+    if (!quest || quest === "unstarted" || quest.status !== "active") return "";
 
     const playerHasItems = hasItem(quest.targetId, quest.amount);
 
@@ -319,11 +319,15 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     if (interactive === 4) {
       const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
       if (teleportData) {
-        if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
-          setMessage("You must finish talking to the guide before leaving!");
-          setTimeout(() => setMessage(""), 2000);
-          return;
-        }
+        // if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
+        //   setDialogue({
+        //     isOpen: true,
+        //     npcId: dialogue.npcId,
+        //     text: "Hey! where are you going? give me that potion!",
+        //     choices: [],
+        //   });
+        //   return;
+        // }
 
         const { targetMap, targetX, targetY } = teleportData;
 
