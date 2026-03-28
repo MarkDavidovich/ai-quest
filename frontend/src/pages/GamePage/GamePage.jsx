@@ -9,18 +9,14 @@ import { useState } from "react";
 import { saveGameToBackend } from "../../services/gameApi";
 import { useLocation } from "react-router-dom";
 
-
 const GamePage = () => {
   const location = useLocation();
   const loadedData = location.state?.loadSave;
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
-  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "forest");
-  const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);;
+  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "house");
+  const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
-
-
-
 
   const handleSaveGame = async (inventoryItems) => {
     try {
@@ -32,21 +28,21 @@ const GamePage = () => {
           defense: PLAYER_STATS.defense,
           position_x: playerGridPos.x,
           position_y: playerGridPos.y,
-          level: 1
+          level: 1,
         },
         session: {
           current_map: currentMapId,
-          status: combatData ? "in_combat" : "playing"
+          status: combatData ? "in_combat" : "playing",
         },
-        inventory: inventoryItems
+        inventory: inventoryItems,
       };
       await saveGameToBackend(gameState);
       alert("Game Saved Successfully! 💾");
     } catch (error) {
       console.error("Failed to save game:", error);
-      alert("Error saving game. Please try again.")
+      alert("Error saving game. Please try again.");
     }
-  }
+  };
 
   const handleItemUse = (itemId) => {
     if (itemId === "potion") {

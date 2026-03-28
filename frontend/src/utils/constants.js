@@ -317,12 +317,12 @@ export const WORLD_DATA = {
 // Teleport metadata: [x,y] on current map -> { targetMap, targetX, targetY }
 export const TELEPORTS = {
   forest: {
-    "20,2": { targetMap: "house", targetX: 5, targetY: 10 },
-    "15,11": { targetMap: "house", targetX: 5, targetY: 10 },
-    "5,18": { targetMap: "house", targetX: 5, targetY: 10 },
+    "20,2": { targetMap: "house", targetX: 5, targetY: 6 },
+    "15,11": { targetMap: "house", targetX: 5, targetY: 6 },
+    "5,18": { targetMap: "house", targetX: 5, targetY: 6 },
   },
   house: {
-    "5,11": { targetMap: "forest", targetX: 20, targetY: 4 },
+    "5,7": { targetMap: "forest", targetX: 20, targetY: 4 },
   },
 };
 
@@ -340,28 +340,76 @@ export const MAPS = {
     ),
   },
   house: {
-    width: 12,
-    height: 12,
-    floor: Array(12)
-      .fill(null)
-      .map(() => Array(12).fill("stone")),
-    objects: Array(12)
+    width: 10,
+    height: 8,
+    floor: Array(8)
       .fill(null)
       .map((_, row) =>
-        Array(12)
+        Array(10)
           .fill(null)
           .map((_, col) => {
-            if (row === 0 || (row === 11 && col !== 5) || col === 0 || col === 11) return "tree";
+            const innerTop = 1;
+            const innerBottom = 6;
+            const innerLeft = 1;
+            const innerRight = 8;
+            const isTop = row === innerTop;
+            const isBottom = row === innerBottom;
+            const isLeft = col === innerLeft;
+            const isRight = col === innerRight;
+            const isInside = row >= innerTop && row <= innerBottom && col >= innerLeft && col <= innerRight;
+            const isDoorThreshold = row === 7 && col === 5;
+
+            if (isDoorThreshold) return "houseFloorB";
+            if (!isInside) return "stone";
+
+            if (isTop && isLeft) return "houseFloorTL";
+            if (isTop && isRight) return "houseFloorTR";
+            if (isBottom && isLeft) return "houseFloorBL";
+            if (isBottom && isRight) return "houseFloorBR";
+            if (isTop) return "houseFloorT";
+            if (isBottom) return "houseFloorB";
+            if (isLeft) return "houseFloorL";
+            if (isRight) return "houseFloorR";
+            return "houseFloorC";
+          }),
+      ),
+    objects: Array(8)
+      .fill(null)
+      .map((_, row) =>
+        Array(10)
+          .fill(null)
+          .map((_, col) => {
+            const isTop = row === 0;
+            const isBottom = row === 7;
+            const isLeft = col === 0;
+            const isRight = col === 9;
+            const isExit = isBottom && col === 5;
+            const isTopNearLeft = isTop && col === 1;
+            const isTopNearRight = isTop && col === 8;
+            const isBottomExitLeft = isBottom && col === 4;
+            const isBottomExitRight = isBottom && col === 6;
+            if (isExit) return 0;
+            if (isTop && isLeft) return "houseWallTL";
+            if (isTopNearLeft || isTopNearRight) return "houseWallTRight";
+            if (isTop && isRight) return "houseWallTR";
+            if (isLeft && !isTop && !isBottom) return "houseWallLTop";
+            if (isRight && !isTop && !isBottom) return "houseWallRTop";
+            if (isBottom && isLeft) return "houseWallBL";
+            if (isBottomExitLeft) return "houseWallBLeft";
+            if (isBottomExitRight) return "houseWallB";
+            if (isBottom && isRight) return "houseWallBR";
+            if (isTop) return "houseWallTRight";
+            if (isBottom) return "houseWallBRight";
             return 0;
           }),
       ),
-    interactive: Array(12)
+    interactive: Array(8)
       .fill(null)
       .map((_, row) =>
-        Array(12)
+        Array(10)
           .fill(null)
           .map((_, col) => {
-            if (row === 11 && col === 5) return 4; // Exit
+            if (row === 7 && col === 5) return 4; // Exit
             return 0;
           }),
       ),
