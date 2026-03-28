@@ -5,7 +5,7 @@ import AuthPage from "./pages/AuthPage/AuthPage";
 import MenuPage from "./pages/MenuPage/MenuPage";
 import { useAuth } from "./context/AuthContext";
 
-function App() {
+function App({ routeLocation }) {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -27,7 +27,7 @@ function App() {
   }
 
   return (
-    <Routes>
+    <Routes location={routeLocation}>
       <Route 
         path="/" 
         element={isAuthenticated ? <Navigate to="/menu" replace /> : <AuthPage />} 

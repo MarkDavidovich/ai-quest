@@ -10,6 +10,15 @@
   flex-direction: column;
 }
 
+.container.fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 4000;
+  pointer-events: all;
+}
+
 .container.battle {
   pointer-events: all; /* Block input during battle transition */
 }
@@ -23,11 +32,50 @@
   height: 100%;
   background: black;
   opacity: 0;
-  transition: opacity 0.4s ease-in-out;
 }
 
-.mapFade.active {
+.mapFade.mapBlack {
   opacity: 1;
+}
+
+.smooth {}
+
+.retro {}
+
+.mapFade.mapEntering.smooth {
+  animation: mapFadeIn 420ms linear forwards;
+}
+
+.mapFade.mapEntering.retro {
+  animation: mapFadeIn 420ms steps(10, end) forwards;
+}
+
+.mapFade.mapExiting.smooth {
+  animation: mapFadeOut 420ms linear forwards;
+}
+
+.mapFade.mapExiting.retro {
+  animation: mapFadeOut 420ms steps(10, end) forwards;
+}
+
+@keyframes mapFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mapFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 /* BATTLE FLASH */
