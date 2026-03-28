@@ -459,7 +459,13 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         facingDir={facingDir}
       /> */}
       <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
-      <GameViewport playerDisplayPos={playerDisplayPos} cameraPos={displayCameraPos} facingDir={facingDir} currentMapData={currentMapData} />
+      <GameViewport
+        playerDisplayPos={playerDisplayPos}
+        cameraPos={displayCameraPos}
+        facingDir={facingDir}
+        currentMapData={currentMapData}
+        isMoving={isMoving}
+      />
     </div>
   );
 }

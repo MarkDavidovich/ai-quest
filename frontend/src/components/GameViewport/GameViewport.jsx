@@ -4,12 +4,15 @@ import Tile from "../Tile/Tile";
 import Player from "../Player/Player";
 import { UNIT_SIZE, CAMERA_WIDTH, CAMERA_HEIGHT } from "../../utils/constants";
 
-const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData }) => {
+const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData, isMoving }) => {
   // Center maps smaller than the camera
-  const centerOffsets = useMemo(() => ({
-    x: Math.max(0, (CAMERA_WIDTH - currentMapData.width) / 2),
-    y: Math.max(0, (CAMERA_HEIGHT - currentMapData.height) / 2)
-  }), [currentMapData.width, currentMapData.height]);
+  const centerOffsets = useMemo(
+    () => ({
+      x: Math.max(0, (CAMERA_WIDTH - currentMapData.width) / 2),
+      y: Math.max(0, (CAMERA_HEIGHT - currentMapData.height) / 2),
+    }),
+    [currentMapData.width, currentMapData.height],
+  );
 
   // Memoize visible tile calculation - only recalc if cameraPos changes
   const visibleTiles = useMemo(() => {
@@ -60,7 +63,7 @@ const GameViewport = ({ playerDisplayPos, cameraPos, facingDir, currentMapData }
       }}
     >
       {visibleTiles}
-      <Player x={playerDisplayPos.x} y={playerDisplayPos.y} cameraPos={cameraPos} centerOffsets={centerOffsets} facingDir={facingDir} />
+      <Player x={playerDisplayPos.x} y={playerDisplayPos.y} cameraPos={cameraPos} centerOffsets={centerOffsets} facingDir={facingDir} isMoving={isMoving} />
     </div>
   );
 };
