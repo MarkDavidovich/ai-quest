@@ -1,6 +1,8 @@
 import grassSprite from "../assets/sprites/kingdom/gGrass1-5.png";
 import treeSprite from "../assets/sprites/kingdom/gTree.png";
+import waterSprite from "../assets/sprites/kingdom/gWater.png";
 import basicHouseSprite from "../assets/sprites/kingdom/basicHouse1.png";
+import basicHouseEntranceSprite from "../assets/sprites/kingdom/basicHouseEntrance.png";
 import basicHouseFloorSprite from "../assets/sprites/kingdom/basicHouse1Floor.png";
 import basicHouseWallsSprite from "../assets/sprites/kingdom/basicHouse1Walls.png";
 import playerIdleSprite from "../assets/sprites/player/playerIdle.png";
@@ -37,6 +39,8 @@ export const SPRITE_MAP = {
     anchorX: 1,
     anchorY: 2,
   },
+
+  houseEntrance: { img: basicHouseEntranceSprite, posX: "0%", posY: "0%", size: "100% 100%" },
 
   houseFloorTL: { img: basicHouseFloorSprite, posX: "0%", posY: "0%", size: "300%" },
   houseFloorT: { img: basicHouseFloorSprite, posX: "50%", posY: "0%", size: "300%" },
@@ -75,6 +79,16 @@ export const SPRITE_MAP = {
   gGrass3: { img: grassSprite, posX: "50%", size: "500%" },
   gGrass4: { img: grassSprite, posX: "75%", size: "500%" },
   gGrass5: { img: grassSprite, posX: "100%", size: "500%" },
+
+  gWaterTL: { img: waterSprite, posX: "0%", posY: "0%", size: "300%" },
+  gWaterT: { img: waterSprite, posX: "50%", posY: "0%", size: "300%" },
+  gWaterTR: { img: waterSprite, posX: "100%", posY: "0%", size: "300%" },
+  gWaterL: { img: waterSprite, posX: "0%", posY: "50%", size: "300%" },
+  gWaterC: { img: waterSprite, posX: "50%", posY: "50%", size: "300%" },
+  gWaterR: { img: waterSprite, posX: "100%", posY: "50%", size: "300%" },
+  gWaterBL: { img: waterSprite, posX: "0%", posY: "100%", size: "300%" },
+  gWaterB: { img: waterSprite, posX: "50%", posY: "100%", size: "300%" },
+  gWaterBR: { img: waterSprite, posX: "100%", posY: "100%", size: "300%" },
 
   // 2x2 tree sprite anchored at its top-left tile.
   tree: {

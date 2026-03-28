@@ -236,7 +236,35 @@ export const WORLD_DATA = {
       Array(GRID_WIDTH)
         .fill(null)
         .map((_, col) => {
-          if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return "water"; // water
+          const waterRegions = [
+            { top: 6, bottom: 8, left: 8, right: 12 },
+            { top: 16, bottom: 18, left: 24, right: 28 },
+          ];
+
+          for (const region of waterRegions) {
+            const { top, bottom, left, right } = region;
+            const isInsideWater = row >= top && row <= bottom && col >= left && col <= right;
+
+            if (!isInsideWater) {
+              continue;
+            }
+
+            const isTop = row === top;
+            const isBottom = row === bottom;
+            const isLeft = col === left;
+            const isRight = col === right;
+
+            if (isTop && isLeft) return "gWaterTL";
+            if (isTop && isRight) return "gWaterTR";
+            if (isBottom && isLeft) return "gWaterBL";
+            if (isBottom && isRight) return "gWaterBR";
+            if (isTop) return "gWaterT";
+            if (isBottom) return "gWaterB";
+            if (isLeft) return "gWaterL";
+            if (isRight) return "gWaterR";
+            return "gWaterC";
+          }
+
           if (row >= 3 && row <= 4 && col >= 30 && col <= 35) return 2; // stone
 
           // Weighted Randomization: 70% gGrass1, 30% others
@@ -317,7 +345,7 @@ export const TELEPORTS = {
     "5,18": { targetMap: "house", targetX: 5, targetY: 6 },
   },
   house: {
-    "5,7": { targetMap: "forest", targetX: 20, targetY: 4 },
+    "5,7": { targetMap: "forest", targetX: 20, targetY: 3 },
   },
 };
 
@@ -355,7 +383,7 @@ export const MAPS = {
             const isInside = row >= innerTop && row <= innerBottom && col >= innerLeft && col <= innerRight;
             const isDoorThreshold = row === 7 && col === 5;
 
-            if (isDoorThreshold) return "houseFloorB";
+            if (isDoorThreshold) return "houseEntrance";
             if (!isInside) return "stone";
 
             if (isTop && isLeft) return "houseFloorTL";
