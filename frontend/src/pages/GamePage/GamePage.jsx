@@ -15,7 +15,7 @@ const GamePage = () => {
   const loadedData = location.state?.loadSave;
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
-  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "forest");
+  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "house");
   const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);;
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
 
