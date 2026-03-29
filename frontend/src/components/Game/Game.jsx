@@ -558,6 +558,14 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
   return (
     <div className={styles.container}>
+      <GameUI
+        playerGridPos={playerGridPos}
+        playerDisplayPos={playerDisplayPos}
+        message={message}
+        gridWidth={currentMapData.width}
+        gridHeight={currentMapData.height}
+        facingDir={facingDir}
+      />
       <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
       <GameViewport
         playerDisplayPos={playerDisplayPos}

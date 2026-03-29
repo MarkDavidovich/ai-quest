@@ -32,6 +32,8 @@ const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, cate
            backgroundImage: `url(${spriteData.img})`,
            backgroundPosition: `${spriteData.posX} ${spriteData.posY || "0%"}`,
            backgroundSize: spriteData.size ?? `${spriteData.posY ? spriteData.size : "100%"} ${spriteData.posY ? spriteData.size : "100%"}`,
+           backgroundRepeat: "no-repeat",
+           backgroundColor: "transparent",
            imageRendering: "pixelated"
        };
        return <div className={`${styles.tile} ${styles.floor}`} style={style} />;
@@ -56,6 +58,7 @@ const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, cate
       backgroundPosition: `${spriteData.posX} ${spriteData.posY || "0%"}`,
       backgroundSize: spriteData.size ?? `${spriteData.posY ? spriteData.size : "100%"} ${spriteData.posY ? spriteData.size : "100%"}`,
       backgroundRepeat: "no-repeat",
+      backgroundColor: "transparent",
       imageRendering: "pixelated",
     };
     return <div className={`${styles.tile} ${styles.object}`} style={style} />;
@@ -72,6 +75,7 @@ const Tile = memo(({ type, x, y, cameraPos, centerOffsets = { x: 0, y: 0 }, cate
            backgroundPosition: `${spriteData.posX} ${spriteData.posY || "0%"}`,
            backgroundSize: spriteData.size ?? `${spriteData.posY ? spriteData.size : "100%"} ${spriteData.posY ? spriteData.size : "100%"}`,
            backgroundRepeat: "no-repeat",
+           backgroundColor: "transparent",
            imageRendering: "pixelated"
        };
        return <div className={`${styles.tile} ${styles.object}`} style={style} />;

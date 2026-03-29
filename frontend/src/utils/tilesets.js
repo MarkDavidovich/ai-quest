@@ -1,15 +1,26 @@
 import grassSprite from "../assets/sprites/kingdom/gGrass1-5.png";
+import dirtFieldSprite from "../assets/sprites/kingdom/gDirtField.png";
+import dirtPathSprite from "../assets/sprites/kingdom/gDirtPath.png";
+import bushesSprite from "../assets/sprites/kingdom/gBushes.png";
+import flowersSprite from "../assets/sprites/kingdom/gFlowers.png";
+import stumpsSprite from "../assets/sprites/kingdom/gStumps.png";
 import treeSprite from "../assets/sprites/kingdom/gTree.png";
 import waterSprite from "../assets/sprites/kingdom/gWater.png";
 import basicHouseSprite from "../assets/sprites/kingdom/basicHouse1.png";
+import basicHouse2Sprite from "../assets/sprites/kingdom/basicHouse2.png";
 import basicHouseEntranceSprite from "../assets/sprites/kingdom/basicHouseEntrance.png";
 import basicHouseInteriorSprite from "../assets/sprites/kingdom/basicHouseInterior.png";
 import basicHouseFloorSprite from "../assets/sprites/kingdom/basicHouse1Floor.png";
 import basicHouseWallsSprite from "../assets/sprites/kingdom/basicHouse1Walls.png";
 import chestSprite from "../assets/sprites/kingdom/chest.png";
+import flagSprite from "../assets/sprites/kingdom/flag.gif";
+import waterRipplesSprite from "../assets/sprites/kingdom/water ripples.gif";
 import playerIdleSprite from "../assets/sprites/player/playerIdle.png";
 import playerWalkingSprite from "../assets/sprites/player/playerWalking.png";
 import oldWomanNpcSprite from "../assets/sprites/kingdom/oldWomanNpc.png";
+import oldManNpcSprite from "../assets/sprites/kingdom/oldManNpc.png";
+import oldManNpc2Sprite from "../assets/sprites/kingdom/oldManNpc2.png";
+import villageLeaderNpcSprite from "../assets/sprites/kingdom/villageLeaderNpc.png";
 
 // --- THE SPRITE DICTIONARY ---
 // Add any new pixel art tiles here, mapping them to explicit visual bounds on the spritesheets!
@@ -29,10 +40,25 @@ export const SPRITE_MAP = {
 
   //Old woman NPC
   npc: { img: oldWomanNpcSprite, posX: "0%", size: "100%" },
+  oldManNpc: { img: oldManNpcSprite, posX: "0%", size: "100%" },
+  oldManNpc2: { img: oldManNpc2Sprite, posX: "0%", size: "100%" },
+  villageLeaderNpc: { img: villageLeaderNpcSprite, posX: "0%", size: "100%" },
+  flag: { img: flagSprite, posX: "0%", posY: "0%", size: "100% 100%" },
+  waterRipples: { img: waterRipplesSprite, posX: "0%", posY: "0%", size: "100% 100%" },
 
   // 4x3 house sprite, anchored so the doorway lines up with the existing house tile.
   house: {
     img: basicHouseSprite,
+    posX: "0%",
+    posY: "0%",
+    size: "100% 100%",
+    widthUnits: 4,
+    heightUnits: 3,
+    anchorX: 1,
+    anchorY: 2,
+  },
+  house2: {
+    img: basicHouse2Sprite,
     posX: "0%",
     posY: "0%",
     size: "100% 100%",
@@ -91,6 +117,58 @@ export const SPRITE_MAP = {
   gGrass3: { img: grassSprite, posX: "50%", size: "500%" },
   gGrass4: { img: grassSprite, posX: "75%", size: "500%" },
   gGrass5: { img: grassSprite, posX: "100%", size: "500%" },
+
+  gBush1: { img: bushesSprite, posX: "0%", posY: "0%", size: "200% 100%" },
+  gBush2: { img: bushesSprite, posX: "100%", posY: "0%", size: "200% 100%" },
+
+  gFlower1: { img: flowersSprite, posX: "0%", posY: "0%", size: "300% 100%" },
+  gFlower2: { img: flowersSprite, posX: "50%", posY: "0%", size: "300% 100%" },
+  gFlower3: { img: flowersSprite, posX: "100%", posY: "0%", size: "300% 100%" },
+
+  gStump1: { img: stumpsSprite, posX: "0%", posY: "0%", size: "200% 100%" },
+  gStump2: { img: stumpsSprite, posX: "100%", posY: "0%", size: "200% 100%" },
+
+  dirtFieldTL: { img: dirtFieldSprite, posX: "0%", posY: "0%", size: "300%" },
+  dirtFieldT: { img: dirtFieldSprite, posX: "50%", posY: "0%", size: "300%" },
+  dirtFieldTR: { img: dirtFieldSprite, posX: "100%", posY: "0%", size: "300%" },
+  dirtFieldL: { img: dirtFieldSprite, posX: "0%", posY: "50%", size: "300%" },
+  dirtFieldC: { img: dirtFieldSprite, posX: "50%", posY: "50%", size: "300%" },
+  dirtFieldR: { img: dirtFieldSprite, posX: "100%", posY: "50%", size: "300%" },
+  dirtFieldBL: { img: dirtFieldSprite, posX: "0%", posY: "100%", size: "300%" },
+  dirtFieldB: { img: dirtFieldSprite, posX: "50%", posY: "100%", size: "300%" },
+  dirtFieldBR: { img: dirtFieldSprite, posX: "100%", posY: "100%", size: "300%" },
+
+  dirtPathVerticalTop: { img: dirtPathSprite, posX: "0%", posY: "0%", size: "400% 300%" },
+  dirtPathVerticalMiddle: { img: dirtPathSprite, posX: "0%", posY: "50%", size: "400% 300%" },
+  dirtPathVerticalBottom: { img: dirtPathSprite, posX: "0%", posY: "100%", size: "400% 300%" },
+  dirtPathHorizontalLeft: { img: dirtPathSprite, posX: "33.33%", posY: "0%", size: "400% 300%" },
+  dirtPathHorizontalMiddle: { img: dirtPathSprite, posX: "66.66%", posY: "0%", size: "400% 300%" },
+  dirtPathHorizontalRight: { img: dirtPathSprite, posX: "100%", posY: "0%", size: "400% 300%" },
+  dirtPathCornerTL: { img: dirtPathSprite, posX: "33.33%", posY: "50%", size: "400% 300%" },
+  dirtPathCornerTR: { img: dirtPathSprite, posX: "66.66%", posY: "50%", size: "400% 300%" },
+  dirtPatchSmall: { img: dirtPathSprite, posX: "100%", posY: "50%", size: "400% 300%" },
+  dirtPathCornerBL: { img: dirtPathSprite, posX: "33.33%", posY: "100%", size: "400% 300%" },
+  dirtPathCornerBR: { img: dirtPathSprite, posX: "66.66%", posY: "100%", size: "400% 300%" },
+
+  // Temporary aliases so existing map data keeps rendering while we remap dirt placement.
+  dirtOuterTL: { img: dirtFieldSprite, posX: "0%", posY: "0%", size: "300%" },
+  dirtTop: { img: dirtFieldSprite, posX: "50%", posY: "0%", size: "300%" },
+  dirtOuterTR: { img: dirtFieldSprite, posX: "100%", posY: "0%", size: "300%" },
+  dirtInnerTL: { img: dirtFieldSprite, posX: "0%", posY: "0%", size: "300%" },
+  dirtInnerTR: { img: dirtFieldSprite, posX: "100%", posY: "0%", size: "300%" },
+  dirtLeft: { img: dirtFieldSprite, posX: "0%", posY: "50%", size: "300%" },
+  dirtCenter: { img: dirtFieldSprite, posX: "50%", posY: "50%", size: "300%" },
+  dirtRight: { img: dirtFieldSprite, posX: "100%", posY: "50%", size: "300%" },
+  dirtTransitionLeftBottom: { img: dirtFieldSprite, posX: "0%", posY: "100%", size: "300%" },
+  dirtTransitionRightBottom: { img: dirtFieldSprite, posX: "100%", posY: "100%", size: "300%" },
+  dirtOuterBL: { img: dirtFieldSprite, posX: "0%", posY: "100%", size: "300%" },
+  dirtBottom: { img: dirtFieldSprite, posX: "50%", posY: "100%", size: "300%" },
+  dirtOuterBR: { img: dirtFieldSprite, posX: "100%", posY: "100%", size: "300%" },
+  dirtTransitionLeftTop: { img: dirtFieldSprite, posX: "0%", posY: "0%", size: "300%" },
+  dirtTransitionRightTop: { img: dirtFieldSprite, posX: "100%", posY: "0%", size: "300%" },
+  dirtInnerBL: { img: dirtFieldSprite, posX: "0%", posY: "100%", size: "300%" },
+  dirtInnerBR: { img: dirtFieldSprite, posX: "100%", posY: "100%", size: "300%" },
+  dirtGrassDetail: { img: dirtPathSprite, posX: "100%", posY: "50%", size: "400% 300%" },
 
   gWaterTL: { img: waterSprite, posX: "0%", posY: "0%", size: "300%" },
   gWaterT: { img: waterSprite, posX: "50%", posY: "0%", size: "300%" },

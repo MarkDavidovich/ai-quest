@@ -1,3 +1,5 @@
+import { createForestLevel } from "../maps/forest.js";
+
 export const UNIT_SIZE = 64;
 export const GRID_WIDTH = 40;
 export const GRID_HEIGHT = 24;
@@ -36,21 +38,6 @@ export const ITEM_DEFINITIONS = {
 export const INITIAL_INVENTORY = Array.from({ length: INVENTORY_SIZE }, () => null);
 
 export const INITIAL_WORLD_LOOT = {
-  "22,4": {
-    kind: "chest",
-    opened: false,
-    drops: [{ itemId: "potion", quantity: 3 }],
-  },
-  "28,13": {
-    kind: "chest",
-    opened: false,
-    drops: [{ itemId: "sword", quantity: 1 }],
-  },
-  "16,20": {
-    kind: "chest",
-    opened: false,
-    drops: [{ itemId: "potion", quantity: 2 }],
-  },
   "3,3": {
     kind: "chest",
     opened: false,
@@ -67,6 +54,7 @@ const DEFAULT_NPC_CHOICES = [
 ];
 
 export const NPC_NAMES = {
+  "20,4": "Elder Rowan",
   "10,9": "Sir Aldric",
   "20,15": "Lady Elswyth",
   "25,7": "Cedric",
@@ -77,6 +65,20 @@ export const NPC_NAMES = {
 };
 
 export const NPC_DIALOGUES = {
+  "20,4": {
+    start: {
+      text: "Welcome to our little village. The roads are safe here, but the wilds beyond the trees are less kind.",
+      choices: DEFAULT_NPC_CHOICES,
+    },
+    help: {
+      text: "Use the roads to get your bearings, visit the houses, and head back when you need a breather from the outside world.",
+      choices: [{ id: "leave", label: "Thanks" }],
+    },
+    quest: {
+      text: "No quest just yet. For now, take a walk and learn the shape of the village.",
+      choices: [{ id: "leave", label: "Will do" }],
+    },
+  },
   "10,9": {
     start: {
       text: "The forest ahead is thick. Keep your eyes open and your path clear.",
@@ -237,142 +239,20 @@ export const PLAYER_STATS = {
   moves: ["strike", "doubleSlash", "kill"],
 };
 
-//currently the map is constant
+const FOREST_LEVEL = createForestLevel({ GRID_WIDTH, GRID_HEIGHT, toWorldKey });
 
-export const WORLD_DATA = {
-  floor: Array(GRID_HEIGHT)
-    .fill(null)
-    .map((_, row) =>
-      Array(GRID_WIDTH)
-        .fill(null)
-        .map((_, col) => {
-          const waterRegions = [
-            { top: 6, bottom: 8, left: 8, right: 12 },
-            { top: 16, bottom: 18, left: 24, right: 28 },
-          ];
-
-          for (const region of waterRegions) {
-            const { top, bottom, left, right } = region;
-            const isInsideWater = row >= top && row <= bottom && col >= left && col <= right;
-
-            if (!isInsideWater) {
-              continue;
-            }
-
-            const isTop = row === top;
-            const isBottom = row === bottom;
-            const isLeft = col === left;
-            const isRight = col === right;
-
-            if (isTop && isLeft) return "gWaterTL";
-            if (isTop && isRight) return "gWaterTR";
-            if (isBottom && isLeft) return "gWaterBL";
-            if (isBottom && isRight) return "gWaterBR";
-            if (isTop) return "gWaterT";
-            if (isBottom) return "gWaterB";
-            if (isLeft) return "gWaterL";
-            if (isRight) return "gWaterR";
-            return "gWaterC";
-          }
-
-          if (row >= 3 && row <= 4 && col >= 30 && col <= 35) return 2; // stone
-
-          // Weighted Randomization: 70% gGrass1, 30% others
-          const rand = Math.random();
-          if (rand < 0.7) return "gGrass1";
-          return `gGrass${Math.floor(Math.random() * 4) + 2}`; // Random 2-5
-        }),
-    ),
-
-  objects: Array(GRID_HEIGHT)
-    .fill(null)
-    .map((_, row) =>
-      Array(GRID_WIDTH)
-        .fill(null)
-        .map((_, col) => {
-          if ((row === 4 && col === 22) || (row === 13 && col === 28) || (row === 20 && col === 16)) return "chestBlock";
-
-          const houseAnchors = [
-            [2, 20],
-            [11, 15],
-            [18, 5],
-          ];
-
-          for (const [r, c] of houseAnchors) {
-            const houseTop = r - 2;
-            const houseBottom = r;
-            const houseLeft = c - 1;
-            const houseRight = c + 2;
-
-            if (row >= houseTop && row <= houseBottom && col >= houseLeft && col <= houseRight) {
-              if (row === r && col === c) return "house";
-              return "houseBlock";
-            }
-          }
-
-          // 2x2 Tree Cluster Logic
-          const treeAnchors = [
-            [2, 3],
-            [5, 6],
-            [10, 4],
-            [14, 8],
-            [3, 15],
-            [8, 18],
-            [12, 22],
-            [6, 32],
-            [18, 14],
-            [20, 35],
-          ];
-          for (const [r, c] of treeAnchors) {
-            if (row === r && col === c) return "tree";
-            if (row === r && col === c + 1) return "treeBlock";
-            if (row === r + 1 && col === c) return "treeBlock";
-            if (row === r + 1 && col === c + 1) return "treeBlock";
-          }
-
-          if ((row === 9 && col === 10) || (row === 15 && col === 20) || (row === 7 && col === 25) || (row === 21 && col === 10)) return "npc";
-          return 0;
-        }),
-    ),
-
-  interactive: Array(GRID_HEIGHT)
-    .fill(null)
-    .map((_, row) =>
-      Array(GRID_WIDTH)
-        .fill(null)
-        .map((_, col) => {
-          if ((row === 3 && col === 25) || (row === 17 && col === 8)) return 2; // npc
-          if ((row >= 6 && row <= 8 && col >= 8 && col <= 12) || (row >= 16 && row <= 18 && col >= 24 && col <= 28)) return 3; // encounter tile
-          return 0;
-        }),
-    ),
-};
+export const WORLD_DATA = FOREST_LEVEL.worldData;
 
 // Teleport metadata: [x,y] on current map -> { targetMap, targetX, targetY }
 export const TELEPORTS = {
-  forest: {
-    "20,2": { targetMap: "house", targetX: 5, targetY: 6 },
-    "15,11": { targetMap: "house", targetX: 5, targetY: 6 },
-    "5,18": { targetMap: "house", targetX: 5, targetY: 6 },
-  },
+  forest: FOREST_LEVEL.teleports,
   house: {
-    "5,7": { targetMap: "forest", targetX: 20, targetY: 3 },
+    "5,7": { targetMap: "forest", targetX: 21, targetY: 13 },
   },
 };
 
 export const MAPS = {
-  forest: {
-    width: GRID_WIDTH,
-    height: GRID_HEIGHT,
-    floor: WORLD_DATA.floor,
-    objects: WORLD_DATA.objects,
-    interactive: WORLD_DATA.interactive.map((row, rIdx) =>
-      row.map((tile, cIdx) => {
-        if ((rIdx === 2 && cIdx === 20) || (rIdx === 11 && cIdx === 15) || (rIdx === 18 && cIdx === 5)) return 4;
-        return tile;
-      }),
-    ),
-  },
+  forest: FOREST_LEVEL.map,
   house: {
     width: 10,
     height: 8,
@@ -468,3 +348,4 @@ export const MAPS = {
       ),
   },
 };
+
