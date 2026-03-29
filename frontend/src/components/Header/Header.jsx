@@ -3,6 +3,7 @@ import styles from "./Header.module.css";
 import { useInventory } from "../../context/InventoryContext";
 import { useAuth } from "../../context/AuthContext";
 import { PLAYER_STATS } from "../../utils/constants";
+import { SPRITE_MAP } from "../../utils/tilesets";
 import { useNavigate } from "react-router-dom";
 
 const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMenu = false }) => {
@@ -78,8 +79,8 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMe
       <div className={styles.charInfo}>
         {!isBattle && (
           <>
-            <span className={styles.name}>{user ? `${user.firstName} ${user.lastName}` : "Hero"}</span>
-            <span className={styles.level}>Lv. 1</span>
+            <span className={styles.name}>{user ? `${user.firstName}` : "Hero"}</span>
+            <span className={styles.level}></span>
           </>
         )}
       </div>
@@ -91,10 +92,6 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMe
               HP: {playerHp} / {PLAYER_STATS.maxHp}
             </span>
             <div className={`${styles.bar} ${styles.hpBar}`} style={{ width: `${hpPercent}%` }}></div>
-          </div>
-          <div className={styles.barWrapper}>
-            <span className={styles.barLabel}>MP: 50 / 50</span>
-            <div className={`${styles.bar} ${styles.mpBar}`} style={{ width: "100%" }}></div>
           </div>
         </div>
       )}
@@ -122,7 +119,22 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMe
               onClick={() => handleSlotClick(index, Boolean(slot))}
               aria-pressed={isSelected}
             >
-              {item ? <span className={styles.slotIcon}>{item.icon}</span> : null}
+              {item ? (
+                <span className={styles.slotIcon}>
+                  {SPRITE_MAP[item.icon] ? (
+                    <div
+                      className={styles.spriteIcon}
+                      style={{
+                        backgroundImage: `url(${SPRITE_MAP[item.icon].img})`,
+                        backgroundPosition: `${SPRITE_MAP[item.icon].posX} ${SPRITE_MAP[item.icon].posY || "0%"}`,
+                        backgroundSize: SPRITE_MAP[item.icon].size,
+                      }}
+                    />
+                  ) : (
+                    item.icon
+                  )}
+                </span>
+              ) : null}
               {slot && slot.quantity > 1 ? <span className={styles.slotQuantity}>{slot.quantity}</span> : null}
             </button>
           );

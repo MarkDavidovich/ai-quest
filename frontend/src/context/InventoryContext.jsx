@@ -104,7 +104,10 @@ const addItemToSlots = (slots, itemId, quantity) => {
 
 const getInventorySummary = (grantedDrops, leftoverDrops) => {
   const grantedText = grantedDrops
-    .map(({ itemId, quantity }) => `${quantity} ${getItemDefinition(itemId)?.icon ?? itemId}`)
+    .map(({ itemId, quantity }) => {
+      const name = getItemDefinition(itemId)?.name ?? itemId;
+      return `${quantity} ${name}${quantity > 1 ? "s" : ""}`;
+    })
     .join(", ");
 
   if (grantedDrops.length === 0) {
@@ -283,6 +286,12 @@ const inventoryReducer = (state, action) => {
       return reduceUseSelectedItem(state).nextState;
     case "REMOVE_ITEM": // --- תוספת ---
       return reduceRemoveItem(state, action.payload.itemId, action.payload.quantity);
+    case "ADD_ITEM":
+      const { nextSlots: slotsAfterAdd } = addItemToSlots(state.slots, action.payload.itemId, action.payload.quantity);
+      return {
+        ...state,
+        slots: slotsAfterAdd,
+      };
     case "CLEAR_FEEDBACK":
       return state.feedbackMessage ? { ...state, feedbackMessage: "" } : state;
     default:
@@ -333,6 +342,10 @@ export const InventoryProvider = ({ children, initialItems }) => {
     dispatch({ type: "REMOVE_ITEM", payload: { itemId, quantity } });
   }, []);
 
+  const addItem = useCallback((itemId, quantity = 1) => {
+    dispatch({ type: "ADD_ITEM", payload: { itemId, quantity } });
+  }, []);
+
   // --- תוספת: פונקציית בדיקה אם יש לנו מספיק מחפץ מסוים ---
   const hasItem = useCallback((itemId, quantity = 1) => {
     const total = state.slots.reduce((sum, slot) => {
@@ -354,8 +367,9 @@ export const InventoryProvider = ({ children, initialItems }) => {
       selectSlot,
       openContainer,
       useSelectedItem,
-      removeItem, // נחשף
-      hasItem,    // נחשף
+      removeItem,
+      addItem,
+      hasItem,
     }),
     [
       state.feedbackMessage,
@@ -368,6 +382,7 @@ export const InventoryProvider = ({ children, initialItems }) => {
       openContainer,
       useSelectedItem,
       removeItem,
+      addItem,
       hasItem,
     ],
   );

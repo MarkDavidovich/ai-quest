@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import style from "./Combat.module.css";
-import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, COMBAT_MOVES, ENEMIES, PLAYER_STATS, EMPTY_DIALOGUE } from "../../utils/constants";
+import { useInventory } from "../../context/InventoryContext";
+import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, COMBAT_MOVES, ENEMIES, PLAYER_STATS, EMPTY_DIALOGUE, ITEM_DEFINITIONS } from "../../utils/constants";
 import { calculateDamage, getRandomMove } from "../../utils/combatHelpers";
 import PlayerCombatSprite from "../PlayerCombatSprite/PlayerCombatSprite";
 import EnemyCombatSprite from "../EnemyCombatSprite/EnemyCombatSprite";
@@ -8,6 +9,7 @@ import CombatUI from "../CombatUI/CombatUI";
 import DialogueModal from "../DialogueModal/DialogueModal";
 
 const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp, onPlayerDeath }) => {
+  const { addItem } = useInventory();
   // ============================================
   // COMBAT STATE
   // ============================================
@@ -20,6 +22,7 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp, onPlayerDeath }) 
   const [move, setSelectedMove] = useState(null);
   const [dialogue, setDialogue] = useState(EMPTY_DIALOGUE);
   const [actionResult, setActionResult] = useState(null);
+  const [messageQueue, setMessageQueue] = useState([]); // Array of strings to show sequentially
 
   const handleChoiceSelect = (choiceId) => {
     if (choiceId === "attack") {
@@ -50,6 +53,18 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp, onPlayerDeath }) 
   };
 
   const advanceDialogue = () => {
+    // 1. Process Message Queue first
+    if (messageQueue.length > 0) {
+      const nextMessage = messageQueue[0];
+      setMessageQueue((prev) => prev.slice(1));
+      setDialogue({
+        isOpen: true,
+        text: nextMessage,
+        choices: [],
+      });
+      return;
+    }
+
     // Only advance if there are no choices and the modal is open
     if (dialogue.isOpen && dialogue.choices.length === 0) {
       setDialogue(EMPTY_DIALOGUE);
@@ -141,8 +156,42 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp, onPlayerDeath }) 
       choices: [],
     });
     if (enemyHp <= 0) {
+      // LOOT CALCULATION
+      const drops = [];
+      if (currentEnemy.dropTable) {
+        currentEnemy.dropTable.forEach((drop) => {
+          if (Math.random() < drop.chance) {
+            drops.push({ itemId: drop.itemId, quantity: drop.quantity });
+          }
+        });
+      }
+
+      const lootMessage =
+        drops.length > 0
+          ? `You found ${drops
+              .map((d) => {
+                const name = ITEM_DEFINITIONS[d.itemId]?.name || d.itemId;
+                return `${d.quantity} ${name}${d.quantity > 1 ? "s" : ""}`;
+              })
+              .join(", ")}!`
+          : "";
+
       setBattlePhase("battleEnd");
-      setDialogue({ isOpen: true, text: `${currentEnemy.name} was defeated!`, choices: [] });
+      setDialogue({
+        isOpen: true,
+        text: `${currentEnemy.name} was defeated!`,
+        choices: [],
+      });
+
+      if (lootMessage) {
+        setMessageQueue([lootMessage]);
+      }
+
+      if (drops.length > 0) {
+        drops.forEach((drop) => {
+          addItem(drop.itemId, drop.quantity);
+        });
+      }
     } else {
       setBattlePhase("enemyTurnStarting");
     }
@@ -239,12 +288,19 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp, onPlayerDeath }) 
       <div className={`${style.stage} ${playerHp <= 0 ? style.defeated : ""}`}>
         <div className={style.border}>
           <div className={style.entity}>
+            {/* Enemy on the right (actually rendered second in the border container) */}
             <CombatUI type="enemy" hp={enemyHp} maxHp={currentEnemy.maxHp} name={currentEnemy.name} />
-            <EnemyCombatSprite enemy={currentEnemy} />
+            <EnemyCombatSprite
+              enemy={currentEnemy}
+              className={battlePhase === "enemyAttacking" ? style.enemyTackle : ""}
+            />
           </div>
 
           <div className={style.entity}>
-            <PlayerCombatSprite />
+            {/* Player on the left (actually rendered first in the row) */}
+            <PlayerCombatSprite
+              className={battlePhase === "playerAttacking" ? style.playerTackle : ""}
+            />
             <CombatUI type="player" hp={playerHp} maxHp={PLAYER_STATS.maxHp} name="Hero" />
           </div>
         </div>

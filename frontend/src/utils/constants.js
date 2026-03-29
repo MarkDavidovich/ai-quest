@@ -24,19 +24,44 @@ export const EMPTY_DIALOGUE = {
 export const ITEM_DEFINITIONS = {
   potion: {
     id: "potion",
-    name: "Potion",
-    icon: "🧪",
+    name: "Life Potion",
+    icon: "itemLifePot",
     kind: "consumable",
     stackable: true,
+    maxHpRegen: 30, // Heals for 30 HP
     maxStack: 99,
   },
   sword: {
     id: "sword",
-    name: "Sword",
+    name: "Iron Sword",
     icon: "⚔️",
     kind: "equipment",
     stackable: false,
     maxStack: 1,
+  },
+  bear_meat: {
+    id: "bear_meat",
+    name: "Bear Meat",
+    icon: "itemBearMeat",
+    kind: "loot",
+    stackable: true,
+    maxStack: 99,
+  },
+  dino_bone: {
+    id: "dino_bone",
+    name: "Dino Bone",
+    icon: "itemDinoBone",
+    kind: "loot",
+    stackable: true,
+    maxStack: 99,
+  },
+  goblin_flask: {
+    id: "goblin_flask",
+    name: "Goblin Flask",
+    icon: "itemGoblinFlask",
+    kind: "loot",
+    stackable: true,
+    maxStack: 99,
   },
 };
 
@@ -46,7 +71,7 @@ export const INITIAL_WORLD_LOOT = {
   "3,3": {
     kind: "chest",
     opened: false,
-    drops: [{ itemId: "potion", quantity: 1 }],
+    drops: [{ itemId: "potion", quantity: 15 }],
   },
 };
 
@@ -280,6 +305,10 @@ export const ENEMIES = {
     defense: 4,
     speed: 6,
     moves: ["strike", "doubleSlash"],
+    dropTable: [
+      { itemId: "potion", chance: 0.2, quantity: 1 },
+      { itemId: "goblin_flask", chance: 0.15, quantity: 1 },
+    ],
   },
   dragon: {
     id: "dragon",
@@ -290,6 +319,7 @@ export const ENEMIES = {
     defense: 15,
     speed: 15,
     moves: ["strike", "fireball", "fireBreath"],
+    dropTable: [{ itemId: "potion", chance: 0.5, quantity: 2 }],
   },
   bear: {
     id: "bear",
@@ -300,6 +330,7 @@ export const ENEMIES = {
     defense: 10,
     speed: 8,
     moves: ["strike", "bite", "slash"],
+    dropTable: [{ itemId: "bear_meat", chance: 0.7, quantity: 1 }],
   },
   dino: {
     id: "dino",
@@ -310,6 +341,7 @@ export const ENEMIES = {
     defense: 8,
     speed: 12,
     moves: ["strike", "stomp", "tailWhip"],
+    dropTable: [{ itemId: "dino_bone", chance: 0.5, quantity: 1 }],
   },
   lizard: {
     id: "lizard",
@@ -320,6 +352,7 @@ export const ENEMIES = {
     defense: 5,
     speed: 14,
     moves: ["bite", "tailWhip"],
+    dropTable: [{ itemId: "potion", chance: 0.1, quantity: 1 }],
   },
 };
 
