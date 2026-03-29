@@ -7,13 +7,12 @@ export const createForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) => {
   ];
 
   const FOREST_NPCS = [
-    { x: 20, y: 4 },
-    { x: 10, y: 9 },
-    { x: 25, y: 7 },
-    { x: 20, y: 15 },
-    { x: 10, y: 21 },
-    { x: 25, y: 3 },
-    { x: 8, y: 17 },
+    { x: 10, y: 9, type: "oldManNpc2" },
+    { x: 25, y: 7, type: "oldManNpc" },
+    { x: 20, y: 15, type: "npc" },
+    { x: 10, y: 21, type: "npc" },
+    { x: 25, y: 3, type: "npc" },
+    { x: 8, y: 17, type: "npc" },
   ];
 
   const FOREST_PATH_RECTS = [
@@ -401,7 +400,8 @@ export const createForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) => {
             const stumpTile = FOREST_STUMPS.get(toWorldKey(col, row));
             if (stumpTile) return stumpTile;
 
-            if (FOREST_NPCS.some((npc) => npc.x === col && npc.y === row)) return "npc";
+            const forestNpc = FOREST_NPCS.find((npc) => npc.x === col && npc.y === row);
+            if (forestNpc) return forestNpc.type;
             return 0;
           }),
       ),
@@ -416,10 +416,12 @@ export const createForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) => {
   };
 
   const teleports = {
-    "4,5": { targetMap: "house", targetX: 5, targetY: 6 },
-    "34,5": { targetMap: "house", targetX: 5, targetY: 6 },
-    "21,12": { targetMap: "house", targetX: 5, targetY: 6 },
-    "10,15": { targetMap: "house", targetX: 5, targetY: 6 },
+    "4,5": { targetMap: "gHouse1", targetX: 5, targetY: 6, returnMap: "forest", returnX: 4, returnY: 6 },
+    "34,5": { targetMap: "gHouse2", targetX: 5, targetY: 6, returnMap: "forest", returnX: 34, returnY: 6 },
+    "21,12": { targetMap: "chiefHouse", targetX: 5, targetY: 6, returnMap: "forest", returnX: 21, returnY: 13 },
+    "10,15": { targetMap: "playerHouse", targetX: 5, targetY: 6, returnMap: "forest", returnX: 10, returnY: 16 },
+    "39,12": { targetMap: "deepForest", targetX: 1, targetY: 12, returnMap: "forest", returnX: 39, returnY: 12 },
+    "39,13": { targetMap: "deepForest", targetX: 1, targetY: 13, returnMap: "forest", returnX: 39, returnY: 13 },
   };
 
   const map = {
@@ -433,7 +435,9 @@ export const createForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) => {
           (rIdx === 5 && cIdx === 4) ||
           (rIdx === 5 && cIdx === 34) ||
           (rIdx === 12 && cIdx === 21) ||
-          (rIdx === 15 && cIdx === 10)
+          (rIdx === 15 && cIdx === 10) ||
+          (rIdx === 12 && cIdx === 39) ||
+          (rIdx === 13 && cIdx === 39)
         ) {
           return 4;
         }
