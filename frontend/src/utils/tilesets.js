@@ -8,6 +8,8 @@ import treeSprite from "../assets/sprites/kingdom/gTree.png";
 import waterSprite from "../assets/sprites/kingdom/gWater.png";
 import basicHouseSprite from "../assets/sprites/kingdom/basicHouse1.png";
 import basicHouse2Sprite from "../assets/sprites/kingdom/basicHouse2.png";
+import abandonedHouse1Sprite from "../assets/sprites/kingdom/abandonedHouse1.png";
+import abandonedHouse2Sprite from "../assets/sprites/kingdom/abandonedHouse2.png";
 import basicHouseEntranceSprite from "../assets/sprites/kingdom/basicHouseEntrance.png";
 import basicHouseInteriorSprite from "../assets/sprites/kingdom/basicHouseInterior.png";
 import basicHouseFloorSprite from "../assets/sprites/kingdom/basicHouse1Floor.png";
@@ -21,6 +23,9 @@ import oldWomanNpcSprite from "../assets/sprites/kingdom/oldWomanNpc.png";
 import oldManNpcSprite from "../assets/sprites/kingdom/oldManNpc.png";
 import oldManNpc2Sprite from "../assets/sprites/kingdom/oldManNpc2.png";
 import villageLeaderNpcSprite from "../assets/sprites/kingdom/villageLeaderNpc.png";
+import deepTreeSprite from "../assets/sprites/kingdom/dTree.png";
+import deepRootsAndStumpSprite from "../assets/sprites/kingdom/dRootsAndStump.png";
+import deepCartSprite from "../assets/sprites/kingdom/dCart.png";
 
 // --- THE SPRITE DICTIONARY ---
 // Add any new pixel art tiles here, mapping them to explicit visual bounds on the spritesheets!
@@ -63,6 +68,26 @@ export const SPRITE_MAP = {
     posY: "0%",
     size: "100% 100%",
     widthUnits: 4,
+    heightUnits: 3,
+    anchorX: 1,
+    anchorY: 2,
+  },
+  abandonedHouse1: {
+    img: abandonedHouse1Sprite,
+    posX: "0%",
+    posY: "0%",
+    size: "100% 100%",
+    widthUnits: 4,
+    heightUnits: 3,
+    anchorX: 1,
+    anchorY: 2,
+  },
+  abandonedHouse2: {
+    img: abandonedHouse2Sprite,
+    posX: "0%",
+    posY: "0%",
+    size: "100% 100%",
+    widthUnits: 3,
     heightUnits: 3,
     anchorX: 1,
     anchorY: 2,
@@ -127,6 +152,9 @@ export const SPRITE_MAP = {
 
   gStump1: { img: stumpsSprite, posX: "0%", posY: "0%", size: "200% 100%" },
   gStump2: { img: stumpsSprite, posX: "100%", posY: "0%", size: "200% 100%" },
+  dRoots1: { img: deepRootsAndStumpSprite, posX: "0%", posY: "0%", size: "300% 100%" },
+  dRoots2: { img: deepRootsAndStumpSprite, posX: "50%", posY: "0%", size: "300% 100%" },
+  dStump: { img: deepRootsAndStumpSprite, posX: "100%", posY: "0%", size: "300% 100%" },
 
   dirtFieldTL: { img: dirtFieldSprite, posX: "0%", posY: "0%", size: "300%" },
   dirtFieldT: { img: dirtFieldSprite, posX: "50%", posY: "0%", size: "300%" },
@@ -190,5 +218,25 @@ export const SPRITE_MAP = {
     heightUnits: 2,
     anchorX: 0,
     anchorY: 0,
+  },
+  dTree: {
+    img: deepTreeSprite,
+    posX: "0%",
+    posY: "0%",
+    size: "100% 100%",
+    widthUnits: 2,
+    heightUnits: 2,
+    anchorX: 0,
+    anchorY: 0,
+  },
+  dCart: {
+    img: deepCartSprite,
+    posX: "0%",
+    posY: "0%",
+    size: "100% 100%",
+    widthUnits: 2,
+    heightUnits: 2,
+    anchorX: 0,
+    anchorY: 1,
   },
 };
