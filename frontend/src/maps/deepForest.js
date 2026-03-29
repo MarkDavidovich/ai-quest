@@ -1,6 +1,10 @@
 export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) => {
+  const DEEP_FOREST_FIELD_RECTS = [{ left: 0, right: 4, top: 12, bottom: 13 }];
+  const DEEP_FOREST_FIELD_OVERRIDES = new Map(
+    [[0, 12, "dirtFieldT"], [0, 13, "dirtFieldB"]].map(([x, y, type]) => [`${x},${y}`, type]),
+  );
+
   const DEEP_FOREST_PATH_RECTS = [
-    { left: 0, right: 4, top: 12, bottom: 13 },
     { left: 4, right: 4, top: 9, bottom: 12 },
     { left: 4, right: 9, top: 9, bottom: 9 },
     { left: 9, right: 9, top: 6, bottom: 9 },
@@ -24,39 +28,70 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
     { left: 13, right: 18, top: 18, bottom: 18 },
   ];
 
+  const DEEP_FOREST_FIELD_TILES = new Set();
+  for (const rect of DEEP_FOREST_FIELD_RECTS) {
+    for (let y = rect.top; y <= rect.bottom; y += 1) {
+      for (let x = rect.left; x <= rect.right; x += 1) {
+        DEEP_FOREST_FIELD_TILES.add(toWorldKey(x, y));
+      }
+    }
+  }
+
+  const DEEP_FOREST_PATH_REMOVALS = new Set([
+    toWorldKey(4, 11),
+    toWorldKey(17, 10),
+    toWorldKey(22, 7),
+    toWorldKey(30, 6),
+    toWorldKey(8, 20),
+    toWorldKey(19, 9),
+    toWorldKey(30, 14),
+  ]);
+
   const DEEP_FOREST_PATH_TILES = new Set();
+  DEEP_FOREST_PATH_TILES.add(toWorldKey(6, 14)); // Manual addition
+
   for (const rect of DEEP_FOREST_PATH_RECTS) {
     for (let y = rect.top; y <= rect.bottom; y += 1) {
       for (let x = rect.left; x <= rect.right; x += 1) {
-        DEEP_FOREST_PATH_TILES.add(toWorldKey(x, y));
+        const worldKey = toWorldKey(x, y);
+        if (DEEP_FOREST_PATH_REMOVALS.has(worldKey)) continue;
+
+        DEEP_FOREST_PATH_TILES.add(worldKey);
       }
     }
   }
 
   const DEEP_FOREST_PATH_OVERRIDES = new Map(
     [
-      [4, 9, "dirtPathCornerBL"],
-      [4, 12, "dirtPathCornerTR"],
-      [9, 6, "dirtPathCornerBL"],
+      [4, 9, "dirtPathCornerTL"],
+      [4, 12, "dirtPathCornerBL"],
+      [4, 10, "dirtPathVerticalBottom"],
+      [6, 14, "dirtPathHorizontalLeft"],
+      [7, 14, "dirtPathCornerTR"],
+      [9, 6, "dirtPathCornerTL"],
       [14, 6, "dirtPathCornerTR"],
-      [14, 10, "dirtPathCornerTL"],
-      [19, 10, "dirtPathCornerBR"],
-      [19, 8, "dirtPathCornerBL"],
-      [22, 8, "dirtPathCornerTR"],
-      [19, 16, "dirtPathCornerTL"],
-      [24, 16, "dirtPathCornerBR"],
-      [24, 21, "dirtPathCornerTL"],
+      [14, 10, "dirtPathCornerBL"],
+      [18, 10, "dirtPathHorizontalLeft"],
+      [19, 10, "dirtPathCornerTR"],
+      [19, 8, "dirtPathHorizontalLeft"],
+      [19, 16, "dirtPathCornerBL"],
+      [22, 8, "dirtPathHorizontalMiddle"],
+      [22, 6, "dirtPathVerticalBottom"],
+      [22, 5, "dirtPathCornerTL"],
+      [24, 16, "dirtPathCornerTR"],
+      [24, 21, "dirtPathCornerBL"],
       [31, 21, "dirtPathCornerBR"],
-      [31, 14, "dirtPathCornerBL"],
-      [36, 14, "dirtPathCornerTR"],
-      [36, 13, "dirtPathVerticalBottom"],
+      [31, 14, "dirtPathCornerTL"],
+      [36, 14, "dirtPathCornerBR"],
+      [36, 13, "dirtPathVerticalTop"],
       [30, 5, "dirtPathHorizontalMiddle"],
-      [22, 5, "dirtPathHorizontalLeft"],
+      [30, 13, "dirtPathVerticalBottom"],
       [35, 5, "dirtPathHorizontalRight"],
-      [7, 14, "dirtPathCornerBL"],
-      [7, 20, "dirtPathCornerTL"],
+      [7, 20, "dirtPathVerticalBottom"],
       [13, 20, "dirtPathCornerBR"],
-      [13, 18, "dirtPathCornerBL"],
+      [9, 20, "dirtPathHorizontalLeft"],
+      [13, 18, "dirtPathCornerTL"],
+      [30, 7, "dirtPathVerticalTop"],
       [18, 18, "dirtPathHorizontalRight"],
     ].map(([x, y, type]) => [`${x},${y}`, type]),
   );
@@ -66,7 +101,7 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
   const DEEP_FOREST_TREE_ANCHORS = [
     [0, 1], [0, 4], [0, 7], [0, 11], [0, 14], [0, 18], [0, 22], [0, 26], [0, 29], [0, 32], [0, 35], [0, 38],
     [2, 0], [2, 6], [2, 12], [2, 18], [2, 24], [2, 31], [2, 36],
-    [4, 2], [4, 8], [4, 16], [4, 26], [4, 34],
+    [4, 2], [4, 8], [4, 15], [4, 26], [4, 34],
     [6, 1], [6, 11], [6, 20], [6, 28], [6, 36],
     [8, 6], [8, 15], [8, 23], [8, 34],
     [10, 2], [10, 9], [10, 17], [10, 26], [10, 37],
@@ -92,7 +127,6 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
       [7, 3, "gBush1"], [11, 7, "gBush2"], [12, 8, "gBush1"], [13, 2, "gBush2"],
       [16, 9, "gBush1"], [17, 6, "gBush2"], [21, 2, "gBush1"], [22, 1, "gBush2"],
       [25, 9, "gBush1"], [26, 6, "gBush2"], [28, 3, "gBush1"], [29, 8, "gBush2"],
-      [32, 2, "gBush1"], [33, 9, "gBush2"], [35, 8, "gBush1"], [38, 0, "gBush2"],
       [38, 6, "gBush1"], [38, 10, "gBush2"], [37, 16, "gBush1"], [35, 18, "gBush2"],
       [31, 18, "gBush1"], [28, 19, "gBush2"], [20, 20, "gBush1"], [17, 20, "gBush2"],
       [10, 18, "gBush1"], [6, 16, "gBush2"], [6, 22, "gBush1"], [13, 22, "gBush2"],
@@ -117,10 +151,11 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
   const DEEP_FOREST_ROOTS = new Map(
     [
       [0, 23, "dRoots1"], [3, 0, "dRoots1"], [3, 23, "dRoots2"], [6, 0, "dRoots2"], [10, 0, "dRoots1"], [12, 3, "dRoots2"], [18, 4, "dRoots1"], [27, 1, "dRoots2"],
+      [8, 1, "dRoots1"], [15, 0, "dRoots2"], [35, 1, "dRoots1"],
       [34, 0, "dRoots1"], [39, 4, "dRoots2"], [6, 5, "dRoots1"], [17, 8, "dRoots2"],
       [24, 10, "dRoots1"], [29, 11, "dRoots2"], [36, 7, "dRoots1"], [5, 17, "dRoots2"],
-      [12, 19, "dRoots1"], [16, 21, "dRoots2"], [22, 18, "dRoots1"], [27, 20, "dRoots2"],
-      [33, 19, "dRoots1"], [38, 18, "dRoots2"], [7, 23, "dRoots1"], [12, 23, "dRoots2"],
+      [12, 19, "dRoots1"], [16, 21, "dRoots2"], [27, 20, "dRoots2"],
+      [38, 18, "dRoots2"], [7, 23, "dRoots1"], [12, 23, "dRoots2"],
       [16, 23, "dRoots1"], [22, 23, "dRoots2"], [28, 23, "dRoots1"], [35, 23, "dRoots2"],
       [39, 20, "dRoots1"], [39, 14, "dRoots2"], [39, 8, "dRoots1"], [39, 2, "dRoots2"],
     ].map(([x, y, type]) => [`${x},${y}`, type]),
@@ -190,6 +225,26 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
     return null;
   };
 
+  const getDeepForestFieldTile = (x, y) => {
+    const overrideTile = DEEP_FOREST_FIELD_OVERRIDES.get(toWorldKey(x, y));
+    if (overrideTile) return overrideTile;
+
+    const hasNorth = DEEP_FOREST_FIELD_TILES.has(toWorldKey(x, y - 1));
+    const hasSouth = DEEP_FOREST_FIELD_TILES.has(toWorldKey(x, y + 1));
+    const hasWest = DEEP_FOREST_FIELD_TILES.has(toWorldKey(x - 1, y));
+    const hasEast = DEEP_FOREST_FIELD_TILES.has(toWorldKey(x + 1, y));
+
+    if (!hasNorth && !hasWest) return "dirtFieldTL";
+    if (!hasNorth && !hasEast) return "dirtFieldTR";
+    if (!hasSouth && !hasWest) return "dirtFieldBL";
+    if (!hasSouth && !hasEast) return "dirtFieldBR";
+    if (!hasNorth) return "dirtFieldT";
+    if (!hasSouth) return "dirtFieldB";
+    if (!hasWest) return "dirtFieldL";
+    if (!hasEast) return "dirtFieldR";
+    return "dirtFieldC";
+  };
+
   const getPathTile = (x, y) => {
     const override = DEEP_FOREST_PATH_OVERRIDES.get(toWorldKey(x, y));
     if (override) return override;
@@ -213,7 +268,7 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
     if (hasNorth && hasSouth) return "dirtPathVerticalMiddle";
     if (hasWest || hasEast) return hasWest ? "dirtPathHorizontalRight" : "dirtPathHorizontalLeft";
     if (hasNorth || hasSouth) return hasNorth ? "dirtPathVerticalBottom" : "dirtPathVerticalTop";
-    return "dirtPatchSmall";
+    return "dirtPathHorizontalMiddle";
   };
 
   const worldData = {
@@ -225,6 +280,7 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
           .map((_, col) => {
             const waterTile = getWaterTile(col, row);
             if (waterTile) return waterTile;
+            if (DEEP_FOREST_FIELD_TILES.has(toWorldKey(col, row))) return getDeepForestFieldTile(col, row);
             if (DEEP_FOREST_PATH_TILES.has(toWorldKey(col, row))) return getPathTile(col, row);
             return Math.random() < 0.75 ? "gGrass1" : `gGrass${Math.floor(Math.random() * 4) + 2}`;
           }),
@@ -292,8 +348,8 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
   };
 
   const teleports = {
-    "0,12": { targetMap: "forest", targetX: 39, targetY: 12, returnMap: "deepForest", returnX: 1, returnY: 12 },
-    "0,13": { targetMap: "forest", targetX: 39, targetY: 13, returnMap: "deepForest", returnX: 1, returnY: 13 },
+    "0,12": { targetMap: "forest", targetX: 38, targetY: 12, returnMap: "deepForest", returnX: 1, returnY: 12 },
+    "0,13": { targetMap: "forest", targetX: 38, targetY: 13, returnMap: "deepForest", returnX: 1, returnY: 13 },
   };
 
   const map = {
