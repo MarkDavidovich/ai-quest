@@ -7,7 +7,7 @@ import EnemyCombatSprite from "../EnemyCombatSprite/EnemyCombatSprite";
 import CombatUI from "../CombatUI/CombatUI";
 import DialogueModal from "../DialogueModal/DialogueModal";
 
-const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
+const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp, onPlayerDeath }) => {
   // ============================================
   // COMBAT STATE
   // ============================================
@@ -41,6 +41,8 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
         setBattlePhase("enemyTurnStarting");
         setDialogue({ isOpen: true, text: "You tried to run, but couldn't escape!", choices: [] });
       }
+    } else if (choiceId === "menu") {
+      onPlayerDeath?.();
     } else {
       //It's a moveId
       handlePlayerMove(choiceId);
@@ -179,7 +181,11 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
     });
     if (playerHp <= 0) {
       setBattlePhase("battleEnd");
-      setDialogue({ isOpen: true, text: "You were defeated...", choices: [] });
+      setDialogue({
+        isOpen: true,
+        text: "You were defeated...",
+        choices: [{ id: "menu", label: "Back to Main Menu" }],
+      });
     } else {
       setBattlePhase("playerTurnStarting");
     }
@@ -230,15 +236,17 @@ const Combat = ({ enemyId, onCombatEnd, playerHp, setPlayerHp }) => {
         "--viewport-height": `${CAMERA_HEIGHT * UNIT_SIZE}px`,
       }}
     >
-      <div className={style.border}>
-        <div className={style.entity}>
-          <CombatUI type="enemy" hp={enemyHp} maxHp={currentEnemy.maxHp} name={currentEnemy.name} />
-          <EnemyCombatSprite enemy={currentEnemy} />
-        </div>
+      <div className={`${style.stage} ${playerHp <= 0 ? style.defeated : ""}`}>
+        <div className={style.border}>
+          <div className={style.entity}>
+            <CombatUI type="enemy" hp={enemyHp} maxHp={currentEnemy.maxHp} name={currentEnemy.name} />
+            <EnemyCombatSprite enemy={currentEnemy} />
+          </div>
 
-        <div className={style.entity}>
-          <PlayerCombatSprite />
-          <CombatUI type="player" hp={playerHp} maxHp={PLAYER_STATS.maxHp} name="Hero" />
+          <div className={style.entity}>
+            <PlayerCombatSprite />
+            <CombatUI type="player" hp={playerHp} maxHp={PLAYER_STATS.maxHp} name="Hero" />
+          </div>
         </div>
       </div>
 

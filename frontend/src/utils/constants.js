@@ -70,7 +70,7 @@ export const NPC_NAMES = {
   tutorial_npc: "Royal Guide Isolde",
 };
 
-export const NPC_OBJECT_TYPES = ["npc", "oldManNpc", "oldManNpc2", "villageLeaderNpc"];
+export const NPC_OBJECT_TYPES = ["npc", "oldManNpc", "oldManNpc2", "villageLeaderNpc", "npcDino"];
 
 export const NPC_DIALOGUES = {
   "10,9": {
@@ -228,6 +228,46 @@ export const COMBAT_MOVES = {
     type: "physical",
     description: "Kill the enemy",
   },
+  bite: {
+    id: "bite",
+    name: "Bite",
+    power: 45,
+    accuracy: 95,
+    type: "physical",
+    description: "A sharp, snapping bite",
+  },
+  slash: {
+    id: "slash",
+    name: "Slash",
+    power: 55,
+    accuracy: 90,
+    type: "physical",
+    description: "A wide, sweeping cut",
+  },
+  tailWhip: {
+    id: "tailWhip",
+    name: "Tail Whip",
+    power: 40,
+    accuracy: 100,
+    type: "physical",
+    description: "A quick strike with the tail",
+  },
+  stomp: {
+    id: "stomp",
+    name: "Stomp",
+    power: 70,
+    accuracy: 70,
+    type: "physical",
+    description: "A heavy, crushing blow",
+  },
+  fireBreath: {
+    id: "fireBreath",
+    name: "Fire Breath",
+    power: 85,
+    accuracy: 80,
+    type: "magic",
+    description: "Exhale a massive wave of heat",
+  },
 };
 
 export const ENEMIES = {
@@ -244,12 +284,42 @@ export const ENEMIES = {
   dragon: {
     id: "dragon",
     name: "Dragon",
-    sprite: "🐉",
-    maxHp: 150,
-    attack: 12,
+    sprite: "enemyDragon",
+    maxHp: 200,
+    attack: 25,
+    defense: 15,
+    speed: 15,
+    moves: ["strike", "fireball", "fireBreath"],
+  },
+  bear: {
+    id: "bear",
+    name: "Forest Bear",
+    sprite: "enemyBear",
+    maxHp: 120,
+    attack: 18,
+    defense: 10,
+    speed: 8,
+    moves: ["strike", "bite", "slash"],
+  },
+  dino: {
+    id: "dino",
+    name: "Wild Dino",
+    sprite: "enemyDino",
+    maxHp: 100,
+    attack: 15,
     defense: 8,
-    speed: 10,
-    moves: ["strike", "fireball"],
+    speed: 12,
+    moves: ["strike", "stomp", "tailWhip"],
+  },
+  lizard: {
+    id: "lizard",
+    name: "Giant Lizard",
+    sprite: "enemyLizard",
+    maxHp: 60,
+    attack: 10,
+    defense: 5,
+    speed: 14,
+    moves: ["bite", "tailWhip"],
   },
 };
 

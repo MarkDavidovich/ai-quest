@@ -15,6 +15,7 @@ import {
   NPC_OBJECT_TYPES,
   toWorldKey,
   EMPTY_DIALOGUE,
+  ENEMIES,
 } from "../../utils/constants";
 import styles from "./Game.module.css";
 import { useInventory } from "../../context/InventoryContext";
@@ -373,7 +374,9 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     if (interactive === 3) {
       const ENCOUNTER_CHANCE = 15;
       if (Math.random() * 100 < ENCOUNTER_CHANCE) {
-        let enemyId = "goblin";
+        // Pick a random enemy, but exclude the dragon
+        const eligibleEnemyIds = Object.keys(ENEMIES).filter((id) => id !== "dragon");
+        const enemyId = eligibleEnemyIds[Math.floor(Math.random() * eligibleEnemyIds.length)];
 
         triggerTransition?.("battle", () => {
           onCombatTrigger?.(enemyId);

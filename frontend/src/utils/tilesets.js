@@ -27,6 +27,11 @@ import deepTreeSprite from "../assets/sprites/kingdom/dTree.png";
 import deepRootsAndStumpSprite from "../assets/sprites/kingdom/dRootsAndStump.png";
 import deepCartSprite from "../assets/sprites/kingdom/dCart.png";
 import goblinSprite from "../assets/sprites/kingdom/goblin.png";
+import bearSprite from "../assets/sprites/kingdom/bear.png";
+import dinoSprite from "../assets/sprites/kingdom/dino.png";
+import dinoNpcSprite from "../assets/sprites/kingdom/dinoNpc.png";
+import dragonSprite from "../assets/sprites/kingdom/dragon.png";
+import lizardSprite from "../assets/sprites/kingdom/lizard.png";
 
 // --- THE SPRITE DICTIONARY ---
 // Add any new pixel art tiles here, mapping them to explicit visual bounds on the spritesheets!
@@ -241,4 +246,9 @@ export const SPRITE_MAP = {
     anchorY: 1,
   },
   enemyGoblin: { img: goblinSprite, posX: "0%", posY: "0%", size: "100%" },
+  enemyBear: { img: bearSprite, posX: "0%", posY: "0%", size: "100%" },
+  enemyDino: { img: dinoSprite, posX: "0%", posY: "0%", size: "100%" },
+  npcDino: { img: dinoNpcSprite, posX: "0%", posY: "0%", size: "100%" },
+  enemyDragon: { img: dragonSprite, posX: "0%", posY: "0%", size: "100%" },
+  enemyLizard: { img: lizardSprite, posX: "0%", posY: "0%", size: "100%" },
 };

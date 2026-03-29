@@ -7,7 +7,7 @@ import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../util
 import { InventoryProvider } from "../../context/InventoryContext";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { saveGameToBackend } from "../../services/gameApi";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { QuestProvider } from "../../context/QuestContext";
 import TouchControls from "../../components/TouchControls/TouchControls";
 import DialogueModal from "../../components/DialogueModal/DialogueModal";
@@ -24,6 +24,7 @@ const getTouchCapability = () => window.matchMedia("(pointer: coarse)").matches 
 
 const GamePage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const loadedData = location.state?.loadSave;
   const initialQuestProgress = loadedData?.session?.quest_progress || {};
   const headerShellRef = useRef(null);
@@ -111,6 +112,10 @@ const GamePage = () => {
 
   const endCombat = () => {
     triggerTransition("map", () => setCombatData(null));
+  };
+
+  const handlePlayerDeath = () => {
+    navigate("/");
   };
 
   const gameWidth = `${CAMERA_WIDTH * UNIT_SIZE}px`;
@@ -274,7 +279,7 @@ const GamePage = () => {
                       isPaused={saveDialogue.isOpen}
                     />
                   )}
-                  {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
+                  {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} onPlayerDeath={handlePlayerDeath} />}
 
                   <TransitionOverlay step={transition.step} type={transition.type} />
                   <DialogueModal dialogue={saveDialogue} onChoiceSelect={closeSaveDialogue} />
