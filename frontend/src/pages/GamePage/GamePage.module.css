@@ -1,14 +1,133 @@
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   font-family: var(--font-sans, sans-serif);
+  min-height: 100dvh;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.headerShell {
+  width: min(100%, var(--game-logical-width));
+  display: flex;
+  justify-content: center;
+}
+
+.gameArea {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 0;
+  position: relative;
+  overflow: visible;
+}
+
+.gameStageFrame {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 0 0 auto;
+  z-index: 1;
 }
 
 .gameWrapper {
   position: relative;
   width: fit-content;
   overflow: hidden;
-  border-radius: 8px; /* Optional: matches game look */
+  border-radius: 8px;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.mobileMenuAnchor {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 35;
+}
+
+.sideControlsOverlay {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+}
+
+.sideControlsOverlayLeft {
+  left: max(8px, calc(env(safe-area-inset-left) + 4px));
+}
+
+.sideControlsOverlayRight {
+  right: max(8px, calc(env(safe-area-inset-right) + 4px));
+}
+
+.orientationCard {
+  width: min(520px, 100%);
+  padding: 28px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(43, 46, 56, 0.98) 0%, rgba(21, 23, 30, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.orientationTitle {
+  margin: 0 0 12px;
+  color: #f7f1e5;
+  font-size: clamp(1.9rem, 5vw, 2.5rem);
+}
+
+.orientationText {
+  color: #c6ccd7;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: 12px;
+  }
+
+  .mobileMenuAnchor {
+    top: max(6px, env(safe-area-inset-top));
+    right: max(6px, env(safe-area-inset-right));
+  }
+
+  .sideControlsOverlayLeft {
+    left: max(4px, env(safe-area-inset-left));
+  }
+
+  .sideControlsOverlayRight {
+    right: max(4px, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 10px 8px;
+  }
+
+  .orientationCard {
+    padding: 22px 18px;
+    border-radius: 22px;
+  }
+
+  .orientationText {
+    font-size: 0.98rem;
+  }
+
+  .sideControlsOverlay {
+    top: auto;
+    bottom: max(10px, calc(env(safe-area-inset-bottom) + 4px));
+    transform: none;
+  }
 }
