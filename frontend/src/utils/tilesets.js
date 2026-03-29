@@ -26,6 +26,7 @@ import villageLeaderNpcSprite from "../assets/sprites/kingdom/villageLeaderNpc.p
 import deepTreeSprite from "../assets/sprites/kingdom/dTree.png";
 import deepRootsAndStumpSprite from "../assets/sprites/kingdom/dRootsAndStump.png";
 import deepCartSprite from "../assets/sprites/kingdom/dCart.png";
+import goblinSprite from "../assets/sprites/kingdom/goblin.png";
 
 // --- THE SPRITE DICTIONARY ---
 // Add any new pixel art tiles here, mapping them to explicit visual bounds on the spritesheets!
@@ -239,4 +240,5 @@ export const SPRITE_MAP = {
     anchorX: 0,
     anchorY: 1,
   },
+  enemyGoblin: { img: goblinSprite, posX: "0%", posY: "0%", size: "100%" },
 };

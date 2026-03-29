@@ -1,14 +1,22 @@
 .enemy {
-  font-size: 128px;
+  width: 256px;
+  height: 256px;
   position: relative;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  /* Centering the emoji fallback if it's still being used (like for the dragon) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 192px;
 }
 
 .enemy::after {
   content: "";
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.5);
+  bottom: -15px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
   width: 80%;
   height: 10px;
   border-radius: 50%;

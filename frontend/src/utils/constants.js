@@ -234,7 +234,7 @@ export const ENEMIES = {
   goblin: {
     id: "goblin",
     name: "Goblin",
-    sprite: "👺",
+    sprite: "enemyGoblin",
     maxHp: 70,
     attack: 8,
     defense: 4,
@@ -296,5 +296,3 @@ export const MAPS = {
   gHouse2: G_HOUSE_2_MAP,
   chiefHouse: CHIEF_HOUSE_MAP,
 };
-
-

@@ -1,14 +1,17 @@
 .player {
-  font-size: 256px;
+  width: 256px;
+  height: 256px;
   position: relative;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
 
 .player::after {
   content: "";
   position: absolute;
-  bottom: 0;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.5);
+  bottom: -10px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.8);
   width: 80%;
   height: 10px;
   border-radius: 50%;
