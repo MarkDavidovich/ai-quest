@@ -12,6 +12,7 @@ import {
   MOVE_DURATION,
   NPC_DIALOGUES,
   NPC_NAMES,
+  NPC_OBJECT_TYPES,
   toWorldKey,
   EMPTY_DIALOGUE,
 } from "../../utils/constants";
@@ -37,6 +38,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
 
   const moveStartTime = useRef(0);
   const prevDisplayPos = useRef({ x: 5, y: 5 });
+  const mapReturnOverrides = useRef({});
 
   useEffect(() => {
     if (!isMoving) return;
@@ -260,10 +262,12 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     for (const offset of candidateOffsets) {
       const targetX = playerGridPos.x + offset.x;
       const targetY = playerGridPos.y + offset.y;
+      const objectType = getTileAt(targetX, targetY, "objects");
 
-      if (getTileAt(targetX, targetY, "objects") === "npc" || getTileAt(targetX, targetY, "interactive") === 2) {
+      if (NPC_OBJECT_TYPES.includes(objectType) || getTileAt(targetX, targetY, "interactive") === 2) {
+        const npcId = currentMapId === "forest" ? `${targetX},${targetY}` : `${currentMapId}:${targetX},${targetY}`;
         return {
-          npcId: `${targetX},${targetY}`,
+          npcId,
           x: targetX,
           y: targetY,
         };
@@ -324,7 +328,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     if (interactive === 4) {
       const teleportData = TELEPORTS[currentMapId]?.[toWorldKey(newX, newY)];
       if (teleportData) {
-        // if (currentMapId === "house" && getQuestStep("tutorial") !== "completed") {
+        // if (currentMapId === "playerHouse" && getQuestStep("tutorial") !== "completed") {
         //   setDialogue({
         //     isOpen: true,
         //     npcId: dialogue.npcId,
@@ -334,9 +338,18 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         //   return;
         // }
 
-        const { targetMap, targetX, targetY } = teleportData;
+        const returnOverride = mapReturnOverrides.current[currentMapId];
+        const resolvedTeleport = returnOverride && teleportData.targetMap === "forest" ? returnOverride : teleportData;
+        const { targetMap, targetX, targetY, returnMap, returnX, returnY } = resolvedTeleport;
 
         triggerTransition?.("map", () => {
+          if (returnMap && returnX !== undefined && returnY !== undefined) {
+            mapReturnOverrides.current[targetMap] = {
+              targetMap: returnMap,
+              targetX: returnX,
+              targetY: returnY,
+            };
+          }
           setCurrentMapId(targetMap);
           setPlayerGridPos({ x: targetX, y: targetY });
           setPlayerDisplayPos({ x: targetX, y: targetY });
@@ -384,7 +397,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
     const nearbyNpc = getNearbyNpc();
 
     if (nearbyNpc) {
-      if (currentMapId === "house" && nearbyNpc.x === 6 && nearbyNpc.y === 4) {
+      if (currentMapId === "playerHouse" && nearbyNpc.x === 6 && nearbyNpc.y === 4) {
         const step = getQuestStep("tutorial");
 
         if (step === "unstarted") {
@@ -565,6 +578,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         gridWidth={currentMapData.width}
         gridHeight={currentMapData.height}
         facingDir={facingDir}
+        currentMapId={currentMapId}
       />
       <DialogueModal dialogue={dialogue} onChoiceSelect={handleChoiceSelect} />
       <GameViewport
