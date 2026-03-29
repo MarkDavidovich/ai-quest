@@ -290,6 +290,11 @@
   margin-bottom: 12px;
 }
 
+.inventoryHeader h3 {
+  color: #ffffff;
+  margin: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

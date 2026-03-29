@@ -129,7 +129,7 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMe
         })}
       </div>
       <div className={styles.inventoryActions}>
-        <p className={styles.selectionLabel}>{selectedItem ? `Selected: ${selectedItem.name}` : "Selected: none"}</p>
+        <p className={styles.selectionLabel}>{selectedItem ? `Selected: ${selectedItem.name}` : ""}</p>
         <button type="button" className={styles.useItemButton} onClick={handleItemUsage} disabled={!selectedSlot}>
           Use Item
         </button>
@@ -141,9 +141,6 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMe
     <nav className={`${styles.nav} ${isCompact ? styles.navCompact : ""}`}>
       <button className={`${styles.navButton} ${isInventoryOpen ? styles.activeButton : ""}`} type="button" onClick={handleInventoryToggle}>
         Inventory
-      </button>
-      <button className={styles.navButton} type="button">
-        Quest
       </button>
       <button className={styles.navButton} type="button" onClick={handleSaveAndClose}>
         Save game
