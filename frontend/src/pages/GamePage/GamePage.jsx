@@ -5,20 +5,35 @@ import Header from "../../components/Header/Header";
 import TransitionOverlay from "../../components/TransitionOverlay/TransitionOverlay";
 import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
 import { InventoryProvider } from "../../context/InventoryContext";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { saveGameToBackend } from "../../services/gameApi";
 import { useLocation } from "react-router-dom";
-import { QuestProvider } from '../../context/QuestContext';
+import { QuestProvider } from "../../context/QuestContext";
+import TouchControls from "../../components/TouchControls/TouchControls";
+
+const PAGE_GUTTER_DESKTOP = 20;
+const PAGE_GUTTER_MOBILE = 8;
+
+const getViewportMetrics = () => ({
+  width: window.visualViewport?.width ?? window.innerWidth,
+  height: window.visualViewport?.height ?? window.innerHeight,
+});
+
+const getTouchCapability = () => window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
 
 const GamePage = () => {
   const location = useLocation();
   const loadedData = location.state?.loadSave;
   const initialQuestProgress = loadedData?.session?.quest_progress || {};
+  const headerShellRef = useRef(null);
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
   const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "house");
   const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
+  const [viewport, setViewport] = useState(() => getViewportMetrics());
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [isTouchDevice, setIsTouchDevice] = useState(() => getTouchCapability());
 
   const handleSaveGame = async (inventoryItems) => {
     try {
@@ -84,36 +99,168 @@ const GamePage = () => {
 
   const gameWidth = `${CAMERA_WIDTH * UNIT_SIZE}px`;
   const gameHeight = `${CAMERA_HEIGHT * UNIT_SIZE}px`;
+  const logicalGameWidth = CAMERA_WIDTH * UNIT_SIZE;
+  const logicalGameHeight = CAMERA_HEIGHT * UNIT_SIZE;
+  const isLandscape = viewport.width >= viewport.height;
+  const isMobileViewport = viewport.width <= 900;
+  const useCompactHeader = isTouchDevice;
+  const shouldShowLandscapePrompt = useCompactHeader && !isLandscape;
+  const shouldBiasStageRight = useCompactHeader && isLandscape;
+  const shouldShowTouchControls = useCompactHeader && isLandscape && !combatData;
+  const pageGutter = isMobileViewport ? PAGE_GUTTER_MOBILE : PAGE_GUTTER_DESKTOP;
+
+  useEffect(() => {
+    const updateViewport = () => {
+      setViewport(getViewportMetrics());
+      setIsTouchDevice(getTouchCapability());
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    window.addEventListener("orientationchange", updateViewport);
+    window.visualViewport?.addEventListener("resize", updateViewport);
+
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+      window.removeEventListener("orientationchange", updateViewport);
+      window.visualViewport?.removeEventListener("resize", updateViewport);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (useCompactHeader) {
+      setHeaderHeight(0);
+      return undefined;
+    }
+
+    if (!headerShellRef.current || typeof ResizeObserver === "undefined") {
+      return undefined;
+    }
+
+    const updateHeaderHeight = () => {
+      if (!headerShellRef.current) {
+        return;
+      }
+
+      setHeaderHeight(headerShellRef.current.getBoundingClientRect().height);
+    };
+
+    updateHeaderHeight();
+
+    const observer = new ResizeObserver(updateHeaderHeight);
+    observer.observe(headerShellRef.current);
+
+    return () => observer.disconnect();
+  }, [useCompactHeader]);
+
+  const scaledStage = useMemo(() => {
+    const availableWidth = Math.max(viewport.width - pageGutter * 2, 1);
+    const reservedHeight = (useCompactHeader ? 0 : headerHeight) + pageGutter * 2 + (shouldShowLandscapePrompt ? 180 : 0);
+    const availableHeight = Math.max(viewport.height - reservedHeight, 1);
+    const scale = Math.min(1, availableWidth / logicalGameWidth, availableHeight / logicalGameHeight);
+
+    return {
+      scale,
+      width: Math.max(1, Math.floor(logicalGameWidth * scale)),
+      height: Math.max(1, Math.floor(logicalGameHeight * scale)),
+    };
+  }, [
+    headerHeight,
+    logicalGameHeight,
+    logicalGameWidth,
+    pageGutter,
+    shouldShowLandscapePrompt,
+    useCompactHeader,
+    viewport.height,
+    viewport.width,
+  ]);
+
+  const mobileStageOffsetX = useMemo(() => {
+    if (!shouldBiasStageRight) {
+      return 0;
+    }
+
+    const spareHorizontalSpace = Math.max(0, viewport.width - scaledStage.width);
+    const extraRightBias = Math.min(220, viewport.width * 0.22);
+    return Math.max(0, spareHorizontalSpace + extraRightBias);
+  }, [scaledStage.width, shouldBiasStageRight, viewport.width]);
 
   return (
     <QuestProvider initialQuestProgress={initialQuestProgress}>
       <InventoryProvider initialItems={loadedData ? loadedData.inventory : []}>
-        <div className={style.container}>
-          <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
+        <div
+          className={style.container}
+          style={{
+            "--game-logical-width": `${logicalGameWidth}px`,
+          }}
+        >
+          {!useCompactHeader && (
+            <div className={style.headerShell} ref={headerShellRef}>
+              <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
+            </div>
+          )}
 
-          <div
-            className={style.gameWrapper}
-            style={{
-              width: gameWidth,
-              height: gameHeight,
-              minWidth: gameWidth,
-              minHeight: gameHeight,
-            }}
-          >
-            {!combatData && (
-              <Game
-                onCombatTrigger={triggerCombat}
-                playerGridPos={playerGridPos}
-                setPlayerGridPos={setPlayerGridPos}
-                currentMapId={currentMapId}
-                setCurrentMapId={setCurrentMapId}
-                triggerTransition={triggerTransition}
-                isTransitioning={transition.step !== "closed"}
-              />
+          <div className={style.gameArea}>
+            {useCompactHeader && !shouldShowLandscapePrompt && (
+              <div className={style.mobileMenuAnchor}>
+                <Header compactMenu isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
+              </div>
             )}
-            {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
 
-            <TransitionOverlay step={transition.step} type={transition.type} />
+            {shouldShowTouchControls && (
+              <>
+                <div className={`${style.sideControlsOverlay} ${style.sideControlsOverlayLeft}`}>
+                  <TouchControls />
+                </div>
+                <div className={`${style.sideControlsOverlay} ${style.sideControlsOverlayRight}`}>
+                  <TouchControls variant="action" />
+                </div>
+              </>
+            )}
+
+            {shouldShowLandscapePrompt ? (
+              <div className={style.orientationCard}>
+                <h2 className={style.orientationTitle}>Rotate to Landscape</h2>
+                <p className={style.orientationText}>
+                  Mobile gameplay is tuned for landscape mode so the map, dialogue, and combat screens have enough room.
+                </p>
+              </div>
+            ) : (
+              <div
+                className={style.gameStageFrame}
+                style={{
+                  width: `${scaledStage.width}px`,
+                  height: `${scaledStage.height}px`,
+                  transform: `translateX(${mobileStageOffsetX}px)`,
+                }}
+              >
+                <div
+                  className={style.gameWrapper}
+                  style={{
+                    width: gameWidth,
+                    height: gameHeight,
+                    minWidth: gameWidth,
+                    minHeight: gameHeight,
+                    transform: `scale(${scaledStage.scale})`,
+                  }}
+                >
+                  {!combatData && (
+                    <Game
+                      onCombatTrigger={triggerCombat}
+                      playerGridPos={playerGridPos}
+                      setPlayerGridPos={setPlayerGridPos}
+                      currentMapId={currentMapId}
+                      setCurrentMapId={setCurrentMapId}
+                      triggerTransition={triggerTransition}
+                      isTransitioning={transition.step !== "closed"}
+                    />
+                  )}
+                  {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
+
+                  <TransitionOverlay step={transition.step} type={transition.type} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </InventoryProvider>

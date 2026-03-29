@@ -1,0 +1,84 @@
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  width: min(88px, 100%);
+}
+
+.actionWrap {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: min(72px, 100%);
+}
+
+.padSpacer {
+  visibility: hidden;
+}
+
+.centerBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 12px;
+  background: rgba(24, 20, 18, 0.86);
+  border: 1px solid rgba(255, 230, 192, 0.18);
+  color: #f7efe3;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.controlButton {
+  min-height: 28px;
+  border: 1px solid rgba(255, 230, 192, 0.22);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(54, 49, 45, 0.96) 0%, rgba(28, 24, 22, 0.98) 100%);
+  color: #f7efe3;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.controlButton:active {
+  transform: translateY(1px);
+  filter: brightness(1.08);
+}
+
+.actionButton {
+  width: 100%;
+  min-height: 88px;
+  background: linear-gradient(180deg, #f1c43f 0%, #ca9919 100%);
+  color: #181711;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 720px) {
+  .pad {
+    width: min(80px, 100%);
+    gap: 4px;
+  }
+
+  .actionWrap {
+    width: min(64px, 100%);
+  }
+
+  .controlButton {
+    border-radius: 10px;
+    font-size: 0.92rem;
+  }
+
+  .actionButton {
+    min-height: 76px;
+    font-size: 0.74rem;
+  }
+}
