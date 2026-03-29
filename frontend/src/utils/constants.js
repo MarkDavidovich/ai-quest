@@ -1,4 +1,9 @@
 import { createForestLevel } from "../maps/forest.js";
+import { createDeepForestLevel } from "../maps/deepForest.js";
+import { createPlayerHouseMap } from "../maps/playerHouse.js";
+import { createGHouse1Map } from "../maps/gHouse1.js";
+import { createGHouse2Map } from "../maps/gHouse2.js";
+import { createChiefHouseMap } from "../maps/chiefHouse.js";
 
 export const UNIT_SIZE = 64;
 export const GRID_WIDTH = 40;
@@ -54,31 +59,20 @@ const DEFAULT_NPC_CHOICES = [
 ];
 
 export const NPC_NAMES = {
-  "20,4": "Elder Rowan",
   "10,9": "Sir Aldric",
   "20,15": "Lady Elswyth",
   "25,7": "Cedric",
   "10,21": "Rowena",
   "25,3": "Gareth",
   "8,17": "Maeve",
+  "gHouse2:6,4": "Mira",
+  "chiefHouse:6,4": "Elder Rowan",
   tutorial_npc: "Royal Guide Isolde",
 };
 
+export const NPC_OBJECT_TYPES = ["npc", "oldManNpc", "oldManNpc2", "villageLeaderNpc"];
+
 export const NPC_DIALOGUES = {
-  "20,4": {
-    start: {
-      text: "Welcome to our little village. The roads are safe here, but the wilds beyond the trees are less kind.",
-      choices: DEFAULT_NPC_CHOICES,
-    },
-    help: {
-      text: "Use the roads to get your bearings, visit the houses, and head back when you need a breather from the outside world.",
-      choices: [{ id: "leave", label: "Thanks" }],
-    },
-    quest: {
-      text: "No quest just yet. For now, take a walk and learn the shape of the village.",
-      choices: [{ id: "leave", label: "Will do" }],
-    },
-  },
   "10,9": {
     start: {
       text: "The forest ahead is thick. Keep your eyes open and your path clear.",
@@ -105,6 +99,34 @@ export const NPC_DIALOGUES = {
     quest: {
       text: "If you want to prove your focus, bring me 1 sword from a distant chest.",
       choices: [{ id: "leave", label: "I'll look for it" }],
+    },
+  },
+  "gHouse2:6,4": {
+    start: {
+      text: "This house is quieter than the square outside. I like keeping an eye on the village from here.",
+      choices: DEFAULT_NPC_CHOICES,
+    },
+    help: {
+      text: "If you are ever lost, use the houses and paths as landmarks. The village is small, but it has a rhythm to it.",
+      choices: [{ id: "leave", label: "Helpful" }],
+    },
+    quest: {
+      text: "No task right now. I'm just keeping things tidy and listening for trouble.",
+      choices: [{ id: "leave", label: "Understood" }],
+    },
+  },
+  "chiefHouse:6,4": {
+    start: {
+      text: "Welcome. I am Elder Rowan, and this house is where the village's decisions are made.",
+      choices: DEFAULT_NPC_CHOICES,
+    },
+    help: {
+      text: "Speak to the villagers, learn the paths between the homes, and return here when you need direction. A village reveals itself slowly.",
+      choices: [{ id: "leave", label: "Thanks" }],
+    },
+    quest: {
+      text: "For now, simply explore. Once you know the people and their homes, I will have more for you.",
+      choices: [{ id: "leave", label: "I will" }],
     },
   },
   "25,7": {
@@ -240,112 +262,39 @@ export const PLAYER_STATS = {
 };
 
 const FOREST_LEVEL = createForestLevel({ GRID_WIDTH, GRID_HEIGHT, toWorldKey });
+const DEEP_FOREST_LEVEL = createDeepForestLevel({ GRID_WIDTH, GRID_HEIGHT, toWorldKey });
+const PLAYER_HOUSE_MAP = createPlayerHouseMap();
+const G_HOUSE_1_MAP = createGHouse1Map();
+const G_HOUSE_2_MAP = createGHouse2Map();
+const CHIEF_HOUSE_MAP = createChiefHouseMap();
 
 export const WORLD_DATA = FOREST_LEVEL.worldData;
 
 // Teleport metadata: [x,y] on current map -> { targetMap, targetX, targetY }
 export const TELEPORTS = {
   forest: FOREST_LEVEL.teleports,
-  house: {
+  deepForest: DEEP_FOREST_LEVEL.teleports,
+  playerHouse: {
+    "5,7": { targetMap: "forest", targetX: 10, targetY: 16 },
+  },
+  gHouse1: {
+    "5,7": { targetMap: "forest", targetX: 4, targetY: 6 },
+  },
+  gHouse2: {
+    "5,7": { targetMap: "forest", targetX: 34, targetY: 6 },
+  },
+  chiefHouse: {
     "5,7": { targetMap: "forest", targetX: 21, targetY: 13 },
   },
 };
 
 export const MAPS = {
   forest: FOREST_LEVEL.map,
-  house: {
-    width: 10,
-    height: 8,
-    floor: Array(8)
-      .fill(null)
-      .map((_, row) =>
-        Array(10)
-          .fill(null)
-          .map((_, col) => {
-            const innerTop = 1;
-            const innerBottom = 6;
-            const innerLeft = 1;
-            const innerRight = 8;
-            const isTop = row === innerTop;
-            const isBottom = row === innerBottom;
-            const isLeft = col === innerLeft;
-            const isRight = col === innerRight;
-            const isInside = row >= innerTop && row <= innerBottom && col >= innerLeft && col <= innerRight;
-            const isDoorThreshold = row === 7 && col === 5;
-
-            if (isDoorThreshold) return "houseEntrance";
-            if (!isInside) return "stone";
-
-            if (isTop && isLeft) return "houseFloorTL";
-            if (isTop && isRight) return "houseFloorTR";
-            if (isBottom && isLeft) return "houseFloorBL";
-            if (isBottom && isRight) return "houseFloorBR";
-            if (isTop) return "houseFloorT";
-            if (isBottom) return "houseFloorB";
-            if (isLeft) return "houseFloorL";
-            if (isRight) return "houseFloorR";
-            return "houseFloorC";
-          }),
-      ),
-    objects: Array(8)
-      .fill(null)
-      .map((_, row) =>
-        Array(10)
-          .fill(null)
-          .map((_, col) => {
-            const isTop = row === 0;
-            const isBottom = row === 7;
-            const isLeft = col === 0;
-            const isRight = col === 9;
-            const isExit = isBottom && col === 5;
-            const isTopNearLeft = isTop && col === 1;
-            const isTopNearRight = isTop && col === 8;
-            const isBottomExitLeft = isBottom && col === 4;
-            const isBottomExitRight = isBottom && col === 6;
-
-            if (isExit) return 0;
-            if (isTop && isLeft) return "houseWallTL";
-            if (isTopNearLeft || isTopNearRight) return "houseWallTRight";
-            if (isTop && isRight) return "houseWallTR";
-            if (isLeft && !isTop && !isBottom) return "houseWallLTop";
-            if (isRight && !isTop && !isBottom) return "houseWallRTop";
-            if (isBottom && isLeft) return "houseWallBL";
-            if (isBottomExitLeft) return "houseWallBLeft";
-            if (isBottomExitRight) return "houseWallB";
-            if (isBottom && isRight) return "houseWallBR";
-            if (isTop) return "houseWallTRight";
-            if (isBottom) return "houseWallBRight";
-
-            if (row === 2 && col === 3) return "houseTable";
-            if (row === 2 && col === 2) return "houseChair";
-            if (row === 1 && col === 7) return "houseClayPot";
-            if (row === 2 && col === 8) return "houseClayPot";
-            if (row === 6 && col === 1) return "houseClayPot";
-            if (row === 5 && col === 7) return "houseBucket";
-            if (row === 5 && col === 2) return "houseBox";
-            if (row === 1 && col === 1) return "houseBox";
-            if (row === 3 && col === 3) return "chestBlock";
-
-            // --- הוספת ה-NPC לקווסט ---
-            if (row === 4 && col === 6) return "npc";
-
-            return 0;
-          }),
-      ),
-    interactive: Array(8)
-      .fill(null)
-      .map((_, row) =>
-        Array(10)
-          .fill(null)
-          .map((_, col) => {
-            if (row === 7 && col === 5) return 4; // Exit
-
-            // --- הוספת התיבה לקווסט ---
-            if (row === 3 && col === 3) return 0;
-
-            return 0;
-          }),
-      ),
-  },
+  deepForest: DEEP_FOREST_LEVEL.map,
+  playerHouse: PLAYER_HOUSE_MAP,
+  gHouse1: G_HOUSE_1_MAP,
+  gHouse2: G_HOUSE_2_MAP,
+  chiefHouse: CHIEF_HOUSE_MAP,
 };
+
 
