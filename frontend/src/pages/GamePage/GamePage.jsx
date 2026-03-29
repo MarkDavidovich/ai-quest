@@ -10,6 +10,7 @@ import { saveGameToBackend } from "../../services/gameApi";
 import { useLocation } from "react-router-dom";
 import { QuestProvider } from "../../context/QuestContext";
 import TouchControls from "../../components/TouchControls/TouchControls";
+import DialogueModal from "../../components/DialogueModal/DialogueModal";
 
 const PAGE_GUTTER_DESKTOP = 20;
 const PAGE_GUTTER_MOBILE = 8;
@@ -20,7 +21,6 @@ const getViewportMetrics = () => ({
 });
 
 const getTouchCapability = () => window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
-
 
 const GamePage = () => {
   const location = useLocation();
@@ -35,6 +35,9 @@ const GamePage = () => {
   const [viewport, setViewport] = useState(() => getViewportMetrics());
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isTouchDevice, setIsTouchDevice] = useState(() => getTouchCapability());
+  const [saveDialogue, setSaveDialogue] = useState({ isOpen: false, text: "", caller: "System", choices: [] });
+
+  const closeSaveDialogue = () => setSaveDialogue((prev) => ({ ...prev, isOpen: false }));
 
   const handleSaveGame = async (inventoryItems) => {
     try {
@@ -55,10 +58,22 @@ const GamePage = () => {
         inventory: inventoryItems,
       };
       await saveGameToBackend(gameState);
-      alert("Game Saved Successfully! 💾");
+      setSaveDialogue({
+        isOpen: true,
+        text: "Game Saved Successfully!",
+        caller: "System",
+        choices: [],
+      });
+      setTimeout(() => closeSaveDialogue(), 2000);
     } catch (error) {
       console.error("Failed to save game:", error);
-      alert("Error saving game. Please try again.");
+      setSaveDialogue({
+        isOpen: true,
+        text: "Error saving game. Please try again.",
+        caller: "System",
+        choices: [],
+      });
+      setTimeout(() => closeSaveDialogue(), 3000);
     }
   };
 
@@ -129,6 +144,19 @@ const GamePage = () => {
   }, []);
 
   useEffect(() => {
+    if (!saveDialogue.isOpen) return undefined;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter" || e.key === "Escape") {
+        closeSaveDialogue();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [saveDialogue.isOpen]);
+
+  useEffect(() => {
     if (useCompactHeader) {
       setHeaderHeight(0);
       return undefined;
@@ -165,16 +193,7 @@ const GamePage = () => {
       width: Math.max(1, Math.floor(logicalGameWidth * scale)),
       height: Math.max(1, Math.floor(logicalGameHeight * scale)),
     };
-  }, [
-    headerHeight,
-    logicalGameHeight,
-    logicalGameWidth,
-    pageGutter,
-    shouldShowLandscapePrompt,
-    useCompactHeader,
-    viewport.height,
-    viewport.width,
-  ]);
+  }, [headerHeight, logicalGameHeight, logicalGameWidth, pageGutter, shouldShowLandscapePrompt, useCompactHeader, viewport.height, viewport.width]);
 
   const mobileStageOffsetX = useMemo(() => {
     if (!shouldBiasStageRight) {
@@ -222,9 +241,7 @@ const GamePage = () => {
             {shouldShowLandscapePrompt ? (
               <div className={style.orientationCard}>
                 <h2 className={style.orientationTitle}>Rotate to Landscape</h2>
-                <p className={style.orientationText}>
-                  Mobile gameplay is tuned for landscape mode so the map, dialogue, and combat screens have enough room.
-                </p>
+                <p className={style.orientationText}>Mobile gameplay is tuned for landscape mode so the map, dialogue, and combat screens have enough room.</p>
               </div>
             ) : (
               <div
@@ -254,11 +271,13 @@ const GamePage = () => {
                       setCurrentMapId={setCurrentMapId}
                       triggerTransition={triggerTransition}
                       isTransitioning={transition.step !== "closed"}
+                      isPaused={saveDialogue.isOpen}
                     />
                   )}
                   {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} />}
 
                   <TransitionOverlay step={transition.step} type={transition.type} />
+                  <DialogueModal dialogue={saveDialogue} onChoiceSelect={closeSaveDialogue} />
                 </div>
               </div>
             )}

@@ -21,7 +21,7 @@ import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from "../../services/npcDialogueApi";
 import { useQuest } from "../../context/QuestContext";
 
-export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition, isTransitioning }) {
+export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition, isTransitioning, isPaused }) {
   const { worldLoot, feedbackMessage, openContainer, hasItem, removeItem } = useInventory();
   const { getQuestStep, advanceQuest } = useQuest();
 
@@ -542,6 +542,7 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
   }
 
   const handleKeyDown = useEffectEvent((e) => {
+    if (isPaused || isTransitioning) return;
     if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
       handleMove(0, -1);
       e.preventDefault();
