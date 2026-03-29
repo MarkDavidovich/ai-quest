@@ -21,6 +21,7 @@ const getViewportMetrics = () => ({
 
 const getTouchCapability = () => window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
 
+
 const GamePage = () => {
   const location = useLocation();
   const loadedData = location.state?.loadSave;
@@ -28,7 +29,7 @@ const GamePage = () => {
   const headerShellRef = useRef(null);
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
-  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "house");
+  const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "playerHouse");
   const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
   const [viewport, setViewport] = useState(() => getViewportMetrics());
