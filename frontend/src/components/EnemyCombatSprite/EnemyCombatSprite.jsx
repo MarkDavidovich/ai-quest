@@ -1,17 +1,17 @@
 import { SPRITE_MAP } from "../../utils/tilesets";
 import style from "./EnemyCombatSprite.module.css";
 
-const EnemyCombatSprite = ({ enemy }) => {
+const EnemyCombatSprite = ({ enemy, className }) => {
   const sprite = SPRITE_MAP[enemy.sprite];
 
   // Fallback to emoji if sprite mapping not found
   if (!sprite) {
-    return <div className={style.enemy}>{enemy.sprite}</div>;
+    return <div className={`${style.enemy} ${className || ""}`}>{enemy.sprite}</div>;
   }
 
   return (
     <div
-      className={style.enemy}
+      className={`${style.enemy} ${className || ""}`}
       style={{
         backgroundImage: `url(${sprite.img})`,
         backgroundPosition: `${sprite.posX} ${sprite.posY || "0%"}`,
