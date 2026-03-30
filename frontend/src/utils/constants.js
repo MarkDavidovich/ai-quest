@@ -31,6 +31,18 @@ export const ITEM_DEFINITIONS = {
     maxHpRegen: 30, // Heals for 30 HP
     maxStack: 99,
   },
+  recall_scroll: {
+    id: "recall_scroll",
+    name: "Recall Scroll",
+    icon: "itemScroll",
+    kind: "consumable",
+    stackable: true,
+    maxStack: 99,
+    effect: "teleport",
+    targetMap: "forest",
+    targetX: 28,
+    targetY: 11,
+  },
   sword: {
     id: "sword",
     name: "Iron Sword",
@@ -73,13 +85,18 @@ export const ITEM_DEFINITIONS = {
   },
 };
 
-export const INITIAL_INVENTORY = Array.from({ length: INVENTORY_SIZE }, () => null);
+export const INITIAL_INVENTORY = Array.from({ length: INVENTORY_SIZE }, () => {
+  [{ itemId: "recallScroll", quantity: 1 }];
+});
 
 export const INITIAL_WORLD_LOOT = {
   "3,3": {
     kind: "chest",
     opened: false,
-    drops: [{ itemId: "potion", quantity: 15 }],
+    drops: [
+      { itemId: "potion", quantity: 15 },
+      { itemId: "recall_scroll", quantity: 5 },
+    ],
   },
 };
 

@@ -38,6 +38,7 @@ import dinoBoneSprite from "../assets/sprites/kingdom/dinoBone.png";
 import gobinFlaskSprite from "../assets/sprites/kingdom/goblinFlask.png";
 import lifePotSprite from "../assets/sprites/kingdom/lifePot.png";
 import bearLeatherSprite from "../assets/sprites/kingdom/bearLeather.png";
+import scrollSprite from "../assets/sprites/kingdom/scroll.png";
 
 // --- THE SPRITE DICTIONARY ---
 // Add any new pixel art tiles here, mapping them to explicit visual bounds on the spritesheets!
@@ -261,6 +262,7 @@ export const SPRITE_MAP = {
   enemyDragon: { img: dragonSprite, posX: "0%", posY: "0%", size: "100%" },
   enemyLizard: { img: lizardSprite, posX: "0%", posY: "0%", size: "100%" },
   itemLifePot: { img: lifePotSprite, posX: "0%", posY: "0%", size: "100%" },
+  itemScroll: { img: scrollSprite, posX: "0%", posY: "0%", size: "100%" },
   itemDragonMeat: { img: dragonMeatSprite, posX: "0%", posY: "0%", size: "100%" },
   itemDinoBone: { img: dinoBoneSprite, posX: "0%", posY: "0%", size: "100%" },
   itemGoblinFlask: { img: gobinFlaskSprite, posX: "0%", posY: "0%", size: "100%" },

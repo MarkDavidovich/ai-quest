@@ -26,6 +26,8 @@ export default function AdventureGame({
   onCombatTrigger,
   playerGridPos,
   setPlayerGridPos,
+  playerDisplayPos,
+  setPlayerDisplayPos,
   currentMapId,
   setCurrentMapId,
   triggerTransition,
@@ -37,7 +39,6 @@ export default function AdventureGame({
 
   const currentMapData = useMemo(() => MAPS[currentMapId], [currentMapId]);
 
-  const [playerDisplayPos, setPlayerDisplayPos] = useState(playerGridPos);
   const [displayCameraPos, setDisplayCameraPos] = useState({ x: 0, y: 0 });
 
   const [message, setMessage] = useState("Use arrow keys to move. Explore!");
@@ -260,7 +261,6 @@ export default function AdventureGame({
     }));
 
     try {
-
       // === עדכנו את הקריאה פה ===
       const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory, buildQuestContext(dialogue.npcId));
       const newHistory = [...updatedHistory, { source: "ai", text: aiData.text }];
@@ -571,7 +571,6 @@ export default function AdventureGame({
         });
         return; // ← never calls the AI
       }
-
 
       if (currentMapId === "deepForest" && nearbyNpc.x === 37 && nearbyNpc.y === 4) {
         const step = getQuestStep("dragonTamer_quest");

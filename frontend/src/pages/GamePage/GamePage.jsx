@@ -3,7 +3,7 @@ import Game from "../../components/Game/Game";
 import Combat from "../../components/Combat/Combat";
 import Header from "../../components/Header/Header";
 import TransitionOverlay from "../../components/TransitionOverlay/TransitionOverlay";
-import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS } from "../../utils/constants";
+import { CAMERA_HEIGHT, CAMERA_WIDTH, UNIT_SIZE, PLAYER_STATS, ITEM_DEFINITIONS } from "../../utils/constants";
 import { InventoryProvider } from "../../context/InventoryContext";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { saveGameToBackend } from "../../services/gameApi";
@@ -30,6 +30,7 @@ const GamePage = () => {
   const headerShellRef = useRef(null);
   const [combatData, setCombatData] = useState(null);
   const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
+  const [playerDisplayPos, setPlayerDisplayPos] = useState(playerGridPos);
   const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "playerHouse");
   const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);
   const [transition, setTransition] = useState({ step: "closed", type: "map" });
@@ -82,6 +83,25 @@ const GamePage = () => {
     if (itemId === "potion") {
       // Heal 50 HP, but don't exceed max
       setPlayerHp((prev) => Math.min(PLAYER_STATS.maxHp, prev + 50));
+    }
+
+    if (itemId === "recall_scroll") {
+      const itemDef = ITEM_DEFINITIONS[itemId];
+
+      triggerTransition("map", () => {
+        setCurrentMapId(itemDef.targetMap);
+        setPlayerGridPos({ x: itemDef.targetX, y: itemDef.targetY });
+        setPlayerDisplayPos({ x: itemDef.targetX, y: itemDef.targetY });
+      });
+
+      setSaveDialogue({
+        isOpen: true,
+        text: "You used a Recall Scroll and returned home!",
+        caller: "System",
+        choices: [],
+      });
+
+      setTimeout(() => closeSaveDialogue(), 2000);
     }
   };
 
@@ -220,11 +240,7 @@ const GamePage = () => {
           }}
         >
           {!useCompactHeader && (
-            <div
-              className={style.headerShell}
-              ref={headerShellRef}
-              style={{ width: `${scaledStage.width}px`, maxWidth: "100%" }}
-            >
+            <div className={style.headerShell} ref={headerShellRef} style={{ width: `${scaledStage.width}px`, maxWidth: "100%" }}>
               <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
             </div>
           )}
@@ -275,6 +291,8 @@ const GamePage = () => {
                       onCombatTrigger={triggerCombat}
                       playerGridPos={playerGridPos}
                       setPlayerGridPos={setPlayerGridPos}
+                      playerDisplayPos={playerDisplayPos}
+                      setPlayerDisplayPos={setPlayerDisplayPos}
                       currentMapId={currentMapId}
                       setCurrentMapId={setCurrentMapId}
                       triggerTransition={triggerTransition}
@@ -282,7 +300,15 @@ const GamePage = () => {
                       isPaused={saveDialogue.isOpen}
                     />
                   )}
-                  {combatData && <Combat enemyId={combatData.enemyId} onCombatEnd={endCombat} playerHp={playerHp} setPlayerHp={setPlayerHp} onPlayerDeath={handlePlayerDeath} />}
+                  {combatData && (
+                    <Combat
+                      enemyId={combatData.enemyId}
+                      onCombatEnd={endCombat}
+                      playerHp={playerHp}
+                      setPlayerHp={setPlayerHp}
+                      onPlayerDeath={handlePlayerDeath}
+                    />
+                  )}
 
                   <TransitionOverlay step={transition.step} type={transition.type} />
                   <DialogueModal dialogue={saveDialogue} onChoiceSelect={closeSaveDialogue} />
