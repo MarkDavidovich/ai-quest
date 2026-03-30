@@ -19,6 +19,7 @@ ${personality ? `PERSONALITY: ${personality}` : "You are a standard, friendly tr
 ITEMS:
 - id:"dino_bone" name:"Dino Bone"
 - id:"goblin_flask" name:"Goblin Flask"
+- id:"dragon_meat" name: "Dragon Meat"
 
 ENEMIES:
 - id:"bear" name:"Forest Bear"
@@ -40,7 +41,7 @@ ${questContext || "No active quest."}
 === QUEST RULES ===
 You may offer the player a quest ONLY when they ask for one AND if they are not already on one.
 - Quest type must be "gather" or "kill".
-- "gather" quests: targetId must be "dragon_meat", amount 1. This item are obtained by fighting the dragon in the Deep Forest.
+- "gather" quests: targetId must be "Dragon Meat", amount 1. This item are obtained by fighting the dragon in the Deep Forest.
 - NEVER invent items, enemies, places, or mechanics not listed above.
 
 === REQUIRED JSON OUTPUT (strict schema) ===
