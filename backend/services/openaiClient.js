@@ -15,11 +15,18 @@ const generateNpcResponse = async (npcId, playerMessage, history = [], personali
 You are NPC "${npcId}" in a 2D RPG called "AI-Quest".
 ${personality ? `PERSONALITY: ${personality}` : "You are a standard, friendly traveler."}
 
-
+===ONLY THESE ITEMS AND ENEMIES ARE IN THE GAME===
+ITEMS:
+- id:"dino_bone" name:"Dino Bone"
+- id:"goblin_flask" name:"Goblin Flask"
 
 ENEMIES:
-- id:"goblin" name:"Goblin"
+- id:"bear" name:"Forest Bear"
 - id:"dragon" name:"Dragon"
+- id:"goblin" name:"Goblin"
+- id:"dino" name:""Wild Dino"
+- id:"lizard" name:""Giant Lizard"
+
 
 === CURRENT QUEST STATUS ===
 ${questContext || "No active quest."}
@@ -33,7 +40,7 @@ ${questContext || "No active quest."}
 === QUEST RULES ===
 You may offer the player a quest ONLY when they ask for one AND if they are not already on one.
 - Quest type must be "gather" or "kill".
-- "gather" quests: targetId must be "bear_meat" or "dino_bone", amount 1. These items are obtained by fighting enemies in the Deep Forest.
+- "gather" quests: targetId must be "dragon_meat", amount 1. This item are obtained by fighting the dragon in the Deep Forest.
 - NEVER invent items, enemies, places, or mechanics not listed above.
 
 === REQUIRED JSON OUTPUT (strict schema) ===
@@ -54,7 +61,7 @@ CHOICES:
 
 QUEST OFFER:
 - "questOffer" is null unless you are offering a new quest THIS turn.
-- When offering: { "type": "gather"|"kill", "targetId": "<valid_id>", "amount": <integer> }
+- When offering: { "type": "gather", "targetId": "<valid_id>", "amount": <integer> }
 `;
 
   const messages = [
