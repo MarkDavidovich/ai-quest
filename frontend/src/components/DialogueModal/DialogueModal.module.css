@@ -20,7 +20,7 @@
 
 .dialogueLabel {
   margin: 0 0 4px;
-  font-size: 12px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -93,11 +93,53 @@
   }
 }
 
+@media (max-width: 900px) {
+  .dialogueModal {
+    min-height: 260px;
+    padding: 24px 26px;
+  }
+
+  .dialogueLabel {
+    font-size: 30px;
+  }
+
+  .dialogueText {
+    font-size: 30px;
+    line-height: 1.5;
+  }
+
+  .dialogueHint {
+    font-size: 16px;
+  }
+
+  .choiceButton {
+    padding: 14px 24px;
+    font-size: 22px;
+  }
+}
+
 @media (max-width: 640px) {
   .dialogueModal {
     right: 8px;
     bottom: 8px;
     width: calc(100% - 16px);
-    min-height: 180px;
+    min-height: 280px;
+    padding: 24px 26px;
+  }
+
+  .dialogueLabel {
+    font-size: 17px;
+  }
+
+  .dialogueText {
+    font-size: 104px;
+  }
+
+  .dialogueHint {
+    font-size: 17px;
+  }
+
+  .choiceButton {
+    font-size: 24px;
   }
 }

@@ -191,7 +191,6 @@ const Header = ({ isBattle = false, playerHp = 100, onUseItem, onSave, compactMe
           <div className={styles.mobileDrawerHeader}>
             <div>
               <p className={styles.mobileDrawerEyebrow}>Adventure Menu</p>
-              <h2 className={styles.mobileDrawerTitle}>{isBattle ? "Battle" : "Map"}</h2>
             </div>
             <button type="button" className={styles.mobileDrawerClose} onClick={closeMenu}>
               Close
