@@ -129,7 +129,15 @@ export default function AdventureGame({
   // ============================================
   const buildQuestContext = (npcId) => {
     const quest = getQuestStep(`ai_quest_${npcId}`);
-    if (!quest || quest === "unstarted" || quest.status !== "active") return "";
+    if (!quest || quest === "unstarted") return "";
+
+    // Quest already completed — tell AI to stop offering quests
+    if (quest.status === "completed") {
+      return `You already gave this player a quest and they completed it. Do NOT offer another quest. Do NOT generate a "do you have a quest" choice. Just have a short friendly conversation that fits your personality.`;
+    }
+
+    // Quest still active
+    if (quest.status !== "active") return "";
 
     const playerHasItems = hasItem(quest.targetId, quest.amount);
 
@@ -252,14 +260,17 @@ export default function AdventureGame({
     }));
 
     try {
+
       // === עדכנו את הקריאה פה ===
       const aiData = await fetchAiDialogue(dialogue.npcId, playerText, updatedHistory, buildQuestContext(dialogue.npcId));
       const newHistory = [...updatedHistory, { source: "ai", text: aiData.text }];
+      // console.log("updatedHistory: " + JSON.stringify(updatedHistory));
+      // console.log("aiData: " + JSON.stringify(aiData));
 
       // ============================================
       // קליטת הקווסט מה-AI ושמירתו ב-Context
       // ============================================
-      if (aiData.questOffer) {
+      if (aiData.questOffer && getQuestStep(`ai_quest_${dialogue.npcId}`) === "unstarted") {
         advanceQuest(`ai_quest_${dialogue.npcId}`, {
           ...aiData.questOffer,
           status: "active",
@@ -529,6 +540,38 @@ export default function AdventureGame({
         }
         return; // ← prevents falling through to the AI call
       }
+
+      // In handleAction(), BEFORE the fetchAiDialogue call (around line 505)
+
+      const activeQuest = getQuestStep(`ai_quest_${nearbyNpc.npcId}`);
+
+      // If player has an active quest with this NPC and has the required items → complete it immediately, no AI needed
+      if (activeQuest && activeQuest !== "unstarted" && activeQuest.status === "active") {
+        if (hasItem(activeQuest.targetId, activeQuest.amount)) {
+          removeItem(activeQuest.targetId, activeQuest.amount);
+          advanceQuest(`ai_quest_${nearbyNpc.npcId}`, { ...activeQuest, status: "completed" });
+          setDialogue({
+            isOpen: true,
+            npcId: nearbyNpc.npcId,
+            text: `You've returned with the ${activeQuest.amount} ${activeQuest.targetId}(s)! Well done, the quest is complete!`,
+            choices: [{ id: "leave", label: "Happy to help!" }],
+            source: "static",
+            caller: getNpcCaller(nearbyNpc.npcId),
+          });
+          return; // ← never calls the AI
+        }
+        // Player has an active quest but hasn't gathered the items yet → remind them
+        setDialogue({
+          isOpen: true,
+          npcId: nearbyNpc.npcId,
+          text: `You still need to gather ${activeQuest.amount} ${activeQuest.targetId}(s). Come back when you have them!`,
+          choices: [{ id: "leave", label: "On it!" }],
+          source: "static",
+          caller: getNpcCaller(nearbyNpc.npcId),
+        });
+        return; // ← never calls the AI
+      }
+
 
       if (currentMapId === "deepForest" && nearbyNpc.x === 37 && nearbyNpc.y === 4) {
         const step = getQuestStep("dragonTamer_quest");

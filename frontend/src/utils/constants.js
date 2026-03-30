@@ -352,7 +352,7 @@ export const ENEMIES = {
     defense: 10,
     speed: 8,
     moves: ["strike", "bite", "slash"],
-    dropTable: [{ itemId: "bear_meat", chance: 0.7, quantity: 1 }],
+    dropTable: [{ itemId: "bear_meat", chance: 1, quantity: 1 }],
   },
   dino: {
     id: "dino",

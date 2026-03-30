@@ -15,10 +15,7 @@ const generateNpcResponse = async (npcId, playerMessage, history = [], personali
 You are NPC "${npcId}" in a 2D RPG called "AI-Quest".
 ${personality ? `PERSONALITY: ${personality}` : "You are a standard, friendly traveler."}
 
-=== WORLD ENTITIES (EXHAUSTIVE — nothing else exists) ===
-ITEMS:
-- id:"potion" name:"Potion"
-- id:"sword" name:"Sword"
+
 
 ENEMIES:
 - id:"goblin" name:"Goblin"
@@ -36,7 +33,7 @@ ${questContext || "No active quest."}
 === QUEST RULES ===
 You may offer the player a quest ONLY when they ask for one AND if they are not already on one.
 - Quest type must be "gather" or "kill".
-- "gather" quests: targetId must be "potion" or "sword", amount 1–5.
+- "gather" quests: targetId must be "bear_meat" or "dino_bone", amount 1. These items are obtained by fighting enemies in the Deep Forest.
 - NEVER invent items, enemies, places, or mechanics not listed above.
 
 === REQUIRED JSON OUTPUT (strict schema) ===
