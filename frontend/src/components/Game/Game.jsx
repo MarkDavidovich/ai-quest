@@ -175,6 +175,23 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       return;
     }
 
+    if (dialogue.source === "chief_quest") {
+      if (choiceId === "chief_reply") {
+        setDialogue({
+          isOpen: true,
+          npcId: "chiefHouse:6,4",
+          text: "Really...? The eastern exit is by the lonely red flag",
+          choices: [{ id: "chief_done", label: "Consider it done" }],
+          source: "chief_quest",
+          caller: getNpcCaller("chiefHouse:6,4"),
+        });
+      } else if (choiceId === "chief_done") {
+        advanceQuest("chief_quest", "met");
+        closeDialogue();
+      }
+      return;
+    }
+
     if (!dialogue.npcId) {
       return;
     }
@@ -339,6 +356,15 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         //   return;
         // }
 
+        if (teleportData.targetMap === "deepForest" && getQuestStep("chief_quest") === "unstarted") {
+          setDialogue({
+            isOpen: true,
+            text: "The eastern path is dangerous. I should speak to the village chief before heading out.",
+            choices: [{ id: "leave", label: "Ok" }],
+          });
+          return;
+        }
+
         const returnOverride = mapReturnOverrides.current[currentMapId];
         const resolvedTeleport = returnOverride && teleportData.targetMap === "forest" ? returnOverride : teleportData;
         const { targetMap, targetX, targetY, returnMap, returnX, returnY } = resolvedTeleport;
@@ -449,6 +475,31 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
           });
         }
         return;
+      }
+
+      if (currentMapId === "chiefHouse" && nearbyNpc.x === 6 && nearbyNpc.y === 4) {
+        const step = getQuestStep("chief_quest");
+
+        if (step === "unstarted") {
+          setDialogue({
+            isOpen: true,
+            npcId: "chiefHouse:6,4",
+            text: "Knight… we need your help. Something's wrong out east. Folks say a wizard's behind it—strange lights, animals gone, people scared to leave their homes. Please… go and stop him.",
+            choices: [{ id: "chief_reply", label: "Ok chief... where is east again??" }],
+            source: "chief_quest",
+            caller: getNpcCaller("chiefHouse:6,4"),
+          });
+        } else {
+          setDialogue({
+            isOpen: true,
+            npcId: "chiefHouse:6,4",
+            text: "I'll wait for your return",
+            choices: [{ id: "leave", label: "Goodbye" }],
+            source: "chief_quest",
+            caller: getNpcCaller("chiefHouse:6,4"),
+          });
+        }
+        return;  // ← prevents falling through to the AI call
       }
 
       setMessage("Talking...");
