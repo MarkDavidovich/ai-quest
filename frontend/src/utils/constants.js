@@ -39,10 +39,10 @@ export const ITEM_DEFINITIONS = {
     stackable: false,
     maxStack: 1,
   },
-  bear_meat: {
-    id: "bear_meat",
-    name: "Bear Meat",
-    icon: "itemBearMeat",
+  bear_leather: {
+    id: "bear_leather",
+    name: "Bear Leather",
+    icon: "itemBearLeather",
     kind: "loot",
     stackable: true,
     maxStack: 99,
@@ -59,6 +59,14 @@ export const ITEM_DEFINITIONS = {
     id: "goblin_flask",
     name: "Goblin Flask",
     icon: "itemGoblinFlask",
+    kind: "loot",
+    stackable: true,
+    maxStack: 99,
+  },
+  dragon_meat: {
+    id: "dragon_meat",
+    name: "Dragon Meat",
+    icon: "itemDragonMeat",
     kind: "loot",
     stackable: true,
     maxStack: 99,
@@ -341,7 +349,10 @@ export const ENEMIES = {
     defense: 15,
     speed: 15,
     moves: ["strike", "fireball", "fireBreath"],
-    dropTable: [{ itemId: "potion", chance: 0.5, quantity: 2 }],
+    dropTable: [
+      { itemId: "potion", chance: 0.5, quantity: 2 },
+      { itemId: "dragon_meat", chance: 1, quantity: 1 },
+    ],
   },
   bear: {
     id: "bear",
@@ -352,7 +363,7 @@ export const ENEMIES = {
     defense: 10,
     speed: 8,
     moves: ["strike", "bite", "slash"],
-    dropTable: [{ itemId: "bear_meat", chance: 1, quantity: 1 }],
+    dropTable: [{ itemId: "bear_leather", chance: 1, quantity: 1 }],
   },
   dino: {
     id: "dino",
