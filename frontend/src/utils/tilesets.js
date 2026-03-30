@@ -23,6 +23,7 @@ import oldWomanNpcSprite from "../assets/sprites/kingdom/oldWomanNpc.png";
 import oldManNpcSprite from "../assets/sprites/kingdom/oldManNpc.png";
 import oldManNpc2Sprite from "../assets/sprites/kingdom/oldManNpc2.png";
 import villageLeaderNpcSprite from "../assets/sprites/kingdom/villageLeaderNpc.png";
+import dragonTamperNpcSprite from "../assets/sprites/kingdom/dragonTamerNpc.png";
 import deepTreeSprite from "../assets/sprites/kingdom/dTree.png";
 import deepRootsAndStumpSprite from "../assets/sprites/kingdom/dRootsAndStump.png";
 import deepCartSprite from "../assets/sprites/kingdom/dCart.png";
@@ -53,11 +54,14 @@ export const SPRITE_MAP = {
   playerWalkingLeft: { img: playerWalkingSprite, posX: "66.66%", size: "400%" },
   playerWalkingRight: { img: playerWalkingSprite, posX: "100%", size: "400%" },
 
-  //Old woman NPC
+  //NPC
   npc: { img: oldWomanNpcSprite, posX: "0%", size: "100%" },
   oldManNpc: { img: oldManNpcSprite, posX: "0%", size: "100%" },
   oldManNpc2: { img: oldManNpc2Sprite, posX: "0%", size: "100%" },
   villageLeaderNpc: { img: villageLeaderNpcSprite, posX: "0%", size: "100%" },
+  dragonTamerNpc: { img: dragonTamperNpcSprite, posX: "0%", size: "100%" },
+
+  //animated tiles
   flag: { img: flagSprite, posX: "0%", posY: "0%", size: "100% 100%" },
   waterRipples: { img: waterRipplesSprite, posX: "0%", posY: "0%", size: "100% 100%" },
 

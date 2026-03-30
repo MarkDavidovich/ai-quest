@@ -93,9 +93,10 @@ export const NPC_NAMES = {
   "gHouse2:6,4": "Mira",
   "chiefHouse:6,4": "Elder Rowan",
   tutorial_npc: "Royal Guide Isolde",
+  "deepForest:37,4": "Dragon Tamer",
 };
 
-export const NPC_OBJECT_TYPES = ["npc", "oldManNpc", "oldManNpc2", "villageLeaderNpc", "npcDino"];
+export const NPC_OBJECT_TYPES = ["npc", "oldManNpc", "oldManNpc2", "villageLeaderNpc", "dragonTamerNpc"];
 
 export const NPC_DIALOGUES = {
   "10,9": {
@@ -208,6 +209,27 @@ export const NPC_DIALOGUES = {
     quest: {
       text: "Bring me 3 potions and 1 sword, and I will know you have learned how to search the world properly.",
       choices: [{ id: "leave", label: "I'll gather them" }],
+    },
+    "deepForest:37,4": {
+      start: {
+        text: "I am the keeper of the ancient dinos. You've wandered into their domain. Are you prepared to face them?",
+        choices: [
+          { id: "fight", label: "Face the dino!" },
+          { id: "ask", label: "Tell me more" },
+          { id: "leave", label: "I'll come back later" },
+        ],
+      },
+      fight: {
+        text: "Brave choice. The dino awaits you.",
+        choices: [],
+      },
+      ask: {
+        text: "The dinos are ancient, powerful, and territorial. Many have tried to best them. Few have succeeded.",
+        choices: [
+          { id: "fight", label: "I'll fight anyway" },
+          { id: "leave", label: "Maybe I'm not ready" },
+        ],
+      },
     },
   },
 };

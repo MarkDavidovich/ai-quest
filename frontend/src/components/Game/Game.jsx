@@ -22,7 +22,16 @@ import { useInventory } from "../../context/InventoryContext";
 import { fetchAiDialogue } from "../../services/npcDialogueApi";
 import { useQuest } from "../../context/QuestContext";
 
-export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlayerGridPos, currentMapId, setCurrentMapId, triggerTransition, isTransitioning, isPaused }) {
+export default function AdventureGame({
+  onCombatTrigger,
+  playerGridPos,
+  setPlayerGridPos,
+  currentMapId,
+  setCurrentMapId,
+  triggerTransition,
+  isTransitioning,
+  isPaused,
+}) {
   const { worldLoot, feedbackMessage, openContainer, hasItem, removeItem } = useInventory();
   const { getQuestStep, advanceQuest } = useQuest();
 
@@ -192,6 +201,25 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
       return;
     }
 
+    // if (dialogue.npcId === "deepForest:4,37" && choiceId === "fight") {
+    //   triggerTransition?.("battle", () => {
+    //     onCombatTrigger?.("dragon");
+    //   });
+    //   closeDialogue();
+    //   return;
+    // }
+    if (dialogue.source === "dragonTamer_quest") {
+      if (choiceId === "dragonTamer_advance") {
+        triggerTransition?.("battle", () => {
+          onCombatTrigger?.("dragon");
+          advanceQuest("dragonTamer_quest", "completed");
+        });
+      } else if (choiceId === "leave") {
+        closeDialogue();
+      }
+      return;
+    }
+
     if (!dialogue.npcId) {
       return;
     }
@@ -356,14 +384,14 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
         //   return;
         // }
 
-        if (teleportData.targetMap === "deepForest" && getQuestStep("chief_quest") === "unstarted") {
-          setDialogue({
-            isOpen: true,
-            text: "The eastern path is dangerous. I should speak to the village chief before heading out.",
-            choices: [{ id: "leave", label: "Ok" }],
-          });
-          return;
-        }
+        // if (teleportData.targetMap === "deepForest" && getQuestStep("chief_quest") === "unstarted") {
+        //   setDialogue({
+        //     isOpen: true,
+        //     text: "The eastern path is dangerous. I should speak to the village chief before heading out.",
+        //     choices: [{ id: "leave", label: "Ok" }],
+        //   });
+        //   return;
+        // }
 
         const returnOverride = mapReturnOverrides.current[currentMapId];
         const resolvedTeleport = returnOverride && teleportData.targetMap === "forest" ? returnOverride : teleportData;
@@ -499,7 +527,35 @@ export default function AdventureGame({ onCombatTrigger, playerGridPos, setPlaye
             caller: getNpcCaller("chiefHouse:6,4"),
           });
         }
-        return;  // ← prevents falling through to the AI call
+        return; // ← prevents falling through to the AI call
+      }
+
+      if (currentMapId === "deepForest" && nearbyNpc.x === 37 && nearbyNpc.y === 4) {
+        const step = getQuestStep("dragonTamer_quest");
+
+        if (step === "unstarted") {
+          setDialogue({
+            isOpen: true,
+            npcId: "deepForest:37,4",
+            text: "Welcome to my forest, trespasser. If you want to pass you will have to fight my dragon!",
+            choices: [
+              { id: "dragonTamer_advance", label: "Fight!" },
+              { id: "leave", label: "Not right now" },
+            ],
+            source: "dragonTamer_quest",
+            caller: getNpcCaller("deepForest:4,37"),
+          });
+        } else if (step === "completed") {
+          setDialogue({
+            isOpen: true,
+            npcId: "deepForest:37,4",
+            text: "Wow, you are very strong. You may pass!",
+            choices: [],
+            source: "dragonTamer_quest",
+            caller: getNpcCaller("deepForest:4,37"),
+          });
+        }
+        return;
       }
 
       setMessage("Talking...");

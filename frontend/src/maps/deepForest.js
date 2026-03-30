@@ -484,6 +484,8 @@ export const createDeepForestLevel = ({ GRID_WIDTH, GRID_HEIGHT, toWorldKey }) =
             const stumpTile = DEEP_FOREST_STUMPS.get(toWorldKey(col, row));
             if (stumpTile) return stumpTile;
 
+            if (row === 4 && col === 37) return "dragonTamerNpc";
+
             return 0;
           }),
       ),
