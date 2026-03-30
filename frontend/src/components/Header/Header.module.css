@@ -78,7 +78,7 @@
   transform: translateX(-104%);
   transition: transform 0.24s ease;
   z-index: 3200;
-  overflow-y: auto;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -273,13 +273,17 @@
 }
 
 .inventoryPanelMobile {
-  position: static;
-  top: auto;
-  right: auto;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: calc(100% + 3px);
+  width: min(280px, calc(100vw - 360px));
   max-width: none;
-  margin-top: 16px;
-  box-shadow: none;
+  margin-top: 0;
+  height: 100%;
+  border-radius: 0 8px 8px 0;
+  border-left: none;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
 }
 
 .inventoryHeader {

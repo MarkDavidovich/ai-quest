@@ -1,15 +1,15 @@
 .pad {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
-  width: min(88px, 100%);
+  gap: 6px;
+  width: min(150px, 100%);
 }
 
 .actionWrap {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  width: min(72px, 100%);
+  width: min(110px, 100%);
 }
 
 .padSpacer {
@@ -20,24 +20,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  border-radius: 12px;
-  background: rgba(24, 20, 18, 0.86);
+  min-height: 44px;
+  border-radius: 14px;
+  background: rgba(24, 20, 18, 0.5);
   border: 1px solid rgba(255, 230, 192, 0.18);
   color: #f7efe3;
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .controlButton {
-  min-height: 28px;
+  min-height: 44px;
   border: 1px solid rgba(255, 230, 192, 0.22);
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(54, 49, 45, 0.96) 0%, rgba(28, 24, 22, 0.98) 100%);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(54, 49, 45, 0.5) 0%, rgba(28, 24, 22, 0.5) 100%);
   color: #f7efe3;
   font-family: var(--sans);
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: none;
@@ -55,30 +55,33 @@
 }
 
 .actionButton {
-  width: 100%;
-  min-height: 88px;
-  background: linear-gradient(180deg, #f1c43f 0%, #ca9919 100%);
+  width: 120px;
+  min-height: 120px;
+  background: linear-gradient(180deg, rgba(241, 197, 65, 0.5) 0%, rgba(202, 153, 25, 0.5) 100%);
   color: #181711;
-  font-size: 0.8rem;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  border-radius: 50%;
 }
 
 @media (max-width: 720px) {
   .pad {
-    width: min(80px, 100%);
-    gap: 4px;
+    width: min(130px, 100%);
+    gap: 5px;
   }
 
   .actionWrap {
-    width: min(64px, 100%);
+    width: min(96px, 100%);
   }
 
   .controlButton {
-    border-radius: 10px;
-    font-size: 0.92rem;
+    border-radius: 12px;
+    font-size: 1.15rem;
   }
 
   .actionButton {
-    min-height: 76px;
-    font-size: 0.74rem;
+    min-height: 100px;
+    font-size: 0.9rem;
   }
 }

@@ -8,6 +8,10 @@
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 .headerShell {
@@ -32,8 +36,9 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 0 0 auto;
+  overflow: hidden;
   z-index: 1;
 }
 
@@ -55,17 +60,16 @@
 
 .sideControlsOverlay {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
   z-index: 30;
 }
 
 .sideControlsOverlayLeft {
-  left: max(8px, calc(env(safe-area-inset-left) + 4px));
+  left: max(12px, calc(env(safe-area-inset-left) + 8px));
 }
 
 .sideControlsOverlayRight {
-  right: max(8px, calc(env(safe-area-inset-right) + 4px));
+  right: max(12px, calc(env(safe-area-inset-right) + 8px));
 }
 
 .orientationCard {
@@ -123,11 +127,5 @@
 
   .orientationText {
     font-size: 0.98rem;
-  }
-
-  .sideControlsOverlay {
-    top: auto;
-    bottom: max(10px, calc(env(safe-area-inset-bottom) + 4px));
-    transform: none;
   }
 }

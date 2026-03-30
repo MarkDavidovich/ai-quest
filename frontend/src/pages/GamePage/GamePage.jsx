@@ -220,7 +220,11 @@ const GamePage = () => {
           }}
         >
           {!useCompactHeader && (
-            <div className={style.headerShell} ref={headerShellRef}>
+            <div
+              className={style.headerShell}
+              ref={headerShellRef}
+              style={{ width: `${scaledStage.width}px`, maxWidth: "100%" }}
+            >
               <Header isBattle={Boolean(combatData)} playerHp={playerHp} onUseItem={handleItemUse} onSave={handleSaveGame} />
             </div>
           )}
@@ -254,7 +258,6 @@ const GamePage = () => {
                 style={{
                   width: `${scaledStage.width}px`,
                   height: `${scaledStage.height}px`,
-                  transform: `translateX(${mobileStageOffsetX}px)`,
                 }}
               >
                 <div
