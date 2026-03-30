@@ -164,7 +164,7 @@ export default function AdventureGame({
         setDialogue({
           isOpen: true,
           npcId: "tutorial_npc",
-          text: 'Great! Pick something from the box inside the home. Just be close to the box and press "Enter".',
+          text: 'Great! Don`t forget to grab your items from the box! Just be close to the box and press "Enter".',
           choices: [{ id: "leave", label: "I will do that" }],
           source: "tutorial_quest",
           caller: getNpcCaller("tutorial_npc"),
@@ -184,8 +184,8 @@ export default function AdventureGame({
         setDialogue({
           isOpen: true,
           npcId: "tutorial_npc",
-          text: "Thank you! I will pack this. We are ready, you can go out from the house now.",
-          choices: [{ id: "leave", label: "Exit House" }],
+          text: "Thank you, don't forget to go see the elder!",
+          choices: [],
           source: "tutorial_quest",
           caller: getNpcCaller("tutorial_npc"),
         });
@@ -198,7 +198,7 @@ export default function AdventureGame({
         setDialogue({
           isOpen: true,
           npcId: "chiefHouse:6,4",
-          text: "Really...? The eastern exit is by the lonely red flag",
+          text: "Really...? The eastern exit is by the lonely red flag...",
           choices: [{ id: "chief_done", label: "Consider it done" }],
           source: "chief_quest",
           caller: getNpcCaller("chiefHouse:6,4"),
@@ -395,14 +395,14 @@ export default function AdventureGame({
         //   return;
         // }
 
-        // if (teleportData.targetMap === "deepForest" && getQuestStep("chief_quest") === "unstarted") {
-        //   setDialogue({
-        //     isOpen: true,
-        //     text: "The eastern path is dangerous. I should speak to the village chief before heading out.",
-        //     choices: [{ id: "leave", label: "Ok" }],
-        //   });
-        //   return;
-        // }
+        if (teleportData.targetMap === "deepForest" && getQuestStep("chief_quest") === "unstarted") {
+          setDialogue({
+            isOpen: true,
+            text: "The village chief wanted to see me, I better meet him before I head out...",
+            choices: [],
+          });
+          return;
+        }
 
         const returnOverride = mapReturnOverrides.current[currentMapId];
         const resolvedTeleport = returnOverride && teleportData.targetMap === "forest" ? returnOverride : teleportData;
@@ -472,9 +472,9 @@ export default function AdventureGame({
           setDialogue({
             isOpen: true,
             npcId: "tutorial_npc",
-            text: "The king sent me to you, the people of Negev Talent kingdom need your help, the evil wizard Nir and his TA Adi are going to destorying the kingdom, go to the desert",
+            text: "Good morning! The village elder wants to see you.",
             choices: [
-              { id: "quest_accept", label: "Yes, let's go" },
+              { id: "quest_accept", label: "Got it" },
               { id: "quest_decline", label: "No, later" },
             ],
             source: "tutorial_quest",
@@ -485,10 +485,10 @@ export default function AdventureGame({
             setDialogue({
               isOpen: true,
               npcId: "tutorial_npc",
-              text: "Ah, you found the potion! Hand it over to me, and then we can leave.",
+              text: "Ah, you found the items! I'll be taking one potion as a reward for coming to get you.",
               choices: [
-                { id: "quest_give_potion", label: "Here you go" },
-                { id: "leave", label: "Not yet" },
+                { id: "quest_give_potion", label: "Fine, here you go..." },
+                { id: "leave", label: "Not way!" },
               ],
               source: "tutorial_quest",
               caller: getNpcCaller("tutorial_npc"),
@@ -497,7 +497,7 @@ export default function AdventureGame({
             setDialogue({
               isOpen: true,
               npcId: "tutorial_npc",
-              text: 'The journey ahead of you is long and you need all the help you can get, Please pick up the potion from the box inside the home. Just stand close to it and press "Enter".',
+              text: 'The journey ahead of you is long and you need all the help you can get, Please pick up the items from the box. Just stand close to it and press "Enter".',
               choices: [{ id: "leave", label: "Got it" }],
               source: "tutorial_quest",
               caller: getNpcCaller("tutorial_npc"),
@@ -524,7 +524,7 @@ export default function AdventureGame({
             isOpen: true,
             npcId: "chiefHouse:6,4",
             text: "Knight… we need your help. Something's wrong out east. Folks say a wizard's behind it—strange lights, animals gone, people scared to leave their homes. Please… go and stop him.",
-            choices: [{ id: "chief_reply", label: "Ok chief... where is east again??" }],
+            choices: [{ id: "chief_reply", label: "Ok chief... where is east again?" }],
             source: "chief_quest",
             caller: getNpcCaller("chiefHouse:6,4"),
           });
@@ -532,7 +532,7 @@ export default function AdventureGame({
           setDialogue({
             isOpen: true,
             npcId: "chiefHouse:6,4",
-            text: "I'll wait for your return",
+            text: "I'll wait for your return...",
             choices: [{ id: "leave", label: "Goodbye" }],
             source: "chief_quest",
             caller: getNpcCaller("chiefHouse:6,4"),
