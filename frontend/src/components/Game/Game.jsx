@@ -437,7 +437,7 @@ export default function AdventureGame({
     moveStartTime.current = Date.now();
 
     if (interactive === 3) {
-      const ENCOUNTER_CHANCE = 15;
+      const ENCOUNTER_CHANCE = 7;
       if (Math.random() * 100 < ENCOUNTER_CHANCE) {
         // Pick a random enemy, but exclude the dragon
         const eligibleEnemyIds = Object.keys(ENEMIES).filter((id) => id !== "dragon");
