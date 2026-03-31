@@ -29,7 +29,7 @@ const GamePage = () => {
   const initialQuestProgress = loadedData?.session?.quest_progress || {};
   const headerShellRef = useRef(null);
   const [combatData, setCombatData] = useState(null);
-  const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 5, y: 5 });
+  const [playerGridPos, setPlayerGridPos] = useState(loadedData ? { x: loadedData.profile.position_x, y: loadedData.profile.position_y } : { x: 4, y: 2 });
   const [playerDisplayPos, setPlayerDisplayPos] = useState(playerGridPos);
   const [currentMapId, setCurrentMapId] = useState(loadedData ? loadedData.session.current_map : "playerHouse");
   const [playerHp, setPlayerHp] = useState(loadedData ? loadedData.profile.hp : PLAYER_STATS.maxHp);
